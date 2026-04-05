@@ -93,6 +93,36 @@ CREATE TABLE IF NOT EXISTS impact_records (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS run_events (
+  event_id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL REFERENCES runs(run_id) ON DELETE CASCADE,
+  kind TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  status TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  agent_name TEXT,
+  details TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE TABLE IF NOT EXISTS agent_executions (
+  execution_id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL REFERENCES runs(run_id) ON DELETE CASCADE,
+  agent_name TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  status TEXT NOT NULL,
+  started_at TEXT NOT NULL,
+  completed_at TEXT,
+  skill_name TEXT,
+  input_summary TEXT NOT NULL,
+  output_summary TEXT NOT NULL,
+  blocked_reason TEXT,
+  revision_id TEXT REFERENCES wiki_page_revisions(revision_id) ON DELETE SET NULL,
+  page_id TEXT REFERENCES wiki_pages(page_id) ON DELETE SET NULL,
+  artifact_id TEXT,
+  details TEXT NOT NULL DEFAULT '{}'
+);
+
 CREATE TABLE IF NOT EXISTS contradiction_records (
   contradiction_id TEXT PRIMARY KEY,
   run_id TEXT NOT NULL REFERENCES runs(run_id) ON DELETE CASCADE,

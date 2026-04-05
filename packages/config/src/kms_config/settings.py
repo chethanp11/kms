@@ -14,7 +14,7 @@ class SecretRef:
 class RuntimeConfig:
     raw_path: str = "./raw"
     wiki_path: str = "./wiki"
-    metadata_db_url: str = "postgresql://localhost:5432/kms"
+    metadata_db_url: str = "sqlite:///./.kms-metadata.db"
     search_index_url: str = "http://localhost:7700"
     secret_refs: list[SecretRef] = field(
         default_factory=lambda: [
@@ -28,6 +28,6 @@ def load_runtime_config() -> RuntimeConfig:
     return RuntimeConfig(
         raw_path=os.getenv("KMS_RAW_PATH", "./raw"),
         wiki_path=os.getenv("KMS_WIKI_PATH", "./wiki"),
-        metadata_db_url=os.getenv("KMS_METADATA_DB_URL", "postgresql://localhost:5432/kms"),
+        metadata_db_url=os.getenv("KMS_METADATA_DB_URL", "sqlite:///./.kms-metadata.db"),
         search_index_url=os.getenv("KMS_SEARCH_INDEX_URL", "http://localhost:7700"),
     )

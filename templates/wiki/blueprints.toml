@@ -1,0 +1,175 @@
+[common]
+frontmatter_order = [
+  "title",
+  "slug",
+  "type",
+  "domain",
+  "status",
+  "source_refs",
+  "last_updated",
+  "confidence",
+  "review_required",
+  "related",
+  "tags",
+  "owners",
+]
+
+[pages.domain]
+folder = "domains"
+template_file = "domain.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Scope",
+  "Key Concepts",
+  "Key Entities",
+  "Key Processes",
+  "Metrics",
+  "Open Questions",
+  "Source Trace",
+]
+
+[pages.entity]
+folder = "entities"
+template_file = "entity.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Role / Purpose",
+  "Relationships",
+  "Data / Systems Touchpoints",
+  "Known Caveats",
+  "Source Trace",
+]
+
+[pages.process]
+folder = "processes"
+template_file = "process.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Workflow",
+  "Inputs",
+  "Outputs",
+  "Exceptions",
+  "Dependencies",
+  "Source Trace",
+]
+
+[pages.concept]
+folder = "concepts"
+template_file = "concept.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Definition",
+  "Why It Matters",
+  "Related Concepts",
+  "Caveats",
+  "Source Trace",
+]
+
+[pages.decision]
+folder = "decisions"
+template_file = "decision.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Decision",
+  "Context",
+  "Alternatives Considered",
+  "Consequences",
+  "Source Trace",
+]
+
+[pages.metric]
+folder = "metrics"
+template_file = "metric.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Business Definition",
+  "Formula",
+  "Grain / Scope",
+  "Valid Segmentations",
+  "Approved Sources",
+  "Common Pitfalls",
+  "Related Metrics",
+  "Source Trace",
+]
+
+[pages.data-asset]
+folder = "data-assets"
+template_file = "data-asset.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Purpose",
+  "Source System",
+  "Grain",
+  "Key Fields",
+  "Join Keys",
+  "Refresh Cadence",
+  "Known Issues",
+  "Downstream Usage",
+  "Source Trace",
+]
+
+[pages.analysis-pattern]
+folder = "analysis-patterns"
+template_file = "analysis-pattern.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "When To Use",
+  "Standard Questions",
+  "Required Metrics",
+  "Common Dimensions",
+  "Typical Workflow",
+  "Required Validations",
+  "Interpretation Traps",
+  "Source Trace",
+]
+
+[pages.validation-rule]
+folder = "validation-rules"
+template_file = "validation-rule.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Rule Statement",
+  "Applies To",
+  "Why It Exists",
+  "Validation Logic",
+  "Failure Scenarios",
+  "Escalation Guidance",
+  "Source Trace",
+]
+
+[pages.source-note]
+folder = "source-notes"
+template_file = "source-note.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Source Details",
+  "Extracted Signals",
+  "Candidate Entities",
+  "Candidate Metrics",
+  "Candidate Processes",
+  "Candidate Impacts",
+  "Source Trace",
+]
+
+[pages.open-question]
+folder = "open-questions"
+template_file = "open-question.md"
+body_sections = [
+  "Summary",
+  "Current Understanding",
+  "Question",
+  "Conflicting Evidence",
+  "Why Unresolved",
+  "Required Review",
+  "Source Trace",
+]

@@ -16,6 +16,18 @@ RevisionStatus = Literal["staged", "review_required", "approved", "rejected", "f
 ApprovalDecision = Literal["approved", "rejected", "deferred", "escalated"]
 Severity = Literal["info", "warning", "error"]
 ProjectionStatus = Literal["current", "stale", "missing"]
+RunEventKind = Literal[
+    "run_created",
+    "run_resumed",
+    "stage_started",
+    "stage_completed",
+    "stage_blocked",
+    "stage_failed",
+    "run_completed",
+    "run_blocked",
+    "run_failed",
+]
+AgentExecutionStatus = Literal["started", "completed", "blocked", "failed"]
 
 
 @dataclass
@@ -108,6 +120,14 @@ class WikiPageRevision:
     diff_summary: str = ""
     created_at: str = ""
     finalized_at: str | None = None
+    draft_title: str = ""
+    draft_slug: str = ""
+    draft_page_type: str = ""
+    draft_domain: str = ""
+    draft_path: str = ""
+    draft_markdown: str = ""
+    draft_frontmatter: dict[str, object] = field(default_factory=dict)
+    draft_sections: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass
@@ -119,6 +139,37 @@ class ImpactRecord:
     summary: str
     created_at: str
     target_page_id: EntityId | None = None
+
+
+@dataclass
+class RunEvent:
+    event_id: EntityId
+    run_id: EntityId
+    kind: RunEventKind
+    stage: str
+    status: RunStatus
+    message: str
+    created_at: str
+    agent_name: str | None = None
+    details: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class AgentExecutionRecord:
+    execution_id: EntityId
+    run_id: EntityId
+    agent_name: str
+    stage: str
+    status: AgentExecutionStatus
+    started_at: str
+    completed_at: str | None = None
+    skill_name: str | None = None
+    input_summary: str = ""
+    output_summary: str = ""
+    blocked_reason: str | None = None
+    revision_id: EntityId | None = None
+    page_id: EntityId | None = None
+    artifact_id: EntityId | None = None
 
 
 @dataclass
@@ -182,6 +233,13 @@ class InfopediaNode:
     freshness_status: ProjectionStatus
     status: Literal["active", "hidden"]
     updated_at: str
+    page_type: str = ""
+    domain: str = ""
+    confidence_status: Literal["low", "medium", "high"] = "medium"
+    source_trace_summary: list[str] = field(default_factory=list)
+    related_slugs: list[str] = field(default_factory=list)
+    backlink_count: int = 0
+    summary: str = ""
     parent_node_id: EntityId | None = None
 
 
@@ -192,6 +250,17 @@ class SearchDocument:
     content: str
     status: ProjectionStatus
     updated_at: str
+    scope: Literal["wiki", "operational"] = "wiki"
+    document_type: str = ""
+    slug: str = ""
+    page_type: str = ""
+    domain: str = ""
+    freshness_status: ProjectionStatus = "current"
+    confidence_status: Literal["low", "medium", "high"] = "medium"
+    snippet: str = ""
+    source_trace_summary: list[str] = field(default_factory=list)
+    related_slugs: list[str] = field(default_factory=list)
+    backlink_count: int = 0
     page_id: EntityId | None = None
     run_id: EntityId | None = None
 
@@ -219,12 +288,79 @@ class MetadataStore(Protocol):
 
     def list_intake_artifacts(self, run_id: EntityId) -> list[IntakeArtifact]: ...
 
+    def record_impact(self, impact: ImpactRecord) -> ImpactRecord: ...
+
+    def list_impact_records(self, run_id: EntityId | None = None) -> list[ImpactRecord]: ...
+
     def upsert_wiki_page(self, page: WikiPage) -> WikiPage: ...
 
     def get_wiki_page_by_slug(self, slug: str) -> WikiPage | None: ...
 
+    def list_wiki_pages(self) -> list[WikiPage]: ...
+
     def upsert_wiki_page_revision(self, revision: WikiPageRevision) -> WikiPageRevision: ...
+
+    def list_wiki_page_revisions(self, page_id: EntityId | None = None) -> list[WikiPageRevision]: ...
 
     def record_approval(self, approval: ApprovalRecord) -> ApprovalRecord: ...
 
+    def list_approvals(self, revision_id: EntityId | None = None) -> list[ApprovalRecord]: ...
+
     def record_contradiction(self, record: ContradictionRecord) -> ContradictionRecord: ...
+
+    def list_contradictions(
+        self,
+        run_id: EntityId | None = None,
+        page_id: EntityId | None = None,
+        revision_id: EntityId | None = None,
+    ) -> list[ContradictionRecord]: ...
+
+    def record_qa_report(self, report: QAReport) -> QAReport: ...
+
+    def list_qa_reports(
+        self,
+        run_id: EntityId | None = None,
+        revision_id: EntityId | None = None,
+    ) -> list[QAReport]: ...
+
+    def record_lint_finding(self, finding: LintFinding) -> LintFinding: ...
+
+    def list_lint_findings(
+        self,
+        run_id: EntityId | None = None,
+        page_id: EntityId | None = None,
+        revision_id: EntityId | None = None,
+    ) -> list[LintFinding]: ...
+
+    def record_run_event(self, event: RunEvent) -> RunEvent: ...
+
+    def list_run_events(self, run_id: EntityId | None = None) -> list[RunEvent]: ...
+
+    def record_agent_execution(self, execution: AgentExecutionRecord) -> AgentExecutionRecord: ...
+
+    def list_agent_executions(
+        self,
+        run_id: EntityId | None = None,
+        stage: str | None = None,
+    ) -> list[AgentExecutionRecord]: ...
+
+    def record_search_document(self, document: SearchDocument) -> SearchDocument: ...
+
+    def list_search_documents(
+        self,
+        run_id: EntityId | None = None,
+        page_id: EntityId | None = None,
+        scope: str | None = None,
+    ) -> list[SearchDocument]: ...
+
+    def replace_search_documents(self, documents: list[SearchDocument]) -> None: ...
+
+    def record_infopedia_node(self, node: InfopediaNode) -> InfopediaNode: ...
+
+    def list_infopedia_nodes(
+        self,
+        page_id: EntityId | None = None,
+        status: str | None = None,
+    ) -> list[InfopediaNode]: ...
+
+    def replace_infopedia_nodes(self, nodes: list[InfopediaNode]) -> None: ...

@@ -660,6 +660,28 @@ This layer is operational infrastructure. It exists so the system can coordinate
 
 The architecture requires concrete components that future implementation can map into applications, services, and storage.
 
+### Component matrix
+
+| Component | Responsibility | Inputs | Outputs | Authority | Read/write | Layer |
+|---|---|---|---|---|---|---|
+| KMI application | Govern maintenance, review, contradiction handling, approval, and publication | source path, run status, validation output, contradictions, proposals, metadata state | run initiation, review actions, approval decisions, governed publication requests | supporting control surface, not truth store | read operational state and write workflow decisions and approval actions | Knowledge Maintenance Layer |
+| Infopedia application | Render and navigate finalized knowledge in a browse-first experience | finalized `/wiki` content, indexing metadata, page structure, search metadata | read-only page views, navigation paths, search results, linked page traversal | supporting projection layer, not authoritative | read-only with respect to finalized knowledge | Knowledge Navigation Layer |
+| API service | Provide the application-facing service boundary for KMI and Infopedia | UI requests, authentication context, run commands, browse requests | workflow responses, status, page data, search results, metadata lookups | supporting | read/write to operational metadata and workflow state, read to knowledge and index sources as needed | Metadata and Runtime Services Layer |
+| Run orchestration service | Coordinate the lifecycle of a maintenance run from input to publication decision | source path, existing wiki content, policy rules, orchestration directives | run state transitions, task dispatch, step completion status, failure handling signals | supporting | writes operational run state, reads source and wiki content | Knowledge Maintenance Layer |
+| Source discovery and parsing service | Discover source artifacts and normalize them into processable representations | raw source folder contents, source path configuration | discovered files, parsed text, normalized source records, extraction artifacts | supporting | reads raw source, may write transient artifacts to support storage | Knowledge Maintenance Layer |
+| Source analysis service | Analyze normalized source material against current knowledge and rules | parsed source content, current `/wiki` pages, rules and validation context | proposed knowledge deltas, contradiction signals, confidence indicators, refresh recommendations | supporting | reads sources and knowledge, writes proposals and analysis outputs to operational storage | Knowledge Maintenance Layer |
+| Wiki drafting / refresh service | Produce or update finalized markdown candidates for publication | approved proposals, structured page model, source trace, refresh directives | candidate markdown files, page refresh artifacts, publication-ready outputs | supporting writer, not the truth store itself | writes to wiki publication pipeline, reads existing wiki content and proposals | Knowledge Maintenance Layer |
+| Policy validation service | Enforce structural, freshness, traceability, and governance rules | proposals, source trace, page structure, policy rules | validation pass/fail, rule violations, review requirements | supporting | reads proposals and rules, writes validation outcomes | Metadata and Runtime Services Layer |
+| Contradiction handling service | Detect, classify, and retain unresolved conflicts in a visible state | source conflicts, overlap with existing knowledge, policy constraints | contradiction records, resolution candidates, unresolved issue states | supporting | reads sources and wiki content, writes contradiction records | Metadata and Runtime Services Layer |
+| Approval and finalization service | Apply Knowledge Manager decisions and publish approved knowledge | approval actions, reviewed proposals, validated publication candidates | finalized markdown in `/wiki`, finalized publication records, revision markers | supporting write path into the canonical knowledge layer | writes finalized markdown and publication metadata | Knowledge Maintenance Layer and Finalized Knowledge Layer boundary |
+| Search and index service | Build and serve searchable structures for KMI and Infopedia | finalized wiki content, page metadata, operational records | search indexes, browse indexes, retrieval metadata | supporting | reads `/wiki` and metadata, writes index structures | Metadata and Runtime Services Layer |
+| Infopedia projection / refresh service | Transform finalized wiki content into a browse-ready projection | finalized markdown pages, page relationships, search metadata | refreshed browse views, navigation structures, presentation metadata | supporting | reads `/wiki`, writes derived navigation or cache state | Knowledge Navigation Layer and Metadata and Runtime Services Layer boundary |
+| Local raw source folder | Store immutable upstream source inputs | external exports, documents, notes, extracts | readable source files for maintenance processing | supporting input, not authoritative | read-only to KMS workflows | Raw Source Input Layer |
+| Local or mounted wiki folder | Persist finalized markdown knowledge | approved publication outputs | authoritative finalized pages | authoritative | write by publication services only, read by consumers and AI systems | Finalized Knowledge Layer |
+| Metadata database | Persist operational run state, approvals, contradictions, revisions, and QA records | workflow events and service outputs | queryable operational state and history | supporting, not authoritative for knowledge truth | read/write | Metadata and Runtime Services Layer |
+| Optional search index | Support search and browse experiences over finalized knowledge and operational metadata | finalized wiki content and metadata | searchable structures and query responses | supporting | write derived index, read finalized content and metadata | Metadata and Runtime Services Layer |
+| Optional artifact storage for extracted text or run outputs | Retain transient or derived artifacts from maintenance and analysis | parsed text, analysis outputs, generated candidates | recoverable artifacts for audit, troubleshooting, or rerun support | supporting | read/write as operational artifact storage | Metadata and Runtime Services Layer |
+
 ### Frontend components
 
 #### Knowledge Manager Interface (KMI) application
@@ -4511,6 +4533,48 @@ This order prevents false progress. If the storage model, validation gates, and 
 ## 10.2 Recommended Repository Structure
 
 The repository should separate canonical content, raw inputs, backend services, frontends, automation, and shared conventions.
+
+### Application tree
+
+```mermaid
+flowchart TB
+  subgraph Frontends
+    KMI[KMI app]
+    INFO[Infopedia app]
+  end
+
+  subgraph Backend
+    API[API service]
+    WRK[Worker / job runner]
+  end
+
+  subgraph CanonicalAndSupport
+    AG[agents/]
+    RU[rules/]
+    TP[templates/]
+    CFG[config/]
+    RAW[raw/]
+    WIKI[wiki/]
+    PKG[packages/]
+    TST[tests/]
+  end
+
+  KMI --> API
+  INFO --> API
+  API --> WRK
+  API --> CFG
+  API --> RAW
+  API --> WIKI
+  API --> PKG
+  WRK --> RAW
+  WRK --> WIKI
+  WRK --> AG
+  WRK --> RU
+  WRK --> TP
+  WRK --> PKG
+  TST --> API
+  TST --> WRK
+```
 
 ```text
 kms/

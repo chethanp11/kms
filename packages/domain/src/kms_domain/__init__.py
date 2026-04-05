@@ -1,4 +1,5 @@
 from .metadata import (
+    AgentExecutionRecord,
     ApprovalDecision,
     ApprovalRecord,
     ContradictionRecord,
@@ -11,6 +12,7 @@ from .metadata import (
     ProjectionStatus,
     QAReport,
     RevisionStatus,
+    RunEvent,
     Run,
     RunStatus,
     SearchDocument,
@@ -21,3 +23,29 @@ from .metadata import (
     WikiPage,
     WikiPageRevision,
 )
+
+__all__ = [
+    "AgentExecutionRecord",
+    "ApprovalDecision",
+    "ApprovalRecord",
+    "ContradictionRecord",
+    "EntityId",
+    "IntakeArtifact",
+    "ImpactRecord",
+    "InfopediaNode",
+    "LintFinding",
+    "MetadataStore",
+    "ProjectionStatus",
+    "QAReport",
+    "RevisionStatus",
+    "RunEvent",
+    "Run",
+    "RunStatus",
+    "SearchDocument",
+    "Severity",
+    "SourceDocument",
+    "SourceFile",
+    "SourceNote",
+    "WikiPage",
+    "WikiPageRevision",
+]

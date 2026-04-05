@@ -1,0 +1,47 @@
+{
+  "title": "Net Revenue Retention Clarification",
+  "page_type": "open-question",
+  "domain": "customer-revenue-analytics",
+  "section_content": {
+    "Summary": "A clarification is needed on whether the Q4 NRR value should include one-time adjustments.",
+    "Current Understanding": "The existing evidence is incomplete and should remain unresolved.",
+    "Question": "Should one-time adjustments be included in the Q4 NRR calculation?",
+    "Conflicting Evidence": [
+      "The revenue note reports 118% NRR for enterprise accounts.",
+      "The monthly close report has not yet been reconciled with the raw source note."
+    ],
+    "Why Unresolved": "The current evidence does not establish an approved treatment for one-time adjustments.",
+    "Required Review": [
+      "Confirm the approved treatment with the revenue owner.",
+      "Update the metric and source-note pages after review."
+    ],
+    "Source Trace": [
+      "Source reference: `/sources/reports/nrr.csv`",
+      "Source reference: `/sources/notes/revenue-note.md`",
+      "Related governed page: [Net Revenue Retention](/wiki/metrics/customer-revenue-analytics/net-revenue-retention.md)"
+    ]
+  },
+  "source_refs": [
+    "raw:/sources/reports/nrr.csv",
+    "raw:/sources/notes/revenue-note.md"
+  ],
+  "related": [
+    "metric/customer-revenue-analytics/net-revenue-retention",
+    "source-note/customer-revenue-analytics/net-revenue-retention-source-note"
+  ],
+  "tags": [
+    "open-question",
+    "revenue",
+    "retention"
+  ],
+  "owners": [
+    "knowledge-manager:revenue-ops"
+  ],
+  "last_updated": "2026-04-05",
+  "confidence": "provisional",
+  "review_required": true,
+  "status": "review_required",
+  "identity_key": "open-question:customer-revenue-analytics:net-revenue-retention-clarification",
+  "expected_slug": "net-revenue-retention-clarification",
+  "expected_path": "open-questions/customer-revenue-analytics/net-revenue-retention-clarification.md"
+}
