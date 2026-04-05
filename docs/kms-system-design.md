@@ -2134,3 +2134,1133 @@ graph LR
 KMS treats `/wiki` as structured, governed, canonical knowledge rather than free-form markdown. Page types are explicit and controlled, folder placement is deterministic, and required frontmatter and body sections make pages usable by humans, KMI, Infopedia, and downstream AI systems.
 
 The taxonomy is designed for analytics and reporting knowledge, which means KMS must encode metrics, data assets, analysis patterns, validation rules, decisions, and unresolved questions as first-class knowledge objects. That structure is what makes the Wiki Layer durable, enforceable, and suitable for Copilot-style and future agentic AI usage.
+
+# 5. Source Intake, Ingestion Pipeline, and Refresh Workflow
+
+## 5.1 Source Intake Overview
+
+Source intake in KMS is the governed entry point where a Knowledge Manager provides a local folder path and KMS converts the files in that folder into structured maintenance inputs. The local source folder is the upstream landing zone for extracted and source artifacts that have already been made available by an external process.
+
+KMS does not fetch from external systems directly. Source intake begins only after source material exists in a local path. From that point forward, KMS performs discovery, registration, parsing, extraction, and refresh preparation as part of the maintenance pipeline.
+
+### Source intake in one statement
+
+- Source intake is the first governed maintenance stage in KMS, transforming a local source folder path into auditable, structured inputs for downstream knowledge refresh.
+
+Source intake is not file upload and not file listing. It is the controlled start of a run that may later refresh finalized wiki knowledge.
+
+## 5.2 Source Intake Scope and Boundaries
+
+KMS accepts a local filesystem path as intake input. Upstream connectors, scheduled jobs, export jobs, or human processes may populate that folder, but KMS does not own that acquisition process.
+
+The intake boundary is explicit:
+
+- in scope: ingesting local source material into KMS maintenance workflows
+- in scope: parsing, classifying, summarizing, and preparing refresh inputs
+- in scope: generating source notes and impact candidates
+- in scope: downstream wiki refresh preparation
+- out of scope: source acquisition from Jira, dashboards, databases, or other systems
+- out of scope: external connector orchestration
+- out of scope: source-of-record system replication
+
+Source files are immutable inputs. KMS may read, parse, and summarize them, but it must never modify them as part of source intake.
+
+## 5.3 Source Types and Expected Inputs
+
+KMS should expect a controlled variety of source artifact classes already landed in the local source path.
+
+| Source class | Typical examples | Likely extracted signals | Likely wiki impact |
+|---|---|---|---|
+| Document exports | PDF, DOCX, exported wiki pages | definitions, decisions, process descriptions | domain, concept, decision, process pages |
+| Reports | monthly performance reports, governance readouts | metric definitions, anomalies, trend statements | metric pages, decision pages |
+| Dashboard exports | CSV/PDF exports from BI tools | metric values, filters, segment assumptions | metric pages, validation-rule pages |
+| Database extracts | CSV extracts, parquet-like exports, query result files | data asset semantics, grain, join keys, freshness | data-asset pages, validation-rule pages |
+| Spreadsheets | XLSX, tabular workbooks, remediation trackers | calculations, reconciliations, action items | metric pages, data-asset pages, open-question pages |
+| CSVs | fact extracts, dictionary files, source listings | row-level summaries, column semantics, counts | data-asset pages, metric pages |
+| Markdown / text notes | run notes, analyst notes, working summaries | interpretation, candidate concepts, unresolved questions | source-note pages, open-question pages |
+| Presentation files | PPTX exports, slide decks | decision rationale, executive framing, process summaries | decision pages, process pages, concept pages |
+| JSON exports | structured APIs, configuration dumps | structured entities, metric metadata, system relationships | entity pages, data-asset pages, validation-rule pages |
+| HTML exports | exported dashboards, published docs, page captures | formatted narrative, embedded tables, linked references | concept pages, metric pages, source-note pages |
+| Meeting notes / structured documents | minutes, review notes, steering docs | decisions, contradictions, ownership, follow-up items | decision pages, open-question pages |
+
+These are source classes, not parser commitments. The design identifies what kinds of knowledge signals KMS must be able to recognize, not every implementation library that may later be used to read them.
+
+## 5.4 Source Folder Model
+
+The local source folder is a recursive root that may contain nested folders, grouped artifacts, and heterogeneous file classes. Folder structure may provide useful hints such as domain, source system, or meeting group, but folder placement alone must not determine truth.
+
+KMS should preserve relative path context for traceability while treating the root path as the intake boundary.
+
+### Raw source folder example
+
+```text
+/sources/customer-revenue-analytics/
+├── jira/
+│   ├── revenue-retention-defect-export.csv
+│   └── metric-clarification-ticket-2026-03-28.md
+├── dashboards/
+│   ├── nrr-q4-export.csv
+│   └── revenue-close-summary.pdf
+├── databases/
+│   ├── sales-orders-fact.csv
+│   └── cohort-revenue-extract.csv
+├── documents/
+│   ├── revenue-definition-brief.docx
+│   └── metric-governance-note.md
+├── meetings/
+│   ├── revenue-review-2026-03-28.md
+│   └── open-questions-log.md
+└── assets/
+    ├── slide-deck-export.pptx
+    └── executive-summary.html
+```
+
+The path structure is useful for discovery and lineage, but it is not authoritative knowledge structure. KMS must preserve path identity even when the content is normalized into source notes and wiki impacts.
+
+## 5.5 Source Intake Entry Point Through KMI
+
+The Knowledge Manager initiates source intake in KMI by supplying a local path and optional run hints.
+
+### Intake inputs
+
+- `source_root_path`
+- `initiated_by`
+- `timestamp`
+- optional `domain_hint`
+- optional run notes
+- optional run mode or strictness hints
+
+Before intake begins, KMI should surface:
+
+- path validation result
+- source accessibility status
+- optional source count preview if feasible
+- optional folder preview if feasible
+- warning if the path is empty, unreadable, or suspiciously sparse
+
+The successful validation of the input path creates a new run context. The run context is the authoritative container for all discovery, parsing, and extraction artifacts that follow.
+
+## 5.6 Intake Pipeline Stages
+
+The intake pipeline is a controlled sequence of stages that transform source files into structured maintenance outputs.
+
+| Stage | Purpose | Inputs | Outputs | Failure behavior |
+|---|---|---|---|---|
+| 1. Path validation | Confirm the path exists and is usable | source_root_path | validation result, run eligibility | fail run if inaccessible or invalid |
+| 2. Source discovery | Recursively enumerate files and folders | validated path | discovered file list, path map | fail or partially continue based on severity |
+| 3. Source registration | Create operational records for each source artifact | discovered files | source registry entries | record partial failures, preserve audit trail |
+| 4. File type detection and classification | Identify supported and unsupported inputs | registered files | file class, support status, parser route | mark unsupported, continue where safe |
+| 5. Deduplication / identity resolution | Detect repeats and stable identity | file metadata, checksum, path | uniqueness decisions, duplicate flags | prevent silent double-processing |
+| 6. Parsing and normalization | Convert files into processable content | classified files | normalized text, structure, diagnostics | record parse failures explicitly |
+| 7. Structured extraction | Detect candidate knowledge signals | normalized content | extracted signal objects | continue per file or mark run degraded |
+| 8. Source note generation | Produce governed intermediate source artifacts | extracted signals | source-note drafts or outputs | preserve notes even if downstream handoff blocks |
+| 9. Source-to-wiki impact preparation | Determine likely wiki impact candidates | source notes, signals, existing wiki references | impact manifest | block downstream if core evidence is missing |
+| 10. Run summary and handoff | Package the run for later maintenance stages | all prior artifacts | intake summary, handoff manifest | fail closed if summary cannot be persisted |
+
+### Numbered workflow
+
+1. Validate the provided path.
+2. Discover files recursively.
+3. Register each discovered source artifact.
+4. Detect file types and assign parsing routes.
+5. Resolve identity and deduplicate where needed.
+6. Parse and normalize supported inputs.
+7. Extract structured signals from normalized content.
+8. Generate source-note artifacts.
+9. Prepare likely wiki impacts and candidates.
+10. Persist the run summary and hand off to downstream maintenance logic.
+
+### Mermaid flow diagram
+
+```mermaid
+flowchart TD
+  A[Local Source Path] --> B[Path Validation]
+  B --> C[Source Discovery]
+  C --> D[Source Registration]
+  D --> E[File Type Detection and Classification]
+  E --> F[Deduplication / Identity Resolution]
+  F --> G[Parsing and Normalization]
+  G --> H[Structured Extraction]
+  H --> I[Source Note Generation]
+  I --> J[Source-to-Wiki Impact Preparation]
+  J --> K[Run Summary and Handoff]
+```
+
+## 5.7 Source Discovery and Registration
+
+Discovery is a recursive scan of the provided path. Registration creates operational records for each source artifact so KMS can reason about what was seen, when it was seen, and how it was processed.
+
+Discovery and registration should capture:
+
+- absolute path and relative path
+- file size
+- extension and, where possible, MIME type
+- discovery timestamp
+- run association
+- initial support status
+- checksum or hash
+
+Source registration creates operational records, not finalized knowledge. It is the audit layer for intake.
+
+### Source registry record example
+
+```json
+{
+  "run_id": "run-2026-04-05-customer-revenue-analytics-01",
+  "source_root_path": "/sources/customer-revenue-analytics",
+  "file_id": "src-00042",
+  "absolute_path": "/sources/customer-revenue-analytics/databases/sales-orders-fact.csv",
+  "relative_path": "databases/sales-orders-fact.csv",
+  "file_name": "sales-orders-fact.csv",
+  "file_size_bytes": 483921,
+  "extension": ".csv",
+  "mime_type": "text/csv",
+  "checksum_sha256": "f1a3d2b4c6e7f8a9b0c1d2e3f4a5b6c7d8e9f00112233445566778899aabbccdd",
+  "discovered_at": "2026-04-05T09:12:44Z",
+  "support_status": "supported",
+  "classification": "database-extract",
+  "parser_route": "tabular-parser",
+  "run_state": "registered"
+}
+```
+
+## 5.8 File Identity, Deduplication, and Idempotency
+
+KMS must avoid duplicate or unstable processing. File identity should be based on the combination of path, checksum, and relevant file metadata so repeated runs over unchanged inputs can be recognized.
+
+### Deduplication logic summary
+
+- unchanged file at same path: reuse prior identity and avoid unnecessary reprocessing where safe
+- changed file at same path: treat as revised input and reprocess deterministically
+- duplicate file at different path with same content: flag as duplicate and preserve both path records
+- unsupported file: register and preserve, but do not parse as supported content
+
+### Decision table
+
+| Condition | Detection basis | Expected action | Audit requirement |
+|---|---|---|---|
+| Unchanged | same path + same checksum | skip or reuse prior normalized output when safe | record reuse decision |
+| Changed | same path + different checksum | reprocess deterministically | record before/after identity |
+| Duplicate | different path + same checksum | flag duplicate, retain both source records | preserve both path references |
+| Unsupported | file class not recognized | register, mark unsupported, exclude from parse route | preserve unsupported list |
+
+Idempotency applies both at run level and at file-processing level. Rerunning the same path must be safe. Deleted source files should not automatically delete finalized wiki knowledge; removal or retirement of truth requires later governed logic.
+
+## 5.9 Parsing and Normalization
+
+Parsing converts supported file types into normalized internal representations suitable for downstream analysis. Normalization should produce extracted text, structural metadata, table-like content where relevant, parser diagnostics, and parse confidence or parse status.
+
+Parsing is not final knowledge synthesis. It is an intermediate maintenance step.
+
+| Input type | Normalized output | Key metadata | Caveats |
+|---|---|---|---|
+| PDF / DOCX / HTML | text + structure map | page count, headings, embedded links | formatting loss, OCR risk |
+| CSV / spreadsheet | table-like rows/columns | row count, column names, cell types | schema ambiguity, hidden formulas |
+| Markdown / text | text + section map | heading hierarchy, link targets | free-form structure can be noisy |
+| JSON | object tree + flattened fields | keys, nesting depth, array hints | version drift, inconsistent schemas |
+| PPTX / slide exports | slide text + speaker notes | slide count, visual section hints | narrative compression, image loss |
+
+Parser failures must be preserved as explicit run outcomes. Normalized content is intermediate maintenance input, not a truth declaration.
+
+## 5.10 Structured Extraction and Signal Detection
+
+Structured extraction converts normalized content into machine-usable signals. It must detect candidate entities, concepts, processes, metrics, data assets, decisions, candidate dates or time references, contradictions or ambiguities, likely domain classification, and notable business signals.
+
+Structured extraction does not equal final truth. It is the creation of evidence-bearing signals for source notes and impact analysis.
+
+### Example extracted signal object
+
+```json
+{
+  "signal_id": "sig-2026-04-05-001",
+  "source_file_id": "src-00042",
+  "signal_type": "candidate-metric",
+  "label": "Net Revenue Retention",
+  "confidence": "medium",
+  "evidence_snippet": "NRR improved to 118% for the enterprise segment in Q4.",
+  "candidate_domain": "customer-revenue-analytics",
+  "candidate_page_types": ["metric", "decision", "data-asset"],
+  "contradiction_flag": false,
+  "notes": "Requires source reconciliation against monthly close report."
+}
+```
+
+These signals help source-note generation, later validation, and AI-usable lineage assembly.
+
+## 5.11 Source Note Generation
+
+Source-note pages are governed intermediate artifacts derived from source materials. They summarize source signals without equating the raw source directly to finalized truth.
+
+Source notes should capture:
+
+- source details
+- summary
+- extracted signals
+- candidate entities
+- candidate metrics
+- candidate processes
+- candidate impacts
+- source trace
+
+One source file may lead to one or more source-note artifacts depending on the amount of extracted content and the design of the intake workflow.
+
+### Source-note lifecycle
+
+1. A source file is registered and parsed.
+2. Structured extraction produces signals.
+3. A source-note draft is generated or updated.
+4. The source note becomes the bridge artifact for later maintenance logic.
+5. The source note remains traceable to raw input and to impacted wiki pages.
+
+### Source-note skeleton
+
+```markdown
+---
+title: Net Revenue Retention Source Note
+slug: net-revenue-retention-source-note
+type: source-note
+domain: customer-revenue-analytics
+status: finalized
+source_refs:
+  - raw:/sources/customer-revenue-analytics/reports/q4-revenue-ops-review.md
+last_updated: 2026-04-05
+confidence: medium
+review_required: true
+related:
+  - metric/customer-revenue-analytics/net-revenue-retention
+  - data-asset/customer-revenue-analytics/sales-orders-fact
+tags: [source-note, revenue, retention]
+owners: [knowledge-manager:revenue-ops]
+---
+
+# Net Revenue Retention Source Note
+
+## Summary
+
+## Source Details
+
+## Extracted Signals
+
+## Candidate Entities
+
+## Candidate Metrics
+
+## Candidate Processes
+
+## Candidate Impacts
+
+## Source Trace
+```
+
+## 5.12 Source-to-Wiki Impact Preparation
+
+Intake does not directly rewrite `/wiki`. Instead, it prepares structured inputs for downstream maintenance logic.
+
+The impact manifest should include:
+
+- likely impacted wiki pages
+- create, update, or no-op candidates
+- candidate page types
+- duplicate page risks
+- contradiction risks
+- source confidence hints
+
+Impact preparation is not publication. Publication only occurs later after validation, review, and approval logic.
+
+### Handoff diagram
+
+```text
+raw source -> normalized content -> source notes -> impact preparation -> later wiki draft/validation/finalization
+```
+
+## 5.13 Refresh Workflow Semantics
+
+Refresh means governed reevaluation of maintained knowledge based on newly ingested or changed source material. KMS does not refresh upstream systems.
+
+### Semantics comparison
+
+- source sync: moving data from a source system into a destination system; out of scope
+- KMS refresh: reevaluating source-derived signals and deciding whether maintained wiki knowledge should change
+
+- raw source update: a new or changed file in the local intake folder
+- finalized wiki refresh: a governed update to maintained knowledge after checks and review
+
+Refresh must be governed, traceable, and non-destructive by default. New input does not automatically elevate trust without downstream validation and review.
+
+## 5.14 Run States and Intake Lifecycle
+
+The intake run should move through explicit states so the system can be observed and resumed safely.
+
+| State | Meaning | Entry condition | Exit condition |
+|---|---|---|---|
+| created | run context exists | path provided and accepted for validation | validation begins |
+| validating_path | path is being checked | run created | path validated or rejected |
+| discovering_sources | scanning for files | valid path | files discovered or discovery fails |
+| registering_sources | recording discovered files | file list available | registry written |
+| parsing | files are being normalized | registered sources exist | parse outputs or parse failure |
+| extracting | signals are being detected | normalized content exists | extracted signals written |
+| generating_source_notes | source-note artifacts are produced | extraction complete | source-note outputs written |
+| preparing_impact | wiki impact candidates are assembled | source notes exist | impact manifest written |
+| completed | run finished successfully | all required artifacts persisted | run closed |
+| completed_with_warnings | run succeeded with non-fatal issues | partial support, unsupported files, or low confidence | run closed |
+| failed | run could not complete | fatal stage failure | rerun or repair path |
+| blocked | downstream handoff is intentionally held | unresolved contradiction or policy stop | human resolution |
+
+### Mermaid state diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> created
+  created --> validating_path
+  validating_path --> discovering_sources
+  validating_path --> failed
+  discovering_sources --> registering_sources
+  registering_sources --> parsing
+  parsing --> extracting
+  parsing --> completed_with_warnings
+  extracting --> generating_source_notes
+  generating_source_notes --> preparing_impact
+  preparing_impact --> completed
+  preparing_impact --> completed_with_warnings
+  preparing_impact --> blocked
+  blocked --> [*]
+  completed --> [*]
+  completed_with_warnings --> [*]
+  failed --> [*]
+```
+
+## 5.15 Intake Artifacts and Outputs
+
+The intake pipeline must produce durable artifacts that support auditability, reviewability, debugging, and rerun support.
+
+| Artifact | Produced by stage | Purpose | Downstream consumer |
+|---|---|---|---|
+| Source registry | registration | record what was found and how it was classified | KMI, orchestration, audit |
+| Parse report | parsing | show normalization outcomes and diagnostics | KMI, troubleshooting |
+| Unsupported files list | classification | preserve excluded inputs | Knowledge Manager, audit |
+| Extracted signal records | extraction | provide machine-usable signals | source-note generation, impact prep |
+| Source-note drafts / outputs | source-note generation | bridge source to knowledge maintenance | maintenance workflow, KMI |
+| Impact preparation manifest | impact preparation | identify likely wiki impacts | downstream wiki refresh logic |
+| Intake summary | handoff | summarize run outcome and coverage | KMI, metadata DB, audit |
+| Warning / error report | any failed or degraded stage | preserve issues and recovery hints | Knowledge Manager, support tooling |
+
+These artifacts are required because KMS must be deterministic, reviewable, and rerunnable.
+
+## 5.16 Error Handling and Recovery Expectations
+
+Failure handling must be explicit. KMS should fail closed where needed and preserve audit evidence in all cases.
+
+| Failure type | Scope | Expected behavior | Downstream effect |
+|---|---|---|---|
+| Invalid path | run-level | fail explicitly before discovery | no artifacts beyond validation record |
+| Inaccessible path | run-level | fail explicitly and record reason | no downstream handoff |
+| Empty folder | run-level or warning-level | complete with warning or block based on policy | no meaningful intake outputs |
+| Unsupported file types | file-level | register and skip parsing safely | source notes may omit unsupported content |
+| Corrupt file | file-level | preserve error record and continue where safe | partial extraction only if safe |
+| Parser failure | file-level | preserve diagnostics and mark file failed | affected file excluded from downstream handoff |
+| Partial extraction failure | file-level or run-level | continue where safe; block if core signals missing | degraded impact manifest |
+| Inconsistent metadata | run-level or file-level | flag for review and block if policy-critical | run may become blocked |
+| Downstream handoff failure | run-level | preserve intake outputs, block later maintenance stages | no publication impact from intake alone |
+
+### Decision table
+
+| Condition | Expected action | Audit requirement |
+|---|---|---|
+| Safe to continue | continue with warnings | record warning and scope |
+| Fatal to the run | fail run | preserve error detail and state |
+| Unsafe for downstream handoff | block handoff | keep intake artifacts visible and unresolved |
+
+Intake failures must never corrupt finalized wiki knowledge.
+
+## 5.17 Intake Governance Expectations
+
+Source intake is governed, not merely technical preprocessing.
+
+- raw sources are immutable
+- source intake is auditable
+- parsing does not equal acceptance of truth
+- source notes preserve interpretation boundaries
+- contradictions must be surfaced, not flattened
+- intake artifacts must be reviewable
+- unsupported or failed files must not disappear silently
+- no direct wiki mutation may occur from intake alone
+
+The intake stage produces governed evidence and structured maintenance inputs. It does not publish truth.
+
+## 5.18 Source Intake Architecture and Flow Diagrams
+
+### ASCII architecture diagram
+
+```text
+Local Source Path
+      |
+      v
+KMI Intake Entry
+      |
+      v
+Validation -> Discovery -> Registration -> Parsing -> Extraction
+      |                                           |
+      |                                           v
+      |                                   Source Notes
+      |                                           |
+      +-------------------------> Impact Preparation
+                                              |
+                                              v
+                                   Downstream Wiki Maintenance
+```
+
+### ASCII lineage diagram
+
+```text
+Source files
+   |
+   v
+Registry records
+   |
+   v
+Parsed / normalized content
+   |
+   v
+Extracted signals
+   |
+   v
+Source-note artifacts
+   |
+   v
+Impact manifest
+```
+
+### Mermaid intake flow diagram
+
+```mermaid
+flowchart TD
+  A[Local Source Path] --> B[Path Validation]
+  B --> C[Source Discovery]
+  C --> D[Source Registration]
+  D --> E[File Type Detection and Classification]
+  E --> F[Deduplication and Identity Resolution]
+  F --> G[Parsing and Normalization]
+  G --> H[Structured Extraction]
+  H --> I[Source Note Generation]
+  I --> J[Source-to-Wiki Impact Preparation]
+  J --> K[Run Summary and Handoff]
+```
+
+## 5.19 Example End-to-End Intake Scenario
+
+A Knowledge Manager starts a run against `/sources/customer-revenue-analytics/`.
+
+The folder contains:
+
+- a dashboard export for Net Revenue Retention
+- a remediation spreadsheet for monthly revenue close
+- a process change note from the revenue operations team
+- a data dictionary CSV for the sales orders fact extract
+
+The run proceeds as follows:
+
+1. KMI validates the path and creates a run context.
+2. Discovery finds files under `dashboards/`, `documents/`, `meetings/`, and `databases/`.
+3. Registration records each file with path, checksum, size, and support status.
+4. Classification marks the CSV and markdown notes as supported, and flags one image-heavy slide export as lower-confidence for extraction.
+5. Parsing normalizes the report PDF into text, the spreadsheet into rows and columns, and the markdown notes into structured sections.
+6. Extraction detects a candidate metric definition for Net Revenue Retention, a candidate data asset for `sales-orders-fact`, and an open question about cohort eligibility.
+7. Source notes are generated for the metric candidate and the data asset candidate.
+8. Impact preparation identifies likely wiki updates for `metric/customer-revenue-analytics/net-revenue-retention`, `data-asset/customer-revenue-analytics/sales-orders-fact`, and `open-question/customer-revenue-analytics/cohort-eligibility`.
+9. The intake summary marks the run as completed with warnings because one file had weak signal quality.
+10. Later maintenance stages can validate, review, and decide whether `/wiki` should change.
+
+This scenario shows the intended behavior: the intake stage prepares governed evidence and candidate impacts, but it does not publish final truth.
+
+## 5.20 Section Summary
+
+Source intake is the first governed maintenance stage in KMS. The system starts from a local source path, discovers and normalizes immutable source files, generates structured signals and source notes, and prepares downstream wiki impact candidates without mutating finalized knowledge.
+
+Refresh in KMS means governed reevaluation of maintained knowledge, not source-system synchronization. The design produces deterministic, auditable, rerunnable ingestion artifacts that support later validation, review, and publication workflows.
+
+# 6. Agents, Skills, Orchestration, and Control Logic
+
+## 6.1 Agentic Model Overview
+
+KMS uses a multi-agent maintenance system inside a governed control plane. Agents are bounded workers with narrow responsibilities. They do not own truth end to end, and they do not operate as free-form autonomous entities.
+
+The agentic model combines:
+
+- an orchestrator-managed workflow
+- reusable skills as procedural modules
+- deterministic control points for validation and publish gates
+- LLM-assisted reasoning where useful, but never sovereign
+- governed publication through KMI and policy checks
+
+Downstream AI Systems are consumers of finalized knowledge and are outside this maintenance agent set. Infopedia is a read layer, not an agent write target for knowledge truth.
+
+### Agentic model in one statement
+
+- KMS uses bounded maintenance agents, reusable skills, and deterministic orchestration to transform source inputs into governed knowledge outputs without allowing any agent to own truth alone.
+
+## 6.2 Design Principles for Agents
+
+### Bounded responsibility
+
+Each agent has a narrow operating scope. The purpose is to reduce ambiguity, keep failure domains small, and make escalation rules explicit.
+
+### Deterministic workflow over improvisation
+
+The orchestrator determines the sequence of stages and gates. Agents do not invent new lifecycle steps or reorder publish controls.
+
+### No agent owns end-to-end truth alone
+
+Truth is assembled through a controlled workflow. No single agent may discover, interpret, validate, and publish knowledge without oversight.
+
+### Publish only after validation
+
+Candidate knowledge must pass schema, source trace, contradiction, and policy gates before publication is permitted.
+
+### Structured outputs only
+
+Agents must produce machine-readable artifacts, not opaque narrative responses. Structured outputs support reuse, auditability, and deterministic handoff.
+
+### Intermediate artifacts are mandatory
+
+Each important stage must leave an artifact behind. Artifacts are required for review, recovery, and later reprocessing.
+
+### Unresolved contradictions must escalate
+
+Contradictions are not silently averaged or hidden. They are surfaced, retained, and routed to review.
+
+### Raw sources are immutable
+
+No agent may edit `/raw` or any source input area. Agents may read source material and derive outputs from it, but source files remain unchanged.
+
+## 6.3 Canonical Agent Set
+
+KMS defines a canonical agent set. These agents are intentionally specialized and must remain distinct unless a later design explicitly redefines a boundary.
+
+### 1. Orchestrator Agent
+
+- Purpose: control workflow sequencing, state transitions, and mandatory gate enforcement
+- Primary inputs: run request, run state, stage outputs, policy outcomes
+- Primary outputs: stage dispatch, run state updates, handoff directives, blocked/completed statuses
+- Allowed write scope: workflow state and control metadata only
+- Forbidden actions: editing `/wiki` truth directly, bypassing gates, skipping QA, owning final truth
+- Stop/escalation criteria: missing mandatory artifact, blocked gate, unrecoverable stage failure
+
+### 2. Source Intake Agent
+
+- Purpose: validate source path, discover files, register files, classify inputs, and prepare intake artifacts
+- Primary inputs: local source path, run metadata, discovery context
+- Primary outputs: source registry, parse-ready file list, classification results, intake summary
+- Allowed write scope: source registry and intake artifacts only
+- Forbidden actions: modifying source files, publishing wiki knowledge, bypassing unsupported-file handling
+- Stop/escalation criteria: invalid path, inaccessible path, empty or malformed intake, unsupported critical input
+
+### 3. Source Analyst Agent
+
+- Purpose: extract structured signals from normalized source content
+- Primary inputs: parsed content, source registry, source notes, existing taxonomy hints
+- Primary outputs: extracted signals, candidate entities, candidate concepts, candidate metrics, ambiguity flags
+- Allowed write scope: extracted signal artifacts and analysis outputs
+- Forbidden actions: finalizing wiki pages, resolving contradictions without escalation, changing truth state
+- Stop/escalation criteria: low-confidence extraction, parse gaps, conflicting signals, missing source trace
+
+### 4. Wiki Impact Analyst
+
+- Purpose: map source signals to likely wiki impacts and candidate page changes
+- Primary inputs: extracted signals, source notes, existing `/wiki` inventory, taxonomy rules
+- Primary outputs: impact map, create/update/no-op candidates, duplicate-risk flags
+- Allowed write scope: impact manifests and staged revision candidates
+- Forbidden actions: direct publication, silent overwrite, bypassing uniqueness rules
+- Stop/escalation criteria: ambiguous page target, duplicate canonical risk, missing page type match
+
+### 5. Wiki Curator
+
+- Purpose: prepare staged wiki revisions, update draft content, and assemble publication candidates
+- Primary inputs: impact map, source notes, existing page content, markdown schema rules
+- Primary outputs: staged page revisions, draft markdown, revision set
+- Allowed write scope: staged content and draft artifacts only, never final `/wiki`
+- Forbidden actions: final publication, rule bypass, deletion of truth without approval
+- Stop/escalation criteria: schema mismatch, missing source trace, unresolved content conflict
+
+### 6. Policy QA Agent
+
+- Purpose: validate candidate content against policy, schema, taxonomy, and required quality rules
+- Primary inputs: staged revisions, rules YAML, templates, source trace, page metadata
+- Primary outputs: QA report, pass/fail status, violation list, remediation guidance
+- Allowed write scope: QA artifacts and validation state
+- Forbidden actions: publishing content, rewriting truth to pass validation, ignoring hard failures
+- Stop/escalation criteria: rule failure, invalid metadata, unsupported page structure, broken links
+
+### 7. Contradiction Reviewer
+
+- Purpose: review unresolved contradictions, competing source interpretations, and low-confidence claims
+- Primary inputs: contradiction report, source notes, staged revisions, current `/wiki` content
+- Primary outputs: contradiction resolution recommendation, escalation memo, open-question artifacts
+- Allowed write scope: contradiction artifacts and review notes
+- Forbidden actions: silently resolving conflicts without evidence, publishing final truth alone
+- Stop/escalation criteria: unresolved ambiguity, conflicting canonical definitions, policy conflict
+
+### 8. Publisher
+
+- Purpose: write approved, validated markdown into `/wiki` and record publication outcomes
+- Primary inputs: approved staged revisions, QA pass status, source trace, final publish directive
+- Primary outputs: finalized markdown pages, publish summary, publication records, revision markers
+- Allowed write scope: finalized `/wiki` and publication metadata only
+- Forbidden actions: publishing without gates, editing raw sources, inventing new truth outside approval
+- Stop/escalation criteria: failed gate, missing approval, storage write failure, path mismatch
+
+### 9. Lint Agent
+
+- Purpose: perform post-publish structural and link linting over `/wiki` and related navigation artifacts
+- Primary inputs: finalized pages, link graph, taxonomy, index state
+- Primary outputs: lint report, broken-link list, structural warnings, remediation suggestions
+- Allowed write scope: lint artifacts and non-authoritative maintenance notes
+- Forbidden actions: mutating published truth, masking defects, retrying publish logic on its own
+- Stop/escalation criteria: broken canonical link, invalid frontmatter, missing required section
+
+## 6.4 Agent Responsibility Matrix
+
+| Agent | Main responsibility | Reads from | Writes to | Can finalize? | Escalation trigger |
+|---|---|---|---|---|---|
+| Orchestrator Agent | Workflow sequencing and gate enforcement | run state, stage outputs, policy outcomes | workflow state, handoff directives | no | blocked gate, missing artifact |
+| Source Intake Agent | Intake discovery and registration | local source path, file system metadata | source registry, intake artifacts | no | invalid path, inaccessible path |
+| Source Analyst Agent | Signal extraction | parsed content, source notes | extracted signals, analysis outputs | no | low confidence, conflicting signals |
+| Wiki Impact Analyst | Map source to wiki impacts | extracted signals, current wiki inventory | impact map, staged candidates | no | duplicate canonical risk |
+| Wiki Curator | Prepare staged wiki revisions | impact map, existing page content | staged page revisions | no | schema mismatch, missing trace |
+| Policy QA Agent | Validate against rules and schema | staged revisions, rules, metadata | QA report, validation status | no | rule failure, invalid structure |
+| Contradiction Reviewer | Resolve or escalate contradictions | contradiction report, source notes | contradiction artifacts, review notes | no | unresolved ambiguity |
+| Publisher | Publish approved markdown | approved revisions, QA pass | `/wiki`, publish summary | yes | failed gate, missing approval |
+| Lint Agent | Post-publish structural linting | finalized pages, link graph | lint report | no | broken link, invalid frontmatter |
+
+## 6.5 Orchestrator Role and Workflow Control
+
+The Orchestrator Agent is the workflow governor. It is not a truth owner and not a content author. Its job is to sequence stages, invoke skills and agents in required order, track run state, collect artifacts, and enforce mandatory checkpoints.
+
+The Orchestrator Agent must not bypass QA, must not bypass approval policy, and must not publish directly outside the Publisher path.
+
+### Orchestration sequence
+
+1. Receive a run request from KMI.
+2. Create or resume run state.
+3. Invoke source-intake logic and wait for source registry artifacts.
+4. Dispatch source analysis and collect extracted signals.
+5. Dispatch wiki impact analysis and collect impact candidates.
+6. Dispatch wiki curator to stage revisions.
+7. Dispatch policy QA and collect pass/fail results.
+8. Route contradictions to the Contradiction Reviewer when needed.
+9. Require Knowledge Manager approval when the workflow is not auto-finalize eligible.
+10. Invoke Publisher only after all gates pass.
+11. Trigger post-publish lint and index refresh.
+12. Record the final run summary and terminal state.
+
+### ASCII orchestration diagram
+
+```text
+KMI
+  |
+  v
+Orchestrator
+  |
+  +--> Source Intake Agent
+  |
+  +--> Source Analyst Agent
+  |
+  +--> Wiki Impact Analyst
+  |
+  +--> Wiki Curator
+  |
+  +--> Policy QA Agent
+  |
+  +--> Contradiction Reviewer (if needed)
+  |
+  +--> Publisher
+  |
+  +--> Lint Agent
+```
+
+## 6.6 Skill System Model
+
+Skills are reusable procedural modules packaged as `SKILL.md` patterns. A skill is not a free-floating prompt. It is a governed bundle of instructions and supporting material that an agent or orchestrator can invoke consistently.
+
+Skills may include:
+
+- instructions
+- templates
+- schemas
+- rubrics
+- examples
+- helper scripts
+
+Skills make procedural logic reusable while keeping the orchestration model deterministic and auditable.
+
+## 6.7 Required Skills Inventory
+
+KMS should define a minimum reusable skill set aligned to the agent model.
+
+| Skill | Purpose | When used | Required inputs | Outputs | Hard rules |
+|---|---|---|---|---|---|
+| source-intake | validate, discover, register source files | start of intake run | source path, run metadata | registry, classification, intake summary | never mutate source files |
+| source-summarization | summarize normalized source content | after parsing | normalized text, file metadata | source summaries, candidate signals | output must remain source-backed |
+| wiki-impact-analysis | map signals to wiki changes | after extraction | extracted signals, wiki inventory | impact map, page candidates | no direct publication |
+| wiki-refresh | stage or refresh wiki candidates | after impact analysis | impact map, source trace, current pages | staged revisions, refresh set | preserve canonical truth boundaries |
+| contradiction-resolution | surface and triage conflicts | when ambiguity exists | contradiction report, source notes | resolution memo, open questions | do not silently override conflicts |
+| vault-lint | validate structure, links, and schema | after staging or publish | markdown, taxonomy, links | lint report, broken-link list | cannot fix truth by rewriting it |
+| infopedia-index-refresh | refresh navigation and search projections | after publish | finalized wiki content, metadata | index updates, browse projection refresh | read-only relative to truth |
+
+### Compact skill inventory
+
+- source-intake: intake and registration
+- source-summarization: source-backed summarization
+- wiki-impact-analysis: candidate page mapping
+- wiki-refresh: staged refresh preparation
+- contradiction-resolution: conflict triage
+- vault-lint: structural and link validation
+- infopedia-index-refresh: browse projection refresh
+
+## 6.8 AGENTS.md and Control Files
+
+KMS should separate governance from procedural implementation.
+
+- `agents/AGENTS.md`: global contract for all agents, their boundaries, and shared governance expectations
+- agent definition files: role-level instructions for a specific agent
+- `SKILL.md` files: procedural units reused by multiple agents or workflows
+- `rules/*.yaml`: machine-enforceable policy and validation rules
+- templates: output structure and content shape for pages, artifacts, and summaries
+
+### Separation of concerns
+
+- AGENTS.md = constitution
+- SKILL.md = operating procedures
+- rules/*.yaml = enforceable policy
+- templates = output structure
+
+## 6.9 Structured Artifacts Produced by Agents
+
+Agents must produce structured intermediate artifacts. These artifacts are mandatory because they support auditability, recoverability, human review, and deterministic handoff.
+
+| Artifact | Produced by | Consumed by | Purpose |
+|---|---|---|---|
+| source registry | Source Intake Agent | Orchestrator, Source Analyst | record discovered files and identity |
+| source-note outputs | Source Analyst / Wiki Curator | Wiki Impact Analyst, KMI | bridge raw material to governed maintenance |
+| impact map | Wiki Impact Analyst | Wiki Curator, KMI | identify likely page changes |
+| staged page revisions | Wiki Curator | Policy QA Agent, Publisher | prepare candidate markdown |
+| QA report | Policy QA Agent | Orchestrator, KMI | validate against rules and schema |
+| contradiction report | Contradiction Reviewer | Orchestrator, KMI | surface conflicts and open questions |
+| approval summary | KMI / Orchestrator | Publisher | record final human decision |
+| publish summary | Publisher | KMI, metadata services | record publication outcome |
+| lint report | Lint Agent | Orchestrator, KMI | identify post-publish defects |
+
+## 6.10 Deterministic vs LLM-Driven Responsibilities
+
+### Deterministic tasks
+
+- path validation
+- file discovery
+- checksum and deduplication
+- schema validation
+- link validation
+- status transitions
+- file writes
+
+### LLM-assisted tasks
+
+- summarization
+- candidate entity and concept detection
+- impact suggestions
+- contradiction framing
+- markdown draft synthesis
+
+LLM-driven outputs are advisory until validated. They may inform the workflow, but they do not become truth until they pass the required gates.
+
+## 6.11 Agent Interaction and Handoff Model
+
+The required agent chain is:
+
+Source Intake Agent -> Source Analyst Agent -> Wiki Impact Analyst -> Wiki Curator -> Policy QA Agent -> Contradiction Reviewer (if needed) -> Publisher -> Lint Agent
+
+### Conditional branches
+
+- no-op path: if no meaningful changes are detected, the run ends with a no-op summary and no publish action
+- blocked publish: if a gate fails, the workflow halts before Publisher
+- review required: if confidence is low or policy demands review, KMI must approve before publish
+- auto-finalize eligible: if policy permits and all gates pass, the Publisher can proceed without additional manual review
+
+### Mermaid orchestration flow
+
+```mermaid
+flowchart TD
+  A[KMI Run Request] --> B[Orchestrator Agent]
+  B --> C[Source Intake Agent]
+  C --> D[Source Analyst Agent]
+  D --> E[Wiki Impact Analyst]
+  E --> F[Wiki Curator]
+  F --> G[Policy QA Agent]
+  G --> H{Contradiction?}
+  H -- Yes --> I[Contradiction Reviewer]
+  H -- No --> J{Approval Required?}
+  I --> J
+  J -- Yes --> K[Knowledge Manager Approval]
+  J -- No --> L[Publisher]
+  K --> L
+  L --> M[Lint Agent]
+  M --> N[Run Summary]
+```
+
+## 6.12 Control Logic and Publish Gates
+
+KMS must enforce hard control points before publication.
+
+### Schema gate
+
+- Checks: frontmatter validity, required sections, page type conformance
+- Owner: Policy QA Agent
+- Failure behavior: block publication and produce remediation guidance
+
+### Source trace gate
+
+- Checks: presence and coherence of source_refs and lineage
+- Owner: Policy QA Agent with support from Source Analyst and Wiki Curator
+- Failure behavior: block publication or route for review
+
+### Contradiction gate
+
+- Checks: unresolved conflicts, incompatible claims, ambiguous decisions
+- Owner: Contradiction Reviewer
+- Failure behavior: block publication or require Knowledge Manager escalation
+
+### Approval gate
+
+- Checks: whether Knowledge Manager approval is required and present
+- Owner: KMI / Knowledge Manager
+- Failure behavior: block publication until approved or explicitly deferred
+
+### Publish gate
+
+- Checks: all prior gates passed and publication target is valid
+- Owner: Publisher
+- Failure behavior: prevent write to `/wiki`
+
+No agent may unilaterally override these gates without policy support. The control plane must remain authoritative over publication.
+
+### Mermaid control gate diagram
+
+```mermaid
+graph TD
+  SI[Source Intake Agent] --> SA[Source Analyst Agent]
+  SA --> WIA[Wiki Impact Analyst]
+  WIA --> WC[Wiki Curator]
+  WC --> PQA[Policy QA Agent]
+  PQA --> CG{Schema / Trace / Policy Gates}
+  CG -- pass --> AP{Approval Gate}
+  CG -- fail --> STOP1[Blocked]
+  AP -- pass --> PUB[Publisher]
+  AP -- fail --> STOP2[Blocked]
+  PUB --> LINT[Lint Agent]
+```
+
+## 6.13 Escalation and Human-in-the-Loop Model
+
+The Knowledge Manager must be involved when the workflow cannot safely close on its own.
+
+### Escalation triggers
+
+- unresolved contradiction
+- low-confidence extraction
+- major rewrite
+- new canonical metric or data-asset
+- missing source trace
+- rule failure
+- duplicate canonical page risk
+
+Self-managed does not mean ungoverned. Automation is conditional, and human review protects truth quality when policy, confidence, or novelty require it.
+
+## 6.14 Failure Handling Across Agents
+
+Agent failures must be isolated. A failure in one agent should not corrupt unrelated artifacts, and partial outputs must remain visible for recovery where safe.
+
+| Failure condition | Likely agent | Expected behavior | Run impact | Recovery path |
+|---|---|---|---|---|
+| invalid source path | Source Intake Agent | fail fast and emit validation error | run blocked | correct path and rerun |
+| parse failure on one file | Source Intake Agent / Source Analyst Agent | preserve file-level error and continue where safe | run degraded or partial | fix file or parser and rerun |
+| low-confidence extraction | Source Analyst Agent | mark signals provisional and escalate if necessary | review required | Knowledge Manager review |
+| duplicate canonical page risk | Wiki Impact Analyst | stop candidate merge and flag collision | blocked | resolve naming or merge policy |
+| schema validation failure | Policy QA Agent | block publish and emit remediation | publish blocked | fix staged content and rerun QA |
+| unresolved contradiction | Contradiction Reviewer | retain open-question artifact and halt publish | blocked | human resolution or policy decision |
+| publication write failure | Publisher | preserve prior truth, fail closed, record error | publish failed | retry after storage issue resolved |
+| lint failure after publish | Lint Agent | report defect, do not rewrite truth automatically | post-publish warning or blocked follow-up | remediation workflow |
+
+## 6.15 Agent and Skill File Structure
+
+```text
+repo-root/
+├── agents/
+│   ├── AGENTS.md
+│   ├── agents/
+│   │   ├── orchestrator.md
+│   │   ├── source-intake.md
+│   │   ├── source-analyst.md
+│   │   ├── wiki-impact-analyst.md
+│   │   ├── wiki-curator.md
+│   │   ├── policy-qa.md
+│   │   ├── contradiction-reviewer.md
+│   │   ├── publisher.md
+│   │   └── lint-agent.md
+│   └── skills/
+│       ├── source-intake/
+│       │   └── SKILL.md
+│       ├── source-summarization/
+│       │   └── SKILL.md
+│       ├── wiki-impact-analysis/
+│       │   └── SKILL.md
+│       ├── wiki-refresh/
+│       │   └── SKILL.md
+│       ├── contradiction-resolution/
+│       │   └── SKILL.md
+│       ├── vault-lint/
+│       │   └── SKILL.md
+│       └── infopedia-index-refresh/
+│           └── SKILL.md
+├── rules/
+│   ├── frontmatter.yaml
+│   ├── links.yaml
+│   ├── taxonomy.yaml
+│   └── publication.yaml
+└── templates/
+    ├── metric.md
+    ├── data-asset.md
+    ├── source-note.md
+    └── open-question.md
+```
+
+## 6.16 Example Agent Spec Snippet
+
+```markdown
+# policy-qa.md
+
+## Mission
+Validate staged wiki content against schema, taxonomy, source trace, and publication rules.
+
+## Inputs
+- staged markdown pages
+- rules YAML
+- source trace records
+- page metadata
+
+## Outputs
+- QA report
+- pass/fail status
+- violation list
+- remediation guidance
+
+## Hard Rules
+- do not modify finalized `/wiki` content
+- do not waive hard policy failures
+- do not invent missing source trace
+- do not approve content that fails schema validation
+
+## Stop Conditions
+- unresolved validation failure
+- broken canonical link
+- missing required page sections
+```
+
+## 6.17 Example SKILL.md Snippet
+
+```markdown
+# wiki-refresh
+
+## Description
+Refresh staged wiki candidates from approved impact maps and governed source notes.
+
+## When to use
+- after impact analysis
+- after source notes exist
+- before QA and publication
+
+## Inputs
+- impact map
+- source-note artifacts
+- existing page content
+- taxonomy and schema rules
+
+## Outputs
+- staged markdown revisions
+- refresh summary
+- change markers
+
+## Workflow
+1. Load approved impact candidates.
+2. Read source-note evidence.
+3. Update or create staged markdown.
+4. Preserve source trace and related links.
+5. Emit structured revision artifacts.
+
+## Hard Rules
+- never write directly to `/wiki`
+- never remove source trace
+- never bypass review-required conditions
+```
+
+## 6.18 Diagrams
+
+### Agent handoff ASCII diagram
+
+```text
+KMI
+  |
+  v
+Orchestrator
+  |
+  v
+Source Intake -> Source Analyst -> Wiki Impact Analyst -> Wiki Curator
+                                                        |
+                                                        v
+                                               Policy QA Agent
+                                                        |
+                                         +--------------+--------------+
+                                         |                             |
+                                         v                             v
+                                Contradiction Reviewer           Publisher
+                                         |                             |
+                                         +--------------+--------------+
+                                                        v
+                                                   Lint Agent
+```
+
+### Orchestration Mermaid diagram
+
+```mermaid
+flowchart LR
+  KMI[KMI] --> ORCH[Orchestrator Agent]
+  ORCH --> SI[Source Intake Agent]
+  SI --> SA[Source Analyst Agent]
+  SA --> WIA[Wiki Impact Analyst]
+  WIA --> WC[Wiki Curator]
+  WC --> PQA[Policy QA Agent]
+  PQA --> CR{Contradiction?}
+  CR -- yes --> RR[Contradiction Reviewer]
+  CR -- no --> PUB[Publisher]
+  RR --> AP{Approval?}
+  PQA --> AP
+  AP -- yes --> PUB
+  AP -- no --> STOP[Blocked]
+  PUB --> LINT[Lint Agent]
+  LINT --> DONE[Run Complete]
+```
+
+### Control-gate Mermaid diagram
+
+```mermaid
+graph TD
+  A[Schema Gate] --> B[Source Trace Gate]
+  B --> C[Contradiction Gate]
+  C --> D[Approval Gate]
+  D --> E[Publish Gate]
+  E --> F[Finalized /wiki]
+  C -- fail --> X[Blocked / Escalate]
+  D -- fail --> X
+  E -- fail --> X
+```
+
+## 6.19 Section Summary
+
+KMS uses bounded agents, not open autonomy. Skills package reusable workflow logic, orchestration remains deterministic, and control gates protect truth before publication. The model supports self-management while preserving auditability, human governance, and the canonical authority of `/wiki`.
