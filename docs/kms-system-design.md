@@ -4073,3 +4073,739 @@ This separation preserves trust and usability:
 - finalized `/wiki` knowledge remains the shared content substrate
 - raw source folders are not consumer-facing browse surfaces
 - UI is not the source of truth; `/wiki` is
+
+# 9. Data Model, Storage, APIs, and Runtime Services
+
+## 9.1 Data and Runtime Model Overview
+
+KMS uses a split storage model so content truth, operational state, and retrieval projections remain separate.
+
+- raw sources live in the local filesystem
+- finalized knowledge lives in `/wiki`
+- metadata DB stores operational state
+- runtime services coordinate lifecycle
+- search/index structures support retrieval
+
+`/wiki` remains canonical for finalized knowledge. The metadata DB is authoritative for operational metadata, not knowledge truth.
+
+Filesystem for content truth, metadata DB for lifecycle control.
+
+## 9.2 Storage Layer Responsibilities
+
+KMS storage must preserve explicit authority boundaries. Supporting stores may accelerate workflow, but they must not replace finalized wiki content as truth.
+
+| Storage Layer | Stores | Written By | Read By | Authority |
+|---|---|---|---|---|
+| Raw source filesystem | Immutable upstream source files and folders | External source owners, intake process | Source discovery, parsing, analysis | Supporting input only |
+| Wiki filesystem (`/wiki`) | Finalized markdown knowledge and authoritative pages | Publisher service | KMI, Infopedia, downstream consumers | Canonical knowledge truth |
+| Metadata database | Runs, revisions, approvals, contradictions, QA, lint, projections metadata | Runtime services, orchestrator, approval workflow | KMI, services, Infopedia projection | Operational authority only |
+| Optional artifact storage | Extracted intermediates, parse outputs, review bundles, diffs | Parsing, normalization, draft services | KMI, validation, debugging | Supporting artifact store |
+| Optional search/index store | Search documents, navigation indexes, operational search projections | Search/index service, projection service | KMI search, Infopedia search | Supporting projection store |
+
+Only `/wiki` is a finalized knowledge store. All other layers support lifecycle control, indexing, or review.
+
+## 9.3 Core Metadata Entities
+
+The metadata model should be minimal, explicit, and sufficient to support governed maintenance and read-only navigation.
+
+| Entity | Purpose | Key Identity | Relationship to `/wiki` or Runs | Type |
+|---|---|---|---|---|
+| Run | Represents one maintenance execution | `run_id` | Owns source intake, validations, and output revisions | Operational |
+| SourceFile | Represents a discovered file in the raw source set | `source_file_id` | Belongs to a run and may map to source documents | Structural |
+| SourceDocument | Represents parsed source content | `source_document_id` | Informs revision proposals and traceability | Structural |
+| WikiPage | Represents a canonical wiki page | `page_id` or slug | Maps to a finalized `/wiki` page | Structural |
+| WikiPageRevision | Represents a staged or finalized change to a page | `revision_id` | Connected to a wiki page and run | Operational |
+| ImpactRecord | Captures what pages or sections are affected by a source set | `impact_id` | Derived from run analysis and revision planning | Projection |
+| ContradictionRecord | Captures detected conflict conditions | `contradiction_id` | Attaches to page, revision, or run context | Operational |
+| QAReport | Captures validation outcomes and rule results | `qa_report_id` | Attaches to a run or revision | Operational |
+| ApprovalRecord | Captures human review decision | `approval_id` | Gates revision finalization | Operational |
+| LintFinding | Captures post-publish or maintenance issues | `lint_finding_id` | Attaches to page, revision, or run | Operational |
+| InfopediaNode | Represents navigation projection for browse UI | `node_id` or derived path | Derived from finalized wiki pages | Projection |
+| SearchDocument | Represents indexed retrieval payload | `search_doc_id` or content hash | Derived from `/wiki` and metadata | Projection |
+
+These entities are not all equivalent. Some are source-of-record operational facts, some are structural links, and some are derived projections for UX and retrieval.
+
+## 9.4 Conceptual Relational Model
+
+The relational model should preserve the lifecycle from intake to finalization while keeping projections derived from canonical content.
+
+| Relationship | Meaning |
+|---|---|
+| Run has many SourceFiles | One maintenance run can ingest multiple inputs |
+| SourceFiles may yield SourceDocuments | A file may parse into one or more structured documents |
+| SourceDocuments inform ImpactRecords | Parsed evidence drives impact analysis |
+| WikiPages have many WikiPageRevisions | A page accumulates staged and finalized edits |
+| QAReports attach to revisions or runs | Validation is run-level or revision-level |
+| ContradictionRecords may attach to pages or runs | Conflicts are tracked in operational context |
+| ApprovalRecords gate finalization | A revision cannot finalize without approval where required |
+| InfopediaNodes are derived from finalized wiki pages | Navigation is projection data, not truth |
+
+```mermaid
+erDiagram
+  RUN ||--o{ SOURCE_FILE : has
+  SOURCE_FILE ||--o{ SOURCE_DOCUMENT : yields
+  RUN ||--o{ IMPACT_RECORD : produces
+  RUN ||--o{ QA_REPORT : generates
+  RUN ||--o{ CONTRADICTION_RECORD : detects
+  RUN ||--o{ APPROVAL_RECORD : requires
+  WIKI_PAGE ||--o{ WIKI_PAGE_REVISION : has
+  WIKI_PAGE_REVISION ||--o{ QA_REPORT : validated_by
+  WIKI_PAGE_REVISION ||--o{ CONTRADICTION_RECORD : references
+  WIKI_PAGE_REVISION ||--o{ APPROVAL_RECORD : gated_by
+  WIKI_PAGE ||--o{ INFOPEDIA_NODE : projects_to
+  WIKI_PAGE ||--o{ SEARCH_DOCUMENT : indexes_to
+```
+
+The graph is intentionally directional. Projections follow finalized content; they do not define it.
+
+## 9.5 Entity-Level Field Definitions
+
+The system should keep entity schemas pragmatic and implementation-ready without over-normalizing early.
+
+| Entity | High-Level Fields |
+|---|---|
+| Run | `run_id`, `status`, `source_path`, `domain_hint`, `run_notes`, `created_at`, `started_at`, `completed_at`, `created_by`, `summary_counts`, `blocked_reason` |
+| SourceFile | `source_file_id`, `run_id`, `path`, `file_type`, `discovered_at`, `parse_status`, `document_count`, `hash`, `error_summary` |
+| WikiPage | `page_id`, `slug`, `title`, `page_type`, `path`, `status`, `freshness_status`, `confidence_status`, `current_revision_id`, `updated_at` |
+| WikiPageRevision | `revision_id`, `page_id`, `run_id`, `status`, `change_type`, `section_changes`, `source_trace_ids`, `diff_summary`, `created_at`, `finalized_at` |
+| ContradictionRecord | `contradiction_id`, `run_id`, `page_id`, `revision_id`, `severity`, `status`, `conflicting_claims`, `source_refs`, `open_question_page_id`, `created_at` |
+| ApprovalRecord | `approval_id`, `revision_id`, `decision`, `reviewer_id`, `reviewed_at`, `reason`, `override_requested`, `policy_version` |
+
+Field sets should support traceability, staged review, and audit-friendly querying. The same identifiers should be reused consistently across services and API responses.
+
+## 9.6 Run and Revision State Models
+
+Run and revision states must align with the workflow behavior exposed in KMI.
+
+| Run State | Meaning |
+|---|---|
+| created | Run record exists, orchestration has not started |
+| in_progress | Services are actively discovering, parsing, validating, or drafting |
+| completed | Run finished successfully and produced its expected artifacts |
+| blocked | Governance or validation stopped progression before finalization |
+| failed | Runtime execution failed due to error or unrecoverable service problem |
+
+| Revision State | Meaning |
+|---|---|
+| staged | Revision exists as a candidate change |
+| review_required | Human review is required before progression |
+| approved | Revision passed required approval checks |
+| rejected | Revision was not accepted for finalization |
+| finalized | Revision has been published into `/wiki` |
+
+Run states support KMI orchestration visibility. Revision states support diff review, approval, and publish control.
+
+## 9.7 Runtime Services Inventory
+
+KMS requires bounded backend services so workflow logic remains explicit and testable.
+
+| Service | Responsibility | Main Inputs | Main Outputs | Side Effects / Writes |
+|---|---|---|---|---|
+| Run Orchestration Service | Coordinates end-to-end run progression | Source path, run config, policy state | Run status transitions, stage dispatch | Writes run state and stage history |
+| Source Discovery Service | Enumerates source files and supported inputs | Raw source path | Source file inventory | Writes source file records |
+| Parsing/Normalization Service | Parses raw files into structured documents | Source files | Parsed documents, parse errors | Writes source documents and parse artifacts |
+| Source Analysis Service | Detects impacts, candidates, and structural changes | Source documents | Impact records, candidate revisions | Writes impact records |
+| Source Note Service | Captures notes, annotations, and supporting commentary | Source files, source documents, user notes | Source notes, annotations | Writes source note records |
+| Wiki Draft Service | Builds staged wiki page revisions | Impact records, source documents, page templates | Draft revisions, diffs | Writes staged revisions and draft artifacts |
+| Policy Validation Service | Evaluates rules, source trace, and publish eligibility | Revisions, rules, metadata | Validation results, block/escalate decisions | Writes QA reports and validation events |
+| Contradiction Service | Detects and manages conflicts | Source documents, revisions, page metadata | Contradiction records, open questions | Writes contradiction records |
+| Approval Service | Records human decisions and gate outcomes | Approval requests, revision context | Approval records, decision status | Writes approval records |
+| Publisher Service | Writes finalized content into `/wiki` | Approved revisions, publish payloads | Published pages, publish summary | Writes `/wiki` and publish audit records |
+| Lint Service | Checks freshness, links, structure, and quality | Finalized pages, metadata | Lint findings | Writes lint findings |
+| Search/Index Service | Builds operational and browse indexes | Wiki pages, metadata, revisions | Search documents, index updates | Writes search/index projections |
+| Infopedia Projection Service | Builds browse projection for tree and related pages | Finalized wiki pages, metadata | Infopedia nodes, navigation edges | Writes projection records |
+
+These services are separable for testing and deployment, but they must share a consistent metadata contract.
+
+## 9.8 API Surface Overview
+
+KMI and Infopedia should depend on service APIs, not direct database access. API contracts expose governed capabilities and hide persistence details.
+
+Required API categories:
+
+- Run APIs
+- Source APIs
+- Review/Diff APIs
+- Approval APIs
+- Contradiction APIs
+- Health/Lint APIs
+- Wiki Read APIs
+- Infopedia Navigation/Search APIs
+
+APIs are service contracts, not direct database exposure. The API layer must preserve governance checks and must not provide a bypass path around validation or approval.
+
+## 9.9 Representative API Endpoints
+
+Representative endpoints should expose workflow state and read surfaces without leaking persistence structure.
+
+| Method | Path | Purpose | Primary Consumer |
+|---|---|---|---|
+| `POST` | `/api/runs` | Create a new governed maintenance run | KMI |
+| `GET` | `/api/runs/{run_id}` | Fetch run status and summary | KMI |
+| `GET` | `/api/runs/{run_id}/artifacts` | List run artifacts and outputs | KMI |
+| `GET` | `/api/reviews/{revision_id}/diff` | Fetch review diff and validation context | KMI |
+| `POST` | `/api/approvals/{revision_id}` | Submit approval or rejection decision | KMI |
+| `GET` | `/api/wiki/pages/{slug}` | Read finalized wiki page content | KMI, Infopedia |
+| `GET` | `/api/infopedia/tree` | Fetch navigation tree projection | Infopedia |
+| `GET` | `/api/infopedia/search` | Search finalized knowledge | Infopedia |
+| `GET` | `/api/contradictions/{id}` | Read contradiction detail | KMI |
+| `GET` | `/api/health/findings` | Read lint and maintenance issues | KMI |
+
+The endpoint set should be stable enough to support route-based UI development and service-level integration tests.
+
+## 9.10 Request/Response Contract Examples
+
+Run creation, status retrieval, diff review, and page read responses should be concrete and machine-readable.
+
+```json
+{
+  "source_path": "/Users/chethan/sources/finance",
+  "domain_hint": "finance",
+  "run_notes": "Monthly metric refresh",
+  "strictness": "standard",
+  "dry_run": false
+}
+```
+
+```json
+{
+  "run_id": "run_20260405_001",
+  "status": "in_progress",
+  "source_path": "/Users/chethan/sources/finance",
+  "created_at": "2026-04-05T09:30:00Z",
+  "current_stage": "validate",
+  "summary_counts": {
+    "source_files": 18,
+    "source_documents": 24,
+    "proposed_revisions": 3,
+    "blocked_items": 1
+  }
+}
+```
+
+```json
+{
+  "revision_id": "rev_metric_margin_003",
+  "page_id": "page_metric_margin",
+  "status": "review_required",
+  "confidence": "medium",
+  "source_trace_status": "partial",
+  "rule_violations": [
+    {
+      "rule_id": "rule.metric_requires_source_trace",
+      "severity": "error",
+      "message": "Metric definition requires one approved source trace."
+    }
+  ],
+  "diff": {
+    "summary": "Updated definition text and refreshed source trace section.",
+    "sections_changed": ["definition", "source-trace"]
+  }
+}
+```
+
+```json
+{
+  "slug": "canonical-metrics/gross-margin",
+  "title": "Gross Margin",
+  "status": "finalized",
+  "freshness": "current",
+  "confidence": "high",
+  "source_trace_summary": [
+    "finance-policy-2026-03",
+    "monthly-close-notes-2026-04"
+  ],
+  "content_markdown": "# Gross Margin\n\n...",
+  "related_pages": [
+    {
+      "slug": "canonical-process/monthly-close",
+      "title": "Monthly Close"
+    }
+  ],
+  "backlinks": 7
+}
+```
+
+## 9.11 Search and Indexing Model
+
+KMI and Infopedia need different retrieval shapes from the same underlying canonical and operational stores.
+
+- KMI needs operational search and filtering across runs, revisions, contradictions, and lint findings
+- Infopedia needs search and navigation over finalized wiki pages
+- search and index projections are derived from `/wiki` and metadata
+- search does not replace canonical storage
+
+Vector search, if used, is optional secondary support only and must not replace the curated knowledge architecture.
+
+```mermaid
+flowchart LR
+  A[/wiki/ Finalized Pages] --> B[Projection Builder]
+  C[Metadata DB] --> B
+  B --> D[Search Document Index]
+  B --> E[Infopedia Node Index]
+  D --> F[KMI Search]
+  E --> G[Infopedia Search / Tree]
+```
+
+The index layer should be rebuildable from canonical content plus metadata so search remains a projection, not a source of truth.
+
+## 9.12 Infopedia Projection Model
+
+Infopedia should read finalized wiki content plus derived navigation and status metadata.
+
+- InfopediaNode or equivalent is a projection, not separate truth
+- projection refresh occurs after publish or indexed refresh
+- page metadata and navigation metadata should remain linked through stable identifiers
+
+Navigation data should include page family, hierarchy position, backlinks, and status indicators. Content data should remain rooted in `/wiki` content and page metadata. The projection layer may denormalize for fast browsing, but it must not invent authoritative state.
+
+## 9.13 Storage and Authority Boundaries
+
+The storage hierarchy must be explicit and non-overlapping.
+
+- raw source filesystem is upstream input only
+- `/wiki` is canonical finalized knowledge
+- metadata DB is operational support
+- search/index stores are projections
+- Infopedia nodes are derived navigation artifacts
+
+No supporting store may replace `/wiki` as knowledge truth. The database is allowed to know workflow state, approvals, contradictions, and projections, but it is not allowed to become the knowledge substrate itself. Downstream AI systems must consume via governed retrieval paths, not raw DB access.
+
+## 9.14 Failure and Consistency Expectations
+
+Runtime services should fail in ways that preserve knowledge integrity and auditability.
+
+| Failure Point | Expected Behavior | Consistency Requirement |
+|---|---|---|
+| Metadata persistence failure | Stop or retry workflow update; do not mark completion incorrectly | `/wiki` publication must not be considered complete without metadata acknowledgment |
+| Wiki write failure | Prevent publish completion and surface error | Canonical content must not partially finalize without recorded failure state |
+| Partial run data failure | Retain existing records and mark incomplete state | Audit trail must preserve what happened before failure |
+| Projection/index failure | Leave canonical content unchanged and mark projection stale | Search and navigation may degrade, truth must not change |
+| Retry of run or stage | Reuse idempotent identifiers where possible | Re-execution must not duplicate finalized records |
+| Approval persistence failure | Block finalization until decision is stored | No silent approval or publish without decision record |
+
+Engineering rule: if a supporting store is unavailable, the system may degrade, but it must not corrupt `/wiki` or invent successful completion.
+
+## 9.15 Diagrams and Artifacts
+
+### Storage architecture
+
+```text
+                 +----------------------+
+                 | Raw Source Filesystem |
+                 | upstream input only   |
+                 +----------+-----------+
+                            |
+                            v
+ +-------------------+  +--------------------+  +----------------------+
+ | Metadata Database  |  | Runtime Services   |  | Optional Artifacts   |
+ | runs, approvals,   |<->| orchestration,    |<->| parse outputs, diffs |
+ | contradictions,    |   | validation, draft  |  | review bundles       |
+ | projections meta   |   +---------+---------+  +----------------------+
+ +---------+---------+            |
+           |                      v
+           |              +------------------+
+           |              | Wiki Filesystem  |
+           |              | /wiki canonical  |
+           |              +--------+---------+
+           |                       |
+           v                       v
+ +----------------------+   +----------------------+
+ | Search / Index Store |   | Infopedia Projection |
+ | derived projections  |   | derived navigation   |
+ +----------------------+   +----------------------+
+```
+
+### Entity relationship
+
+```mermaid
+erDiagram
+  RUN ||--o{ SOURCE_FILE : has
+  RUN ||--o{ IMPACT_RECORD : creates
+  RUN ||--o{ QA_REPORT : produces
+  RUN ||--o{ CONTRADICTION_RECORD : records
+  RUN ||--o{ APPROVAL_RECORD : gates
+  SOURCE_FILE ||--o{ SOURCE_DOCUMENT : parses_to
+  WIKI_PAGE ||--o{ WIKI_PAGE_REVISION : has
+  WIKI_PAGE_REVISION ||--o{ QA_REPORT : validated_by
+  WIKI_PAGE_REVISION ||--o{ CONTRADICTION_RECORD : references
+  WIKI_PAGE_REVISION ||--o{ APPROVAL_RECORD : requires
+  WIKI_PAGE ||--o{ INFOPEDIA_NODE : projects_to
+  WIKI_PAGE ||--o{ SEARCH_DOCUMENT : indexes_to
+```
+
+### Runtime service interaction
+
+```mermaid
+flowchart TD
+  A[Run Orchestration Service] --> B[Source Discovery Service]
+  B --> C[Parsing / Normalization Service]
+  C --> D[Source Analysis Service]
+  D --> E[Wiki Draft Service]
+  E --> F[Policy Validation Service]
+  F --> G[Contradiction Service]
+  F --> H[Approval Service]
+  H --> I[Publisher Service]
+  I --> J[Lint Service]
+  I --> K[Search / Index Service]
+  I --> L[Infopedia Projection Service]
+```
+
+### JSON entity snippet
+
+```json
+{
+  "wiki_page_revision": {
+    "revision_id": "rev_metric_margin_003",
+    "page_id": "page_metric_margin",
+    "run_id": "run_20260405_001",
+    "status": "review_required",
+    "change_type": "update",
+    "source_trace_ids": ["trace_finance_policy_01"],
+    "created_at": "2026-04-05T09:45:00Z"
+  }
+}
+```
+
+### JSON API response snippet
+
+```json
+{
+  "run_id": "run_20260405_001",
+  "status": "in_progress",
+  "current_stage": "validate",
+  "blocked": false,
+  "artifacts": [
+    {
+      "type": "diff_bundle",
+      "id": "artifact_diff_114"
+    }
+  ]
+}
+```
+
+## 9.16 Section Summary
+
+KMS uses `/wiki` as canonical knowledge, the metadata DB as lifecycle control, runtime services as the operational backbone, and APIs as governed access points.
+
+Supportive search and projection layers accelerate retrieval, but they do not redefine truth. The engineering model is the foundation for implementation because it separates content authority from workflow state, keeps publish control explicit, and preserves auditability across the full lifecycle.
+
+# 10. Implementation Plan, Repository Structure, Testing, and Deployment
+
+## 10.1 Implementation Strategy Overview
+
+Implementation should proceed in dependency order so the control plane exists before high-level UI or automation depth is added.
+
+- build the core backend and data model before advanced UI
+- establish wiki and governance foundations before automation depth
+- build KMI and Infopedia on stable service contracts
+- integrate agents and skills through governed services, not as bolted-on prompts
+
+Build the control plane first, then the workflows, then the surfaces, then harden the system.
+
+This order prevents false progress. If the storage model, validation gates, and publish boundary are not stable, UI work will only produce disconnected mock surfaces and agent work will only produce uncontrolled automation.
+
+## 10.2 Recommended Repository Structure
+
+The repository should separate canonical content, raw inputs, backend services, frontends, automation, and shared conventions.
+
+```text
+kms/
+├─ apps/
+│  ├─ api/
+│  ├─ worker/
+│  ├─ kmi/
+│  └─ infopedia/
+├─ agents/
+├─ rules/
+├─ templates/
+├─ wiki/
+├─ raw/
+├─ docs/
+├─ tests/
+├─ packages/
+│  ├─ domain/
+│  ├─ shared/
+│  └─ config/
+└─ scripts/
+```
+
+Folder purposes:
+
+- `/apps/api` contains backend HTTP APIs, service composition, and request handlers
+- `/apps/worker` contains run orchestration jobs, background processing, and scheduled tasks
+- `/apps/kmi` contains the Knowledge Manager Interface frontend
+- `/apps/infopedia` contains the read-only navigation frontend
+- `/agents` contains agent definitions, prompts, and bounded workflow specs
+- `/rules` contains executable governance policy definitions
+- `/templates` contains canonical markdown templates and structured page blueprints
+- `/wiki` contains finalized knowledge and remains the canonical content substrate
+- `/raw` contains immutable upstream source inputs during local development
+- `/docs` contains design, operational, and usage documentation
+- `/tests` contains integration, end-to-end, fixture, and regression tests
+- `/packages/domain` contains shared entity definitions and domain logic
+- `/packages/shared` contains reusable utilities, logging, error, and typing helpers
+- `/packages/config` contains shared environment and runtime configuration definitions
+- `/scripts` contains build, validation, and maintenance scripts
+
+The top-level layout should make it difficult to confuse source input, generated artifacts, and canonical knowledge.
+
+## 10.3 Build Phases
+
+The implementation plan should be phased so each layer becomes usable before the next one is added.
+
+| Phase | Goal | Key Outputs | Dependencies |
+|---|---|---|---|
+| 1. Repository scaffold and shared conventions | Establish structure, naming, config, and test harness | Folder layout, shared packages, linting, baseline CI, conventions | None |
+| 2. Metadata DB and core domain models | Create authoritative operational data model | Migrations, ORM models, entity repositories, seed data | Phase 1 |
+| 3. Raw source discovery + ingestion pipeline | Discover, classify, and register source files | Source registry service, parsers, discovery jobs, source artifacts | Phase 2 |
+| 4. Wiki schema/templates + wiki services | Generate structured wiki pages from governed drafts | Templates, wiki draft service, revision records, page writers | Phase 2, Phase 3 |
+| 5. Governance/rules engine | Enforce validation, review, and publish gates | Rules loader, validation service, approval gates, QA reports | Phase 2, Phase 4 |
+| 6. Run orchestration and agent/skill integration | Sequence runs and bounded automation | Orchestrator jobs, agent execution contracts, skill invocation boundaries | Phase 3, Phase 5 |
+| 7. KMI screens and review workflows | Deliver maintenance UI for governed review | Dashboard, run detail, diff review, approval screens, contradiction screens | Phase 5, Phase 6 |
+| 8. Infopedia navigation and page rendering | Deliver read-only browse and search experience | Tree view, page view, search UI, status indicators | Phase 4, Phase 6 |
+| 9. Search/index projection | Build derived retrieval and navigation projections | Indexer, search documents, Infopedia nodes, refresh jobs | Phase 4, Phase 5 |
+| 10. Hardening, testing, and local deployment polish | Stabilize reliability and developer experience | Test suites, fixtures, health checks, dev startup scripts, observability | All prior phases |
+
+## 10.4 Phase-by-Phase Deliverables
+
+Each phase should produce tangible artifacts that can be validated independently.
+
+Phase 1 deliverables:
+
+- repository scaffold
+- package boundaries
+- environment config shape
+- baseline CI and lint rules
+- shared test conventions
+
+Phase 2 deliverables:
+
+- database migrations
+- `Run`, `SourceFile`, `WikiPage`, `WikiPageRevision`, `ApprovalRecord`, `ContradictionRecord` models
+- repository layer contracts
+- status enums and shared identifiers
+
+Phase 3 deliverables:
+
+- source registry service
+- file discovery jobs
+- supported/unsupported file classification
+- parse outputs and normalization artifacts
+- run-level source summaries
+
+Phase 4 deliverables:
+
+- markdown page templates
+- wiki draft builder
+- revision writer
+- page path/slug conventions
+- canonical content fixtures
+
+Phase 5 deliverables:
+
+- policy validation service
+- rules loader for `/rules/*.yaml`
+- source trace validation
+- contradiction gating
+- approval gating and QA reporting
+
+Phase 6 deliverables:
+
+- run orchestration jobs
+- agent/skill execution wrappers
+- bounded handoff contracts
+- stage state transitions and audit events
+
+Phase 7 deliverables:
+
+- KMI dashboard
+- run detail view
+- source review and diff review screens
+- contradiction and approval workflows
+- maintenance health screens
+
+Phase 8 deliverables:
+
+- Infopedia tree navigation
+- page rendering for finalized markdown
+- search and filter UI
+- page status and freshness indicators
+
+Phase 9 deliverables:
+
+- search document projection
+- Infopedia node projection
+- derived index refresh jobs
+- retrieval consistency checks
+
+Phase 10 deliverables:
+
+- end-to-end regression suite
+- local startup orchestration
+- operational health checks
+- developer fixtures and seed data
+- publish-path smoke tests
+
+## 10.5 Repository Conventions and Engineering Standards
+
+The implementation should use consistent conventions across services, models, and UI.
+
+- naming should distinguish canonical pages, revisions, runs, and projections
+- module boundaries should align to domain responsibilities, not generic technical layers
+- status enums should be shared across backend and frontend contracts
+- schema ownership should belong to backend domain modules, not frontend code
+- markdown template ownership should live in `/templates`
+- rules file ownership should live in `/rules`
+- error handling should be explicit, structured, and audit-friendly
+- type safety expectations should be enforced at service boundaries and API contracts
+- config management should be environment-driven and centralized
+
+Domain logic belongs in backend/services, not only frontend. Frontend code should consume stable APIs and render state. All `/wiki` writes must go through governed services only.
+
+## 10.6 Local Development and Runtime Topology
+
+Local development should mirror the same authority boundaries as the design.
+
+Required local components:
+
+- API service
+- worker / job runner
+- metadata DB
+- KMI frontend
+- Infopedia frontend
+- local filesystem mounts for `/raw` and `/wiki`
+- optional local search/index service
+
+```mermaid
+flowchart LR
+  Dev[Developer] --> KMI[KMI Frontend]
+  Dev --> INFO[Infopedia Frontend]
+  KMI --> API[API Service]
+  INFO --> API
+  API --> DB[Metadata DB]
+  API --> RAW[/raw mount/]
+  API --> WIKI[/wiki mount/]
+  API --> IDX[Optional Search / Index]
+  API --> WRK[Worker / Job Runner]
+  WRK --> DB
+  WRK --> RAW
+  WRK --> WIKI
+  WRK --> IDX
+```
+
+For a usable developer environment, the API, worker, metadata DB, `/raw`, and `/wiki` mounts must be available together. KMI and Infopedia should start against the same contracts used in higher environments.
+
+## 10.7 Testing Strategy
+
+Testing should validate domain behavior, governed workflows, and UI integration at different depths.
+
+| Test Layer | What It Validates | Example Targets |
+|---|---|---|
+| Unit tests | Small service, validator, parser, and rule behavior | Source parser, rule evaluator, status transitions |
+| Integration tests | Runs, publish flow, and approval flow across services | Orchestrator, metadata DB, publisher, validation service |
+| End-to-end tests | Complete KMI and Infopedia workflows | Run initiation, diff review, approval, page browse |
+| Golden tests | Deterministic markdown output and templates | Wiki page generation, diff formatting, navigation rendering |
+| Regression tests | Rule behavior and policy outcomes over time | Blocked publish cases, contradiction handling, approval triggers |
+| Fixture-based tests | Realistic source folders and wiki outputs | Sample runs, canonical pages, lint failures, contradictions |
+
+Tests must be deterministic. If output varies by runtime order or uncontrolled external state, the implementation is not yet ready for stable use.
+
+## 10.8 Test Data and Fixtures
+
+Fixture coverage should be realistic enough to exercise the real workflow, not toy examples that only validate happy paths.
+
+Required fixture categories:
+
+- sample raw source folders
+- supported and unsupported files
+- parsed normalization outputs
+- source-note examples
+- canonical wiki pages by type
+- contradiction scenarios
+- approval-required scenarios
+- lint-failure scenarios
+
+Fixtures should reflect actual page families, source traces, and governance outcomes. This ensures the tests validate the real policy surface, not just abstract schema checks.
+
+## 10.9 Deployment and Environment Model
+
+The deployment model should support local-first development and remain compatible with future containerized or cloud deployment.
+
+Requirements:
+
+- environment-configured paths and services
+- separation of config from code
+- file-system or volume requirements for `/raw` and `/wiki`
+- compatibility with containerized execution later
+- ability to point the same codebase at local or remote metadata stores and search/index services
+
+This section does not define enterprise infrastructure, but the design must be deployment-ready. The same authority boundaries that apply locally must hold in later environments.
+
+## 10.10 Operational Readiness and Observability
+
+Operational readiness should make the system inspectable during runs, publish attempts, and failures.
+
+| Operational Signal | Why It Matters | Surface |
+|---|---|---|
+| Run status visibility | Shows whether maintenance is moving or blocked | KMI dashboard, run detail |
+| Structured logs | Supports debugging and audit reconstruction | API, worker, and orchestration logs |
+| Failure visibility | Prevents silent loss of runs or publish attempts | KMI, approval, and health screens |
+| Artifact inspection | Enables review of diffs and source evidence | KMI run and diff views |
+| Publish auditability | Proves what reached `/wiki` and why | Publish summary, approval record |
+| Health checks | Validates API, worker, DB, and wiki access | Ops endpoints, startup checks |
+| Metrics around runs, failures, validations, approvals | Supports reliability and workflow monitoring | Metrics backend and dashboards |
+
+Operational readiness is not optional. If the system cannot explain what it is doing, it is not yet fit for governed knowledge publication.
+
+## 10.11 Example End-to-End Build Sequence
+
+A practical build sequence should follow the same order as the dependency model.
+
+1. Scaffold the repository and shared conventions.
+2. Implement DB entities, enums, and migrations.
+3. Add source discovery and ingestion pipeline support.
+4. Add wiki draft service and templates.
+5. Add validation gates and governance rules.
+6. Add run orchestration and controlled agent integration.
+7. Add KMI run, review, and approval screens.
+8. Add Infopedia browse, tree, and search surfaces.
+9. Add search and navigation projections.
+10. Add tests, fixtures, health checks, and local deployment polish.
+
+This sequence preserves correctness. It avoids building user-visible surfaces before the governed workflow that those surfaces must reflect.
+
+## 10.12 Risks and Delivery Considerations
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| UI before service stability | Mocked screens diverge from real workflow and state | Build API and domain services first, then bind UI to stable contracts |
+| Weak schema discipline | Inconsistent entities and hard-to-query metadata | Centralize models, migrations, and status enums in shared domain code |
+| Over-automating before governance is solid | Unauthorized or low-confidence publication paths | Implement validation and approval gates before agent depth |
+| Mixing metadata truth with wiki truth | Database becomes an alternate source of knowledge | Keep `/wiki` canonical and treat metadata as operational support only |
+| Insufficient fixture coverage | Happy-path tests miss critical failure modes | Build realistic source, contradiction, and approval fixtures early |
+| Non-deterministic test outputs | Regression tests become unreliable | Stabilize templates, ordering, and timestamps in test fixtures |
+
+The main delivery risk is sequencing drift. If implementation order is not controlled, the system will accumulate duplicate truth sources, bypass paths, and weakly governed UI behavior.
+
+## 10.13 Final Consistency Pass Requirement
+
+This final section is the closing integration point for the document. The implementation should treat the full design as a single specification and reconcile it before coding proceeds.
+
+Required consistency checks:
+
+- naming consistency across all 10 sections
+- removal of duplicated concepts where possible
+- reconciliation of any conflicting terminology
+- alignment of architecture, workflows, agents, rules, UI, and data model
+- ensuring `/wiki` remains canonical everywhere
+
+Document hygiene is part of implementation readiness. If the terminology is inconsistent, the codebase will inherit that ambiguity.
+
+## 10.14 Section Summary
+
+KMS is now fully specified across vision, architecture, knowledge model, ingestion, agents, governance, UX, runtime, and implementation plan. The document is complete enough to drive code generation and iterative build execution.
+
+Implementation must preserve governance, determinism, and single-source-of-truth principles. The repository structure, service boundaries, tests, and deployment model should all reinforce `/wiki` as the canonical knowledge substrate.
+
+KMS system design is complete enough to serve as the master source specification for phased implementation and Codex-driven code generation.
