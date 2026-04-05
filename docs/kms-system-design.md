@@ -4221,6 +4221,9 @@ These services are separable for testing and deployment, but they must share a c
 
 KMI and Infopedia should depend on service APIs, not direct database access. API contracts expose governed capabilities and hide persistence details.
 
+Communication is JSON via REST or GraphQL APIs.
+Common stack: FastAPI or Flask for the backend, React for the frontend.
+
 Required API categories:
 
 - Run APIs
@@ -4496,7 +4499,7 @@ Supportive search and projection layers accelerate retrieval, but they do not re
 
 Implementation should proceed in dependency order so the control plane exists before high-level UI or automation depth is added.
 
-- build the core backend and data model before advanced UI
+- build the core Python backend and data model before advanced React UI
 - establish wiki and governance foundations before automation depth
 - build KMI and Infopedia on stable service contracts
 - integrate agents and skills through governed services, not as bolted-on prompts
@@ -4511,11 +4514,17 @@ The repository should separate canonical content, raw inputs, backend services, 
 
 ```text
 kms/
+├─ pyproject.toml
 ├─ apps/
 │  ├─ api/
+│  │  └─ src/kms_api/
 │  ├─ worker/
+│  │  └─ src/kms_worker/
 │  ├─ kmi/
+│  │  └─ src/
 │  └─ infopedia/
+│     └─ src/
+├─ config/
 ├─ agents/
 ├─ rules/
 ├─ templates/
@@ -4525,17 +4534,21 @@ kms/
 ├─ tests/
 ├─ packages/
 │  ├─ domain/
+│  │  └─ src/kms_domain/
 │  ├─ shared/
+│  │  └─ src/kms_shared/
 │  └─ config/
 └─ scripts/
 ```
 
 Folder purposes:
 
-- `/apps/api` contains backend HTTP APIs, service composition, and request handlers
-- `/apps/worker` contains run orchestration jobs, background processing, and scheduled tasks
-- `/apps/kmi` contains the Knowledge Manager Interface frontend
-- `/apps/infopedia` contains the read-only navigation frontend
+- `/pyproject.toml` contains the Python backend project definition, dependency management, and backend tooling configuration
+- `/apps/api` contains the Python backend HTTP API service, service composition, and request handlers
+- `/apps/worker` contains the Python background worker for run orchestration jobs and scheduled tasks
+- `/apps/kmi` contains the React Knowledge Manager Interface frontend package and Vite entrypoints
+- `/apps/infopedia` contains the React read-only navigation frontend package and Vite entrypoints
+- `/config` contains centralized runtime configuration, environment templates, and secret references
 - `/agents` contains agent definitions, prompts, and bounded workflow specs
 - `/rules` contains executable governance policy definitions
 - `/templates` contains canonical markdown templates and structured page blueprints
@@ -4543,8 +4556,8 @@ Folder purposes:
 - `/raw` contains immutable upstream source inputs during local development
 - `/docs` contains design, operational, and usage documentation
 - `/tests` contains integration, end-to-end, fixture, and regression tests
-- `/packages/domain` contains shared entity definitions and domain logic
-- `/packages/shared` contains reusable utilities, logging, error, and typing helpers
+- `/packages/domain` contains shared Python domain entities and domain logic
+- `/packages/shared` contains reusable Python utilities, logging, error, and typing helpers
 - `/packages/config` contains shared environment and runtime configuration definitions
 - `/scripts` contains build, validation, and maintenance scripts
 
@@ -4576,6 +4589,8 @@ Phase 1 deliverables:
 - repository scaffold
 - package boundaries
 - environment config shape
+- centralized config folder structure and env example layout
+- Python backend project scaffold and React frontend app scaffold
 - baseline CI and lint rules
 - shared test conventions
 
@@ -4660,6 +4675,9 @@ The implementation should use consistent conventions across services, models, an
 - error handling should be explicit, structured, and audit-friendly
 - type safety expectations should be enforced at service boundaries and API contracts
 - config management should be environment-driven and centralized
+- the main `/config` area should hold configuration manifests, environment templates, and secret references only; actual API keys and secret values must be injected at runtime and never committed to the repository
+- Python backend code should live under the API, worker, and shared/domain packages; React frontend code should live under the KMI and Infopedia app packages
+- API communication should use JSON over REST or GraphQL contracts, not direct database access from the UI
 
 Domain logic belongs in backend/services, not only frontend. Frontend code should consume stable APIs and render state. All `/wiki` writes must go through governed services only.
 
@@ -4669,11 +4687,11 @@ Local development should mirror the same authority boundaries as the design.
 
 Required local components:
 
-- API service
-- worker / job runner
+- Python API service
+- Python worker / job runner
 - metadata DB
-- KMI frontend
-- Infopedia frontend
+- React KMI frontend
+- React Infopedia frontend
 - local filesystem mounts for `/raw` and `/wiki`
 - optional local search/index service
 
@@ -4696,20 +4714,24 @@ flowchart LR
 
 For a usable developer environment, the API, worker, metadata DB, `/raw`, and `/wiki` mounts must be available together. KMI and Infopedia should start against the same contracts used in higher environments.
 
+React frontends should run against the Python backend service, and the backend should expose the same JSON contracts in local development that it will expose in later deployment environments.
+
 ## 10.7 Testing Strategy
 
 Testing should validate domain behavior, governed workflows, and UI integration at different depths.
 
 | Test Layer | What It Validates | Example Targets |
 |---|---|---|
-| Unit tests | Small service, validator, parser, and rule behavior | Source parser, rule evaluator, status transitions |
-| Integration tests | Runs, publish flow, and approval flow across services | Orchestrator, metadata DB, publisher, validation service |
+| Unit tests | Small service, validator, parser, and rule behavior | Python source parser, rule evaluator, status transitions |
+| Integration tests | Runs, publish flow, and approval flow across services | Python orchestrator, metadata DB, publisher, validation service |
 | End-to-end tests | Complete KMI and Infopedia workflows | Run initiation, diff review, approval, page browse |
 | Golden tests | Deterministic markdown output and templates | Wiki page generation, diff formatting, navigation rendering |
 | Regression tests | Rule behavior and policy outcomes over time | Blocked publish cases, contradiction handling, approval triggers |
 | Fixture-based tests | Realistic source folders and wiki outputs | Sample runs, canonical pages, lint failures, contradictions |
 
 Tests must be deterministic. If output varies by runtime order or uncontrolled external state, the implementation is not yet ready for stable use.
+
+Backend tests should be written with `pytest` or an equivalent Python test runner, while frontend tests should cover React components and browser workflows with the chosen React test stack.
 
 ## 10.8 Test Data and Fixtures
 

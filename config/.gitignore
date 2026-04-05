@@ -1,0 +1,6 @@
+local/
+*.local
+*.secret
+.env
+.env.local
+
