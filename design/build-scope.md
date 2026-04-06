@@ -50,6 +50,7 @@ Define the active version and iteration boundary. This file is the scope contrac
 ## Dependencies and risks
 - Required dependencies: a local source tree, markdown/wiki content, a Knowledge Manager reviewer, and an LLM-backed proposal workflow.
 - Blocking open questions: whether KMI is CLI-first, API-first, or UI-first in the first implementation.
+- Blocking intent gap: `intent/iteration-intent.md` still contains placeholders, so there is no safe way to define a truly exact next-iteration work package yet.
 - Risk notes: stale wiki snapshots, source ambiguity, accidental write paths, and incomplete provenance capture.
 
 ## Change control
