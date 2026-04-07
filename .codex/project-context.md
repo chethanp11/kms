@@ -9,26 +9,31 @@ AgentAIdev is a design-driven, closed-loop development system that converts appr
 
 ## Core principle
 - `intent/` is the highest-priority human input.
-- `design/` is the structured source of truth for implementation.
+- The active intent set is limited to `intent/product-intent.md` and `intent/feedback-intent.md`.
+- `plan/` is the interpreted action layer that splits the latest intent into design, code, and test work.
+- `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
 - `src/`, `tests/`, and `dev_log/` are implementations, proofs, and records of design.
 - The system continuously enforces alignment between intent, design, implementation, and validation.
 
 ## Operating model
 Run work in this loop:
-1. Design grounding
-2. Iteration planning
-3. Implementation
-4. Test creation and execution
-5. Review
-6. Fix and refine
-7. Logging and traceability
-8. Alignment check across intent, design, code, and tests
+1. Intent grounding
+2. Plan generation
+3. Design grounding
+4. Implementation
+5. Test creation and execution
+6. Review
+7. Fix and refine
+8. Logging and traceability
+9. Alignment check across intent, plan, design, code, and tests
 
 Repeat the loop until the scoped feature or system is complete and stable.
 
 ## Repository contract
-- `intent/` holds human-editable product direction, constraints, feedback, and iteration overrides.
-- `design/` holds system-managed requirements, architecture, behavior, flows, contracts, and acceptance criteria.
+- `intent/` holds human-editable product direction and feedback.
+- There are no separate constraints or iteration intent files.
+- `plan/` holds the interpreted work buckets for design, code, and test changes derived from the latest intent and current repository state.
+- `design/` holds the four system-managed design files: system design, architecture, acceptance criteria, and user flows.
 - `src/README.md` is the copied project's README.
 - `src/docs/` holds application purpose and functionality documentation.
 - `src/` holds application code and implementation scaffolding.
@@ -39,7 +44,7 @@ Repeat the loop until the scoped feature or system is complete and stable.
 
 ## Precedence when artifacts disagree
 1. `intent/*`
-2. `design/build-scope.md`
+2. `plan/*`
 3. `design/*`
 4. `tests/*`
 5. `src/*`
@@ -47,11 +52,11 @@ Repeat the loop until the scoped feature or system is complete and stable.
 7. `dev_workflow/*`
 
 ## Execution rules
-1. Always start from `intent/` and translate it into design before coding.
+1. Always start from `intent/` and translate it into `plan/`, then design, before coding.
 2. Work in scoped iterations and avoid uncontrolled changes.
 3. `src/` may start empty; create scaffolding from design first, then create or refactor components as design requires.
-4. Put the copied project README in `src/README.md` and application-purpose documentation in `src/docs/`.
-5. Maintain traceability from every implementation and test back to intent and design.
+4. Put the copied project README in `src/README.md` and update `src/docs/` after code changes so the documentation reflects the implemented behavior.
+5. Maintain traceability from every implementation and test back to intent, plan, and design.
 6. Never assume correctness because code looks reasonable.
 7. Treat design as evolving when implementation exposes gaps, but do not silently diverge from it.
 8. Prefer modular, production-quality code with explicit contracts, error handling, and extensibility.

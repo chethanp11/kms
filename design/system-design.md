@@ -7,8 +7,6 @@ Define the KMS product at the highest behavioral level: what it does, who contro
 
 ## Intent sources
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
 - `intent/feedback-intent.md` when behavior changes are driven by feedback
 
 ## Current baseline
@@ -40,10 +38,10 @@ Define the KMS product at the highest behavioral level: what it does, who contro
 ## Core requirements
 | ID | Requirement | Why it matters | Linked artifacts |
 | --- | --- | --- | --- |
-| `REQ-001` | KMS must convert immutable raw source material into proposed markdown knowledge updates for `/wiki` through KMI. | This is the core maintenance function and the only path from source to governed knowledge. | `ACC-001`, `AI-001`, `TEST-001`, `TEST-003` |
-| `REQ-002` | KMS must prevent uncontrolled truth changes and surface contradictions, gaps, and uncertainty to the Knowledge Manager for approve, reject, or escalate decisions. | Governance is the operating model and protects knowledge quality. | `ACC-002`, `AI-002`, `AI-004`, `EVAL-002` |
-| `REQ-003` | KMS must provide read-only Infopedia navigation over finalized wiki content without exposing editing or publication capability. | Consumers need stable browse and search access without becoming maintainers. | `ACC-003`, `ARCH-004`, `TEST-003`, `EVAL-003` |
-| `REQ-004` | KMS must record source trace, review decisions, freshness signals, and validation evidence for every maintenance run and publication outcome. | Auditability and repeatability are required for trust and future maintenance. | `ACC-004`, `DATA-001`, `DATA-002`, `DATA-006`, `TEST-004`, `EVAL-005` |
+| `REQ-001` | KMS must convert immutable raw source material into proposed markdown knowledge updates for `/wiki` through KMI. | This is the core maintenance function and the only path from source to governed knowledge. | `ACC-001`, `ARCH-001`, `TEST-001`, `TEST-003` |
+| `REQ-002` | KMS must prevent uncontrolled truth changes and surface contradictions, gaps, and uncertainty to the Knowledge Manager for approve, reject, or escalate decisions. | Governance is the operating model and protects knowledge quality. | `ACC-002`, `ARCH-003`, `TEST-002` |
+| `REQ-003` | KMS must provide read-only Infopedia navigation over finalized wiki content without exposing editing or publication capability. | Consumers need stable browse and search access without becoming maintainers. | `ACC-003`, `ARCH-004`, `TEST-003` |
+| `REQ-004` | KMS must record source trace, review decisions, freshness signals, and validation evidence for every maintenance run and publication outcome. | Auditability and repeatability are required for trust and future maintenance. | `ACC-004`, `ARCH-006`, `TEST-004` |
 
 ## End-to-end narrative
 1. A Knowledge Manager supplies a local source-folder path to KMI.
@@ -60,4 +58,4 @@ Define the KMS product at the highest behavioral level: what it does, who contro
 - Latency target: interactive for KMI review and Infopedia browse actions; async for maintenance runs.
 - Cost boundary: maintenance runs should stay bounded to local-source analysis and selected model calls, not open-ended autonomous exploration.
 - Security or privacy constraints: no secrets in prompts, no uncontrolled publication path, and no consumer-edit surface for finalized truth.
-- Versioning rule: behavior changes that affect publication, review, or consumption must be reflected in `design/change-history.md` and the relevant version brief.
+- Change control rule: behavior changes that affect publication, review, or consumption must be reflected in the four design files and recorded in `dev_log/change-log.md`.

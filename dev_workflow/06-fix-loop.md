@@ -4,7 +4,9 @@
 Address defects and gaps identified during validation until the scoped work is either acceptable or explicitly deferred.
 
 ## Read first
-- `intent/*`
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `dev_log/*`
 - `src/README.md`
 - `src/docs/README.md`
@@ -16,9 +18,9 @@ Address defects and gaps identified during validation until the scoped work is e
 - `tests/design-traceability.md`
 
 ## Checklist
-1. Fix root causes in the correct layer: design, implementation, test, eval harness, or environment.
-2. If the root cause is bad interpretation of intent, correct design and logs before code.
-3. Update tests or evals only when the classification justifies it.
+1. Fix root causes in the correct layer: design, implementation, test, review process, or environment.
+2. If the root cause is bad interpretation of intent or plan, correct the plan and design logs before code.
+3. Update tests or manual-review coverage only when the classification justifies it.
 4. Re-run the minimum required validation to confirm the fix.
 5. Update `dev_log/validation-log.md`, `dev_log/issue-log.md`, and `dev_log/deviations-log.md`.
 6. Move non-blocking deferred work to `dev_log/backlog.md`.

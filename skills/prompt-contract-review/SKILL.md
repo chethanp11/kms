@@ -10,12 +10,11 @@ Validate the AI prompt contract, including structured inputs, output expectation
 
 ## Read
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
 - `intent/feedback-intent.md`
-- `intent/iteration-intent.md`
-- `design/ai-behavior-spec.md`
-- `design/eval-plan.md`
-- `design/api-contracts.md`
+- `design/system-design.md`
+- `design/architecture.md`
+- `design/acceptance-criteria.md`
+- `design/ux-flows.md`
 - `dev_log/change-log.md`
 - `dev_log/validation-log.md`
 - prompt examples and tool definitions

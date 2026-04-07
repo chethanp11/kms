@@ -9,7 +9,8 @@ Capture final iteration status, release readiness, and the next starting point.
 - When a copied project needs a credible handoff instead of an optimistic summary.
 
 ## Read
-- `intent/*`
+- `intent/product-intent.md`
+- `intent/feedback-intent.md`
 - `dev_log/backlog.md`
 - `dev_log/iteration-log.md`
 - `dev_log/change-log.md`
@@ -25,7 +26,7 @@ Capture final iteration status, release readiness, and the next starting point.
 ## Do
 1. Confirm all scope items are complete and validated.
 2. Review open defects, feedback, and backlog items.
-3. Identify what should be written back into `intent/feedback-intent.md` or `intent/iteration-intent.md`.
+3. Identify what should be written back into `intent/product-intent.md` or `intent/feedback-intent.md`.
 4. Document remaining risks, release notes, and next steps.
 5. Close the iteration with a status update.
 6. Record any `src/README.md` or `src/docs/` updates needed for the next iteration.

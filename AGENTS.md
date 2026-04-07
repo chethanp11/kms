@@ -10,10 +10,12 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 
 ## Operating stance
 - `intent/` is the highest-priority human source of truth.
-- Design is the structured system-managed translation of intent.
+- The active intent set is limited to `intent/product-intent.md` and `intent/feedback-intent.md`.
+- `plan/` is the interpreted action layer that buckets the latest intent into design, code, and test work before downstream edits happen.
+- `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
 - Code, tests, and artifacts are implementations of design and must stay aligned with both intent and design.
 - `src/` may start empty; create scaffolding from design first, then create or refactor components inside `src/` as design requires.
-- Acceptance criteria, tests, and evals are the release gate, not optional documentation.
+- Acceptance criteria, tests, and manual review are the release gate, not optional documentation.
 - Logs capture what actually happened, including feedback, defects, deviations, and unresolved questions.
 - Small, traceable changes are preferred over broad speculative edits.
 - If intent or design is unclear, stop implementation and surface the ambiguity explicitly.
@@ -22,38 +24,38 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 Read the latest relevant artifacts in this order before modifying more than one file:
 1. `README.md`
 2. `intent/product-intent.md`
-3. `intent/constraints-intent.md`
-4. `intent/iteration-intent.md`
-5. `intent/feedback-intent.md`
-6. `design/build-scope.md`
-7. `design/acceptance-criteria.md`
-8. Relevant files from `design/`
-9. `tests/design-traceability.md` and `tests/test-plan.md`
-10. Latest entries in `dev_log/change-log.md`, `dev_log/issue-log.md`, and `dev_log/validation-log.md`
-11. Relevant step file from `dev_workflow/`
+3. `intent/feedback-intent.md`
+4. `plan/design-update.md`
+5. `plan/code-update.md`
+6. `plan/test-update.md`
+7. Relevant files from `design/`
+8. `tests/design-traceability.md` and `tests/test-plan.md`
+9. Latest entries in `dev_log/change-log.md`, `dev_log/issue-log.md`, and `dev_log/validation-log.md`
+10. Relevant step file from `dev_workflow/`
 
 ## Required behavior for Codex
 1. Always read `intent/` before starting a task.
 2. Treat `intent/` as the starting point of every loop and the highest-priority human input.
 3. Do not modify `intent/` unless the user explicitly asks for it.
-4. Translate intent into structured design updates before coding.
-5. Preserve the detail in `intent/*` when translating into `design/*`; do not compress away constraints, distinctions, or open questions that affect behavior.
-6. Carry unresolved ambiguities into `design/open-questions.md` or the relevant design artifact instead of silently choosing a direction.
-7. Make the design update explicit about what changed, what was deferred, and which `REQ-*`, `ACC-*`, `ARCH-*`, `API-*`, `DATA-*`, `AI-*`, `TEST-*`, or `EVAL-*` items were created or revised.
-8. Update or add tests and eval mappings whenever behavior, contracts, or acceptance criteria change.
-9. Stay inside the documented version and iteration boundary after intent has been interpreted into design.
-10. Do not invent behavior that is not represented in intent, design, or acceptance artifacts.
-11. Align implementation with both intent and design.
-12. Always reflect meaningful intent changes into `design/*`, `tests/*`, and `dev_log/*`.
-13. Update logs when the work changes reality:
+4. Translate intent into `plan/*` before coding or rewriting design, code, or tests.
+5. Preserve the detail in `intent/*` when translating into `plan/*`; do not compress away constraints, distinctions, or open questions that affect behavior.
+6. Compare the latest intent against current design, code, and tests, then split the needed work into `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
+7. Carry unresolved ambiguities into `plan/*` and the relevant downstream artifact instead of silently choosing a direction.
+8. Make the plan explicit about what changed, what was deferred, and which `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*` items were created or revised.
+9. Update or add tests and eval mappings whenever behavior, contracts, or acceptance criteria change.
+10. Stay inside the documented version and iteration boundary after intent has been interpreted into plan and design.
+11. Do not invent behavior that is not represented in intent, plan, design, or acceptance artifacts.
+12. Align implementation with both intent and plan-guided design.
+13. Always reflect meaningful intent changes into `plan/*`, `design/*`, `tests/*`, and `dev_log/*`.
+14. Update logs when the work changes reality:
    - `dev_log/change-log.md` for meaningful design, code, test, eval, or workflow updates
    - `dev_log/feedback-log.md` for routed human feedback and intent follow-up
    - `dev_log/deviations-log.md` for drift, exceptions, or temporary departures from intended design
    - `dev_log/issue-log.md` for discovered defects, gaps, or blockers
    - `dev_log/validation-log.md` for actual validation evidence
-14. Keep all work traceable to `intent/*` sections and to `REQ-*`, `ACC-*`, `ARCH-*`, `API-*`, `DATA-*`, `AI-*`, `TEST-*`, `EVAL-*`, `FB-*`, or `DEV-*`.
-15. If a requirement is unclear, log it as a design issue or open question instead of implementing a guess.
-16. Treat manual feedback as first-class input; route it through `dev_log/feedback-log.md` and point back to `intent/feedback-intent.md` when it should influence future direction.
+15. Keep all work traceable to `intent/*`, `plan/*`, and to `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*`.
+16. If a requirement is unclear, log it as a plan or design issue or open question instead of implementing a guess.
+17. Treat manual feedback as first-class input; route it through `dev_log/feedback-log.md` and point back to `intent/feedback-intent.md` when it should influence future direction.
 
 ## Skill usage during development
 - Use a skill whenever the task clearly matches its purpose, especially for design update, traceability, architecture review, AI eval review, feedback triage, prompt contract review, release closeout, or test repair.
@@ -77,8 +79,8 @@ Use exactly these categories when classifying issues or feedback:
 - `intent/*` defines what humans want.
 - `REQ-*` should describe what the system must do.
 - `ACC-*` should define how readiness is judged.
-- `TEST-*` and `EVAL-*` should prove `ACC-*`.
-- `ARCH-*`, `API-*`, `DATA-*`, and `AI-*` should constrain implementation details.
+- `TEST-*` should prove `ACC-*`.
+- `ARCH-*` should constrain implementation details.
 - `FB-*` should capture human feedback without losing source or action target.
 - `DEV-*` should identify operational records such as issues, decisions, deviations, validation runs, and improvements.
 
@@ -102,9 +104,10 @@ For every iteration, review:
 ## Instruction hierarchy
 When artifacts disagree, use this precedence:
 1. `intent/*`
-2. `design/*`
-3. `tests/*`
-4. `src/*`
+2. `plan/*`
+3. `design/*`
+4. `tests/*`
+5. `src/*`
 
 If implementation deviates from intent, flag it and log it. Do not silently normalize the drift.
 
@@ -117,7 +120,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 ## Editing model
 - Human edits by default: `intent/*`
 - Human edits occasionally: `AGENTS.md`, `skills/*`
-- System-managed through workflow: `design/*`, `src/*`, `tests/*`, `dev_log/*`, `dev_workflow/*`, and usually `.codex/*`
+- System-managed through workflow: `plan/*`, `design/*`, `src/*`, `tests/*`, `dev_log/*`, `dev_workflow/*`, and usually `.codex/*`
 
 ## Source tree rule
 - `src/README.md` is the project README for the copied application.
@@ -132,7 +135,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 
 ## Practical decision rules
 - If intent changes, translate it into design first, then update tests, logs, and only then implementation.
-- If behavior changes, update design, tests, and logs in the same pass.
+- If behavior changes, update code first, then update `src/docs/` to reflect the changed behavior, and update design, tests, and logs in the same pass.
 - If only implementation changes and behavior does not, keep design stable and update tests or logs as needed.
 - If validation fails, classify the failure before changing code.
 - If a requested change exceeds the active scope, move it to backlog unless the design is updated first.
@@ -165,7 +168,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Relevant intent sections were read and interpreted explicitly.
 - In-scope IDs are explicit.
 - Implementation matches design and design matches intent.
-- Tests and evals exist or are intentionally deferred with documented rationale.
+- Tests exist or are intentionally deferred with documented rationale, and any manual review requirement is explicit.
 - Validation evidence is recorded.
 - Deviations, feedback, and next actions are logged, including what should be updated back in `intent/`.
 

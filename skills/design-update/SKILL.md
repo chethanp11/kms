@@ -1,7 +1,7 @@
 # Design Update Skill
 
 ## Purpose
-Translate `intent/*` and `dev_log/*` into concrete design updates before baseline sync or implementation.
+Translate `plan/*` and `dev_log/*` into concrete design updates before baseline sync or implementation.
 
 ## When to use
 - At the start of an iteration.
@@ -10,10 +10,9 @@ Translate `intent/*` and `dev_log/*` into concrete design updates before baselin
 - When copied-project docs in `src/README.md` or `src/docs/` need to reflect updated purpose or functionality.
 
 ## Read
-- `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
-- `intent/feedback-intent.md`
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `dev_log/change-log.md`
 - `dev_log/decision-log.md`
 - `dev_log/deviations-log.md`
@@ -26,7 +25,7 @@ Translate `intent/*` and `dev_log/*` into concrete design updates before baselin
 - `src/docs/functionalities.md`
 
 ## Do
-1. Read current intent and the latest operational evidence together.
+1. Read the current plan and the latest operational evidence together.
 2. Determine what the design should change before implementation starts.
 3. Update the relevant design artifacts and version notes.
 4. Capture the resulting design change, decision, gap, or blocker in `dev_log/*`.

@@ -1,7 +1,7 @@
 # Design Audit Skill
 
 ## Purpose
-Validate whether implementation, tests, evals, and logs remain aligned with the current intent, design, and version target.
+Validate whether implementation, tests, and logs remain aligned with the current plan, design, and version target.
 
 ## When to use
 - After a development cycle completes.
@@ -10,10 +10,9 @@ Validate whether implementation, tests, evals, and logs remain aligned with the 
 - Before closeout when drift is a real risk.
 
 ## Read
-- `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
-- `intent/feedback-intent.md`
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `dev_log/change-log.md`
 - `dev_log/decision-log.md`
 - `dev_log/deviations-log.md`
@@ -21,7 +20,7 @@ Validate whether implementation, tests, evals, and logs remain aligned with the 
 - `design/system-design.md`
 - `design/architecture.md`
 - `design/acceptance-criteria.md`
-- `design/ai-behavior-spec.md`
+- `design/ux-flows.md`
 - `src/` and `tests/` summaries
 - `src/README.md`
 - `src/docs/README.md`
@@ -29,9 +28,9 @@ Validate whether implementation, tests, evals, and logs remain aligned with the 
 - `src/docs/functionalities.md`
 
 ## Do
-1. Review the current intent, design artifacts, and active requirements.
+1. Review the current plan, design artifacts, and active requirements.
 2. Compare implementation behavior to documented acceptance criteria.
-3. Check for undocumented behavior or drift from either intent or design.
+3. Check for undocumented behavior or drift from either plan or design.
 4. Identify any missing or outdated traceability links.
 5. Confirm copied-project documentation still matches current purpose and functionality.
 

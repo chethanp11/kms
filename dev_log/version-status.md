@@ -16,4 +16,4 @@ Track readiness of the current KMS version.
 - Linked artifacts: `[design, tests, logs]`
 
 ## Current status
-- `v0.3` | `2026-04-06` | `in progress` | KMS now has a concrete governed knowledge-maintenance design baseline, with KMI, `/wiki`, and Infopedia separated in the design layer. | Implementation, runtime wiring, and source-specific conventions still need to be confirmed and built. | `design/`, `tests/design-traceability.md`, `tests/test-plan.md`, `design/open-questions.md`
+- `v0.3` | `2026-04-07` | `in progress` | KMS now has a four-file design layer and an interpreted plan layer ahead of implementation. | Implementation, runtime wiring, and remaining workflow cleanup still need to be completed. | `design/`, `plan/`, `tests/design-traceability.md`, `tests/test-plan.md`

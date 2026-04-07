@@ -11,12 +11,12 @@ Review evaluation evidence and determine whether it is strong enough to support 
 
 ## Read
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
 - `intent/feedback-intent.md`
-- `intent/iteration-intent.md`
 - `dev_log/feedback-log.md` when review findings should change future evals
-- `design/ai-behavior-spec.md`
-- `design/eval-plan.md`
+- `design/system-design.md`
+- `design/architecture.md`
+- `design/ux-flows.md`
+- `design/acceptance-criteria.md`
 - `tests/design-traceability.md`
 - `dev_log/validation-log.md`
 - `src/README.md` and `src/docs/` when eval findings affect user-facing description or functionality

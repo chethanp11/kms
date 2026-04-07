@@ -4,6 +4,9 @@
 Align the collaborator with the real current state before any new scoped work begins.
 
 ## Read first
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `src/README.md`
 - `src/docs/README.md`
 - `src/docs/purpose.md`
@@ -24,12 +27,11 @@ Align the collaborator with the real current state before any new scoped work be
 - A clear statement of whether the project is ready to enter scoping
 
 ## Checklist
-1. Confirm the active version and iteration from `design/build-scope.md`.
-2. Confirm which `REQ-*`, `ACC-*`, `TEST-*`, and `EVAL-*` items are already active.
-3. Review unresolved `DEV-*` issues, deviations, validation failures, and open questions.
-4. Identify missing links in `tests/design-traceability.md`.
-5. Verify that `src/README.md` and `src/docs/` match the current design.
-6. State what cannot safely proceed until clarified.
+1. Confirm which `REQ-*`, `ACC-*`, `ARCH-*`, and `TEST-*` items are already active.
+2. Review unresolved `DEV-*` issues, deviations, validation failures, and open questions.
+3. Identify missing links in `tests/design-traceability.md`.
+4. Verify that `src/README.md` and `src/docs/` match the current design and the code/test plan buckets.
+5. State what cannot safely proceed until clarified.
 
 ## Stop conditions
 - Intent is missing, stale, or materially conflicts with current design

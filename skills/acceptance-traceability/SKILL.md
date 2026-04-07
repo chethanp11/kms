@@ -11,25 +11,25 @@ Ensure every acceptance criterion has a usable traceability path from requiremen
 
 ## Read
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
 - `intent/feedback-intent.md` when feedback affects acceptance expectations
 - `dev_log/feedback-log.md` when review feedback changes scope or readiness
 - `design/acceptance-criteria.md`
 - `tests/test-plan.md`
 - `tests/design-traceability.md`
-- `design/build-scope.md`
+- `design/system-design.md`
+- `design/architecture.md`
+- `design/ux-flows.md`
 - `src/README.md` and `src/docs/` when copied-project documentation changes affect acceptance
 
 ## Do
 1. Extract the relevant intent sections, requirement IDs, and acceptance statements.
-2. Map each acceptance item to proving tests, evals, or explicit manual review.
-3. Identify missing `TEST-*`, `EVAL-*`, or blocking open questions.
+2. Map each acceptance item to proving tests or explicit manual review.
+3. Identify missing `TEST-*` or blocking open questions.
 4. Update `tests/design-traceability.md` with concrete mappings.
 5. If acceptance changes imply documentation changes, note the corresponding `src/README.md` or `src/docs/` updates.
 
 ## Outputs
-- A traceability matrix connecting `REQ-*` to `ACC-*`, `TEST-*`, and `EVAL-*`.
+- A traceability matrix connecting `REQ-*` to `ACC-*` and `TEST-*`.
 - A prioritized list of coverage gaps.
 - Suggested updates to tests or acceptance criteria.
 

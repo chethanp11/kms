@@ -23,5 +23,5 @@ This is the human-edited record of manual observations that should influence fut
 
 ## Notes for Codex
 - Route operationally actionable items into `dev_log/feedback-log.md`.
-- Reflect approved intent changes into `design/`, `tests/`, and iteration scope.
-- If feedback conflicts with current design, treat this file as the higher-priority human source.
+- Reflect approved intent changes into `design/` and `tests/`.
+- If feedback conflicts with current design, treat this file as the higher-priority human source for the feedback record.

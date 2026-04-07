@@ -7,8 +7,7 @@ Translate `design/system-design.md` into concrete components, interfaces, respon
 
 ## Intent sources
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
+- `intent/feedback-intent.md` when feedback changes architecture or operating constraints
 
 ## Scope of this file
 - What components exist
@@ -42,9 +41,7 @@ Translate `design/system-design.md` into concrete components, interfaces, respon
 6. The observability layer records trace, state, review outcomes, and validation evidence across the run.
 
 ## Interface boundaries
-- External interfaces must be documented in `design/api-contracts.md`.
-- Shared schemas must be documented in `design/data-models.md`.
-- Prompt and tool policies must be documented in `design/ai-behavior-spec.md`.
+- Interface boundaries that matter to this architecture are captured in this file and traced in `tests/design-traceability.md`.
 
 ## Operational constraints
 - Retry policy: bounded retries for source discovery and publication writes only

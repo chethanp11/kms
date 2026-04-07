@@ -11,8 +11,6 @@ Repair or improve tests when failures are caused by stale, incorrect, or insuffi
 
 ## Read
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
 - `intent/feedback-intent.md` when tests are driven by observed behavior gaps
 - `tests/` failing test reports
 - `design/acceptance-criteria.md`

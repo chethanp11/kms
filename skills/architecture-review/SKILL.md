@@ -10,14 +10,11 @@ Ensure the architecture can actually support the intended AI behavior, interface
 
 ## Read
 - `intent/product-intent.md`
-- `intent/constraints-intent.md`
-- `intent/iteration-intent.md`
 - `intent/feedback-intent.md` when feedback changes operating constraints
 - `design/architecture.md`
 - `design/system-design.md`
-- `design/api-contracts.md`
-- `design/data-models.md`
-- `design/ai-behavior-spec.md`
+- `design/acceptance-criteria.md`
+- `design/ux-flows.md`
 - `dev_log/change-log.md`
 - `dev_log/decision-log.md`
 - `dev_log/deviations-log.md`

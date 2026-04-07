@@ -4,7 +4,9 @@
 Confirm the finished work still matches design intent and that no undocumented behavior slipped in.
 
 ## Read first
-- `intent/*`
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `dev_log/*`
 - `src/README.md`
 - `src/docs/README.md`
@@ -17,22 +19,21 @@ Confirm the finished work still matches design intent and that no undocumented b
 - `dev_log/validation-log.md`
 
 ## Audit for
-- intent/design mismatch
-- design improvement opportunities from intent or logs
+- intent/plan/design mismatch
+- design improvement opportunities from plan or logs
 - undocumented behavior
 - source documentation drift
 - stale acceptance or test mappings
 - prompt contract drift
 - missing audit or review hooks
-- version brief mismatch
 
 ## Checklist
-1. Compare final behavior to the current intent, active requirements, and acceptance criteria.
-2. Confirm architecture, API, data, and AI constraints are still respected.
+1. Compare final behavior to the current plan, active requirements, and acceptance criteria.
+2. Confirm architecture constraints are still respected.
 3. Confirm validation evidence supports the claimed outcome.
 4. Record deviations and recommended follow-up actions.
 5. Record design updates that should be made before the next iteration if the audit found weak structure.
-6. Confirm `src/README.md` and `src/docs/` still match current intent and design.
+6. Confirm `src/README.md` and `src/docs/` still match current plan and design.
 
 ## Done when
 - Design alignment is explicitly stated

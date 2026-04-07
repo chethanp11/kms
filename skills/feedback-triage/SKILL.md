@@ -9,18 +9,20 @@ Capture manual feedback and route it to the right artifact without flattening ev
 - When manual review uncovers issues that automated checks missed.
 
 ## Read
+- `intent/product-intent.md`
 - `intent/feedback-intent.md`
-- `intent/iteration-intent.md`
 - `dev_log/feedback-log.md`
 - `dev_log/deviations-log.md`
-- `design/open-questions.md`
+- `plan/design-update.md`
+- `plan/code-update.md`
+- `plan/test-update.md`
 - `dev_log/issue-log.md`
 - `dev_log/backlog.md`
 - `src/docs/purpose.md`
 - `src/docs/functionalities.md` when feedback changes app description or behavior
 
 ## Do
-1. Review the human feedback in `intent/feedback-intent.md` and any operational feedback already logged.
+1. Review the human feedback in `intent/feedback-intent.md`, then compare it with `intent/product-intent.md` and any operational feedback already logged.
 2. Confirm the affected area: intent, design, implementation, tests, eval, or backlog.
 3. Classify severity, action target, and whether it blocks the current iteration.
 4. Route feedback to the appropriate artifact or ticket.
