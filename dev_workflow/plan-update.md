@@ -3,32 +3,29 @@
 ## Purpose
 Interpret the latest human intent against the current design, code, tests, and operational evidence, then split the resulting work into `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
 
-This is the planning front door. It does not implement changes itself. It identifies what needs to change, where the change belongs, and where current artifacts already deviate from the latest intent.
-
 ## Read first
 - `intent/product-intent.md`
-- `intent/feedback-intent.md`
+- the active feedback record in `intent/`
+- `intent/gaps.md` when present
+- `design/ux-flows.md`
+- `design/acceptance-criteria.md`
 - `design/` artifacts relevant to the current work
 - `src/` implementation relevant to the current work
 - `tests/` artifacts relevant to the current work
-- `dev_log/change-log.md`
-- `dev_log/deviations-log.md`
-- `dev_log/issue-log.md`
-- `dev_log/feedback-log.md`
-- `dev_log/validation-log.md`
+- `dev_log/design-update-log.md`
+- `dev_log/code-update-log.md`
+- `dev_log/test-update-log.md`
+- `dev_log/validation-results.md`
 
 ## Produce
 - `plan/design-update.md`
 - `plan/code-update.md`
 - `plan/test-update.md`
-- Updated `dev_log/change-log.md` when the planning step changes the workflow or scope
-- Updated `dev_log/deviations-log.md` when the plan identifies drift from current design or code
-- Updated `dev_log/issue-log.md` when the plan exposes a blocker or gap
-- Updated `dev_log/feedback-log.md` when human feedback should be routed back to intent or downstream work
+- Updated `dev_log/design-update-log.md` when the planning step changes the workflow or scope
 
 ## Planning rules
 1. Treat the latest intent as the source of desired direction.
-2. Compare that intent to the current design, code, and tests before deciding what belongs in each bucket.
+2. Compare that intent to the current UX flows, acceptance criteria, system design, architecture, code, and tests before deciding what belongs in each bucket.
 3. Split the work by destination:
    - design changes that should be made next
    - code or configuration changes that should be made next

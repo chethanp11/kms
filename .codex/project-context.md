@@ -8,39 +8,47 @@ AgentAIdev is a design-driven, closed-loop development system that converts appr
 - Then propagate any resulting rule changes into design, tests, logs, or workflow files as needed.
 
 ## Core principle
-- `intent/` is the highest-priority human input.
-- The active intent set is limited to `intent/product-intent.md` and `intent/feedback-intent.md`.
-- `plan/` is the interpreted action layer that splits the latest intent into design, code, and test work.
-- `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
-- `src/`, `tests/`, and `dev_log/` are implementations, proofs, and records of design.
-- The system continuously enforces alignment between intent, design, implementation, and validation.
+1. `intent/` is the highest-priority human input.
+2. The canonical intent set is `intent/product-intent.md`, `intent/feedback.md`, and the system-generated `intent/gaps.md` view when present.
+3. This repository currently keeps `intent/feedback-intent.md` as the active feedback file during migration, but new guidance should target the canonical file names above.
+4. `plan/` is the interpreted action layer that splits the latest intent into design, code, and test work.
+5. `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
+6. The four design files follow the combined master draft structure: numbered major sections, numbered subsections, and plain content headings.
+7. `design/system-design.md` covers system behavior and operating model.
+8. `design/architecture.md` covers structural layout, components, services, and boundaries.
+9. `design/ux-flows.md` covers user journeys, preconditions, steps, edge cases, and failure paths.
+10. `design/acceptance-criteria.md` covers deterministic correctness conditions.
+11. Design files do not use `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*` labels as in-document numbering; those prefixes are reserved for traceability artifacts in plan, tests, and logs.
+12. `src/`, `tests/`, and `dev_log/` are implementations, proofs, and records of design.
+13. The system continuously enforces alignment between intent, design, implementation, and validation.
 
 ## Operating model
 Run work in this loop:
 1. Intent grounding
-2. Plan generation
-3. Design grounding
-4. Implementation
-5. Test creation and execution
-6. Review
-7. Fix and refine
-8. Logging and traceability
-9. Alignment check across intent, plan, design, code, and tests
+2. UX flow grounding
+3. System design grounding
+4. Acceptance criteria grounding
+5. Plan generation
+6. Implementation
+7. Test creation and execution
+8. Review
+9. Fix and refine
+10. Logging and traceability
+11. Alignment check across intent, plan, design, code, and tests
 
 Repeat the loop until the scoped feature or system is complete and stable.
 
 ## Repository contract
-- `intent/` holds human-editable product direction and feedback.
-- There are no separate constraints or iteration intent files.
-- `plan/` holds the interpreted work buckets for design, code, and test changes derived from the latest intent and current repository state.
-- `design/` holds the four system-managed design files: system design, architecture, acceptance criteria, and user flows.
-- `src/README.md` is the copied project's README.
-- `src/docs/` holds application purpose and functionality documentation.
-- `src/` holds application code and implementation scaffolding.
-- `tests/` holds unit, integration, e2e, regression, eval, and traceability artifacts.
-- `dev_log/` holds logs, decisions, issues, validation evidence, deviations, feedback routing, and remaining work.
-- `dev_workflow/` holds reusable prompts, runbooks, and execution templates that update `dev_log/` as part of the loop.
-- `.codex/` holds repo-local context and command references.
+1. `intent/` holds human-editable product direction and feedback plus system-generated gap signals when present.
+2. `plan/` holds the interpreted work buckets for design, code, and test changes derived from the latest intent and current repository state.
+3. `design/` holds the four system-managed design files: system design, architecture, acceptance criteria, and user flows.
+4. `src/README.md` is the copied project's README.
+5. `src/docs/` holds application purpose and functionality documentation.
+6. `src/` holds application code and implementation scaffolding.
+7. `tests/` holds unit, integration, e2e, regression, eval, and traceability artifacts.
+8. `dev_log/` holds `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
+9. `dev_workflow/` holds reusable prompts, runbooks, and execution templates that update `dev_log/` as part of the loop.
+10. `.codex/` holds repo-local context and command references.
 
 ## Precedence when artifacts disagree
 1. `intent/*`
@@ -82,7 +90,7 @@ For every iteration, review:
 - Update `dev_log/` every iteration with what changed, what was validated, what failed, what was fixed, and what remains.
 - Make the logs sufficient for another agent to continue without context loss.
 - Treat `dev_log/*` as workflow-managed artifacts produced by `dev_workflow/*` prompts.
-- Design changes produced by `dev_workflow/00-design-update.md` must be captured in `dev_log/*`, especially `dev_log/change-log.md` and `dev_log/decision-log.md`.
+- Design changes produced by `dev_workflow/00-design-update.md` must be captured in `dev_log/design-update-log.md`.
 
 ## Alignment enforcement
 - Verify intent to design alignment.

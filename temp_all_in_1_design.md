@@ -1,6 +1,576 @@
 # KMS System Design
 
-This file is system-generated from intent and iteration workflow. Do not edit directly.
+# 1. Vision, Scope, and Operating Model
+
+## 1.1 System Definition
+
+KMS stands for Knowledge Management System. It is an enterprise-grade knowledge maintenance and publishing system that transforms raw source material into curated, structured, finalized markdown knowledge that can be consumed by humans and AI systems.
+
+KMS is not a document store, not a generic search engine, and not a chat interface. It is a governed knowledge control plane with an explicit maintenance workflow, a single finalized knowledge substrate, and a separate read-only navigation layer.
+
+### KMS in one statement
+
+- KMS is the governed system that turns immutable raw sources into finalized markdown knowledge in `/wiki`, under Knowledge Manager control, for consumption by people and AI systems.
+
+KMS exists to produce durable knowledge, preserve decision quality, and keep curated understanding synchronized with changing business context. Its unit of output is finalized markdown knowledge, not raw text, ad hoc answers, or ephemeral chat state.
+
+## 1.2 Problem Statement
+
+Analytics and reporting teams depend on business definitions, process rules, lineage context, metric logic, historical decisions, and operational exceptions. In most organizations, that knowledge is fragmented across source documents, issue threads, slide decks, local notes, tribal memory, and partially maintained repositories. The result is predictable:
+
+- raw source materials are scattered and inconsistent
+- knowledge decays as business rules, processes, and definitions change
+- teams repeatedly recreate the same context for every analysis or report
+- Copilot-style workflows become weak when they are fed unstable or uncurated context
+- business definitions, process rules, and prior decisions are not available in a reusable form
+- humans can browse source material, but AI systems need stable, governed, structured knowledge to be useful
+
+KMS solves a knowledge curation and maintenance problem, not merely a retrieval problem. Its purpose is to control how knowledge becomes finalized, how it is refreshed, and how it is exposed for downstream consumption. Retrieval alone does not create trusted institutional memory. KMS does.
+
+## 1.3 Business Purpose and Strategic Role
+
+KMS is foundational infrastructure for reimagined analytics and reporting processes. It gives knowledge users a governed knowledge base that can be reused across analysis, reporting, validation, and process execution without requiring the organization to rebuild context every time.
+
+Strategically, KMS serves four roles:
+
+- it preserves institutional memory in durable markdown form
+- it standardizes how knowledge is maintained and finalized
+- it supports governed AI enablement for knowledge-intensive work
+- it provides reusable context for future systems that depend on durable, trusted knowledge
+
+The system is designed to accelerate knowledge users without removing managerial control over what becomes truth. Knowledge can be proposed, reviewed, refined, approved, and published, but final authority remains with the Knowledge Manager. That control is essential because the value of KMS depends on trust, consistency, and traceable finalization.
+
+KMS is also intended to support GitHub Copilot-style reimagined processes by supplying curated markdown that can be used as stable context. The same finalized knowledge substrate is intended to support future agentic AI systems, including Business Analytics Agentic AI and Reporting Agentic AI, where the AI must operate against governed knowledge rather than unstructured source noise.
+
+## 1.4 Core Layers
+
+KMS is organized into three core layers plus an immutable upstream source area.
+
+### Knowledge Manager Interface (KMI)
+
+KMI is the control surface for knowledge maintenance and governance.
+
+- Purpose: orchestrate knowledge refresh, review, validation, approval, and finalization
+- Primary user: Knowledge Manager
+- Responsibilities: accept local source paths, trigger runs, inspect proposed changes, evaluate contradictions, apply rules, and decide what becomes finalized knowledge
+- Must never: serve as a consumer browse layer, allow uncontrolled truth changes, or expose finalized knowledge editing as an ungoverned direct path
+
+KMI is the only sanctioned write path for finalized knowledge. It is the maintenance engine, the governance surface, and the place where truth is controlled.
+
+### Wiki Layer
+
+The Wiki Layer is the finalized knowledge substrate stored under `/wiki`.
+
+- Purpose: hold the authoritative markdown knowledge set that represents finalized truth
+- Primary user: downstream AI systems and human readers who need the governed knowledge content itself
+- Responsibilities: persist curated markdown pages, keep knowledge human-readable, provide a stable source of truth for consumption
+- Must never: function as a raw document dump, accept uncontrolled edits outside the governed maintenance flow, or become a transient working area for draft-only content
+
+The Wiki Layer is the single source of truth for finalized knowledge. It is optimized for AI consumption, but it must remain readable and maintainable by humans.
+
+### Infopedia
+
+Infopedia is the read-only navigation layer on top of finalized wiki markdown files.
+
+- Purpose: provide human-friendly exploration of finalized knowledge
+- Primary user: knowledge consumers
+- Responsibilities: tree-based navigation, hyperlink traversal, search, and browse experience similar to Wikipedia-style knowledge exploration
+- Must never: serve as a maintenance surface, modify finalized truth, or bypass governed knowledge finalization
+
+Infopedia is for reading and navigating finalized knowledge, not for producing or approving it.
+
+### Immutable Raw Source Inputs
+
+Raw source files remain in a local source folder and are treated as immutable upstream inputs.
+
+- Purpose: supply source material for knowledge maintenance runs
+- Primary user: KMI during maintenance operations
+- Responsibilities: provide source evidence and context for knowledge updates
+- Must never: be edited in place as part of final knowledge publication, or be treated as finalized knowledge
+
+The immutability of raw source inputs is intentional. It preserves auditability and keeps the maintenance workflow anchored to a stable source boundary.
+
+## 1.5 Operating Model
+
+KMS operates as a governed maintenance pipeline with separated concerns between source intake, knowledge finalization, and knowledge consumption.
+
+The operating model is straightforward:
+
+1. Source materials land in a local source path as immutable inputs.
+2. The Knowledge Manager triggers a run in KMI.
+3. KMI analyzes the sources, applies rules and validations, and proposes knowledge updates.
+4. When required, the Knowledge Manager reviews proposed updates, checks contradictions, and makes final decisions.
+5. Finalized markdown knowledge is refreshed in `/wiki`.
+6. Infopedia reflects the finalized wiki content for browse-only navigation.
+7. Downstream AI systems and human users consume the finalized knowledge.
+
+This model establishes clear authority boundaries:
+
+- maintenance authority is centralized in KMI
+- finalized knowledge is centralized in `/wiki`
+- human browsing is separated into Infopedia
+- source inputs remain immutable
+
+That separation is fundamental. KMS should not blur maintenance with consumption, and it should not allow consumption layers to become hidden write paths. The system must make truth explicit, controlled, and refreshable.
+
+## 1.6 Scope
+
+KMS is in scope for the following capabilities at a high level:
+
+- local-folder-driven source intake trigger
+- governed maintenance of markdown knowledge
+- structured finalized wiki pages under `/wiki`
+- human-readable and AI-usable markdown knowledge
+- browse and navigation layer for knowledge consumers
+- support for Copilot-based reimagined workflows
+- design extensibility for future agentic AI use
+- validation, approval, confidence, freshness, and source trace concepts
+
+The scope is knowledge curation and controlled publication. KMS is responsible for producing trusted finalized knowledge and making it consumable in a predictable way.
+
+## 1.7 Non-Goals / Out of Scope
+
+KMS is explicitly not the following:
+
+- not a chatbot product
+- not a generic enterprise search engine
+- not a vector database replacing curated knowledge
+- not a raw document dump
+- not a source extraction or connector platform
+- not a direct editing tool for consumers in Infopedia
+- not an unguided autonomous system that changes truth without control
+
+These exclusions are deliberate. KMS is built around governed finalization, not around unrestricted interaction or unsupervised content mutation. Search, chat, extraction, and autonomy may appear in surrounding ecosystems, but they are not the core identity of KMS.
+
+## 1.8 Target Users and Consumption Model
+
+KMS serves three distinct consumer groups with different responsibilities and privileges.
+
+### Knowledge Manager
+
+The Knowledge Manager curates, reviews, governs, and finalizes knowledge. This role owns the maintenance workflow in KMI and makes the final decision on what becomes published truth in `/wiki`.
+
+### Knowledge Consumers
+
+Knowledge consumers browse, search, read, and understand finalized knowledge through Infopedia and related read surfaces. They rely on the published knowledge, but they do not modify it directly.
+
+### Downstream AI Systems
+
+Downstream AI systems consume finalized markdown knowledge as a structured knowledge substrate. They use KMS content as governed context rather than as raw untrusted input.
+
+KMS must support two AI consumption patterns:
+
+1. prompt-driven, Copilot-style consumption where curated markdown is used as stable context for answering, drafting, or assisting
+2. agentic, workflow-driven consumption where AI systems use finalized knowledge to plan, validate, and ground execution
+
+Both patterns depend on the same principle: the finalized knowledge in `/wiki` is the primary artifact. KMS should support passive AI consumption and active AI orchestration, but the governing logic and truth ownership remain centralized.
+
+## 1.9 Design Principles
+
+### Curated knowledge over raw retrieval
+
+KMS is optimized for finalized knowledge, not for exposing a pile of source fragments. Retrieval is useful only when it serves curation and consumption of trusted knowledge.
+
+### Determinism over improvisation
+
+Knowledge published by KMS should be stable, repeatable, and governed. The system should minimize ambiguity in what is considered final.
+
+### One source of truth
+
+The finalized markdown set in `/wiki` is the authoritative knowledge layer. Other layers can assist with maintenance or browsing, but they do not compete with the final store of truth.
+
+### Separation of maintenance and consumption
+
+KMI maintains and finalizes knowledge. Infopedia and downstream consumers read it. This separation prevents accidental writes from consumer surfaces and keeps governance clear.
+
+### Governance-first
+
+Every final knowledge change must be reviewable, controlled, and aligned to policy. Governance is not a secondary feature; it is the operating model.
+
+### Structured markdown over free-form sprawl
+
+Knowledge should be expressed in disciplined markdown so it is readable by humans and consistent for AI systems. Free-form accumulation of notes is not an acceptable final state.
+
+### Bounded intelligence
+
+KMS should support AI assistance without delegating truth authority to AI. AI can propose, summarize, compare, and ground work, but finalization remains controlled.
+
+### Human control over finalization
+
+The Knowledge Manager decides what becomes finalized knowledge. Human control is essential where business definitions, reporting logic, and process rules carry operational impact.
+
+### Extensibility toward agentic AI
+
+KMS should remain usable as the knowledge foundation for future agentic systems. The knowledge model should be durable enough to support planning, validation, and execution grounding without redesigning the truth layer.
+
+## 1.10 Section Summary
+
+KMS is a governed Knowledge Management System that turns immutable raw sources into finalized markdown knowledge under Knowledge Manager control. The system is built around three separated layers: KMI for maintenance and governance, `/wiki` for finalized knowledge, and Infopedia for read-only navigation.
+
+This structure matters because analytics and reporting work depends on durable institutional memory, not on repeated reconstruction from fragmented source material. KMS creates that memory in a controlled form that humans can browse and AI systems can consume.
+
+The same finalized knowledge substrate is intended to support both Copilot-style reimagined workflows and future agentic AI systems. KMS therefore functions as a knowledge control plane, a maintenance-first system, and a reusable intelligence substrate for governed human and AI consumption.
+
+# 2. User Roles, Personas, and Core Workflows
+
+## 2.1 Role Model Overview
+
+KMS supports three primary actor classes:
+
+1. Knowledge Managers
+2. Knowledge Consumers
+3. Downstream AI Systems
+
+These roles are not interchangeable. They have different permissions, different responsibilities, and different relationships to truth.
+
+### Role separation summary
+
+- Knowledge Managers own knowledge maintenance authority and finalization decisions.
+- Knowledge Consumers read and navigate finalized knowledge but do not change it.
+- Downstream AI Systems consume finalized knowledge as governed context but do not govern truth.
+
+This separation is central to KMS. Maintenance, consumption, and runtime AI usage are distinct operating modes and must remain distinct in the system design.
+
+## 2.2 Knowledge Manager Persona
+
+The Knowledge Manager is the authoritative maintainer of knowledge in KMS. This persona exists because knowledge cannot be treated as self-authoring or self-finalizing in an enterprise setting where definitions, reporting logic, process rules, and historical decisions matter.
+
+The Knowledge Manager is not merely a UI user. This role owns the maintenance and finalization workflow end to end.
+
+### Responsibilities
+
+- provide local source paths to KMI
+- initiate maintenance runs in KMI
+- review source-driven knowledge proposals
+- examine contradictions, gaps, and uncertainty
+- approve proposed updates when they are fit for publication
+- reject proposed updates when they are incorrect, incomplete, or premature
+- escalate unresolved issues when the source state or business rule is ambiguous
+- decide what becomes finalized markdown knowledge in `/wiki`
+- maintain governance discipline across updates and refresh cycles
+- protect knowledge quality, freshness, structure, and source trace
+
+### Authorized decisions
+
+The Knowledge Manager is authorized to decide:
+
+- whether a source set should be processed
+- whether a proposed change is accepted, revised, or rejected
+- whether a contradiction requires escalation or can be resolved
+- whether knowledge is ready to be published as finalized truth
+- whether a knowledge refresh should wait until the source state is sufficiently complete
+
+### Interfaces used
+
+- KMI for initiating runs, reviewing proposals, and controlling finalization
+- `/wiki` indirectly through governed publication outcomes, not through uncontrolled direct editing
+
+### Outputs governed
+
+- finalized markdown knowledge
+- approval or rejection decisions
+- resolution of contradictions and open questions
+- refreshed authoritative wiki content
+
+### What the Knowledge Manager must not do
+
+- directly edit finalized truth through Infopedia
+- bypass policy, validation, or approval logic
+- treat raw source as final knowledge
+- allow uncontrolled autonomous publication without governance
+- use consumer-facing navigation surfaces as maintenance tools
+
+The Knowledge Manager owns the truth maintenance process, not just the interface used to trigger it.
+
+## 2.3 Knowledge Consumer Persona
+
+Knowledge Consumers are users of knowledge, not maintainers of truth. They rely on finalized knowledge to understand business rules, reporting logic, prior decisions, and curated context without participating in the publication workflow.
+
+Typical Knowledge Consumers include analysts, reporting teams, business users, reviewers, and other knowledge users who need stable domain understanding.
+
+### What they use Infopedia for
+
+- browse the knowledge tree
+- search finalized knowledge
+- open linked pages
+- read structured, source-backed markdown
+- understand what knowledge exists
+- follow related concepts and navigation paths
+- use finalized markdown as input into other work
+
+### What they should be able to do
+
+- discover finalized knowledge efficiently
+- read the authoritative version of a topic
+- navigate related knowledge without reading raw source material
+- use published knowledge in analytics, reporting, and review workflows
+
+### What they must never be allowed to do directly
+
+- modify final knowledge through Infopedia
+- bypass Knowledge Manager authority
+- treat raw source folders as browse-first knowledge surfaces
+- finalize or publish knowledge directly
+- overwrite governed truth outside KMI-mediated workflows
+
+Knowledge Consumers benefit from KMS by gaining access to curated, stable, human-readable knowledge. They do not participate in maintenance decisions.
+
+## 2.4 Downstream AI Systems Persona
+
+Downstream AI Systems are a formal consumer class in KMS. The system is designed not only for human readers but also for AI systems that consume finalized wiki markdown as governed context.
+
+Downstream AI Systems must rely on finalized knowledge, not raw source noise, because their outputs are only as reliable as the knowledge substrate they receive.
+
+### A. Prompt-driven / Copilot-style consumption
+
+Examples:
+
+- GitHub Copilot-assisted reimagined processes
+- prompt-driven analytics
+- prompt-driven reporting
+- AI assistance using curated markdown files as context
+
+In this model, KMS acts as a passive but governed knowledge source. The AI system reads finalized markdown to ground prompts, drafting, explanation, summarization, or analysis.
+
+### B. Agentic / workflow-driven consumption
+
+Examples:
+
+- Business Analytics Agentic AI
+- Reporting Agentic AI
+- future domain-specific agents
+
+In this model, KMS is an active operational knowledge dependency. The agent uses finalized knowledge for:
+
+- planning input
+- validation grounding
+- explanation context
+- structured domain memory
+
+### AI system constraints
+
+- downstream AI systems consume finalized knowledge
+- they do not own wiki maintenance
+- they do not define truth
+- they should rely primarily on curated `/wiki` knowledge, not raw sources
+- they must treat KMS knowledge as governed context, not as mutable truth
+
+KMS supports both passive AI consumption and active AI orchestration, but neither mode is allowed to bypass Knowledge Manager governance.
+
+## 2.5 Role-to-Layer Mapping
+
+The relationship between roles and layers is intentionally asymmetric.
+
+### Knowledge Manager
+
+- KMI: primary operating surface for maintenance, review, validation, and finalization
+- Wiki Layer: indirect publication target through governed workflow
+- Infopedia: not a maintenance surface
+- Raw source folders: upstream inputs provided for maintenance runs
+
+### Knowledge Consumer
+
+- KMI: not used for maintenance authority
+- Wiki Layer: indirect dependency through finalized content
+- Infopedia: primary browse and read surface
+- Raw source folders: not a consumer destination
+
+### Downstream AI Systems
+
+- KMI: not a governing interface
+- Wiki Layer: primary knowledge substrate for consumption
+- Infopedia: optional human-oriented companion surface, not the AI truth store
+- Raw source folders: not the preferred runtime knowledge source
+
+### Layer ownership clarity
+
+- Knowledge Manager primarily operates through KMI
+- Knowledge Consumers primarily operate through Infopedia
+- AI systems primarily consume `/wiki`
+- raw source folders are upstream maintenance inputs, not consumer-facing destinations
+- `/wiki` is authoritative, but it is not directly managed by consumers
+- Infopedia is derived from finalized wiki content, not a separate truth store
+
+This mapping prevents role drift. It keeps maintenance, consumption, and runtime usage in separate lanes.
+
+## 2.6 Core Workflow Categories
+
+KMS has five core workflow categories.
+
+### 1. Knowledge maintenance workflow
+
+- Purpose: transform immutable source material into proposed knowledge updates
+- Primary actor(s): Knowledge Manager, KMI
+- Inputs: local source path, existing `/wiki` content, governance rules
+- Outputs: proposed updates, contradiction signals, refresh candidates
+- Where it occurs: KMI, with publication outcome to `/wiki`
+
+### 2. Knowledge review and approval workflow
+
+- Purpose: determine whether proposed knowledge should become finalized truth
+- Primary actor(s): Knowledge Manager
+- Inputs: proposed updates, validation results, uncertainty flags, source trace
+- Outputs: approved, rejected, or escalated decisions
+- Where it occurs: KMI
+
+### 3. Knowledge consumption workflow
+
+- Purpose: let humans discover and read finalized knowledge
+- Primary actor(s): Knowledge Consumers
+- Inputs: finalized wiki content
+- Outputs: understanding, navigation, and reuse in human work
+- Where it occurs: Infopedia
+
+### 4. AI consumption workflow
+
+- Purpose: let AI systems ground prompts or workflows in finalized knowledge
+- Primary actor(s): Downstream AI Systems
+- Inputs: finalized `/wiki` markdown
+- Outputs: answers, drafts, plans, validations, or execution support
+- Where it occurs: downstream AI systems consuming KMS content
+
+### 5. Ongoing governance and hygiene workflow
+
+- Purpose: keep knowledge current, coherent, and trustworthy over time
+- Primary actor(s): Knowledge Manager, governance rules, KMI
+- Inputs: freshness signals, contradictions, source updates, aging knowledge
+- Outputs: refreshed knowledge, review actions, unresolved issues, retained truth
+- Where it occurs: primarily KMI and `/wiki`
+
+These workflow categories keep maintenance distinct from consumption and make governance an ongoing activity rather than a one-time publication event.
+
+## 2.7 End-to-End Knowledge Maintenance Workflow
+
+The core KMS lifecycle moves from raw source to finalized knowledge through a controlled maintenance path.
+
+1. Source materials exist in a local folder path as immutable inputs.
+2. The Knowledge Manager enters or provides that source path in KMI.
+3. A maintenance run is initiated from KMI.
+4. KMI discovers the source materials and analyzes them against existing knowledge.
+5. The system generates proposed knowledge changes, refresh candidates, and contradiction signals.
+6. Low-confidence areas, gaps, and rule issues are surfaced for review.
+7. The Knowledge Manager reviews the proposed changes when review is required.
+8. The Knowledge Manager approves, rejects, revises, or escalates the proposed updates.
+9. Approved changes refresh the finalized markdown knowledge in `/wiki`.
+10. Infopedia reflects the updated finalized knowledge for browse-only consumption.
+11. Downstream consumers and AI systems use the new finalized state.
+
+This workflow establishes a strict boundary:
+
+- raw source does not become truth automatically
+- proposed changes are not equivalent to finalized knowledge
+- KMI is the control checkpoint
+- finalized `/wiki` content is the publication outcome
+
+The system may automate analysis and proposal generation, but finalization remains governed.
+
+## 2.8 Knowledge Review and Approval Workflow
+
+Review is the mechanism that converts proposed knowledge into controlled truth. Not every run should require human review, but every run must remain reviewable and governable.
+
+### Lifecycle states
+
+- proposed: a candidate knowledge change has been generated
+- staged: the change is prepared for decision and validation
+- review required: human judgment is needed before publication
+- approved: the Knowledge Manager has accepted the change
+- rejected: the Knowledge Manager has declined the change
+- finalized: the change is published into `/wiki`
+- open question: a contradiction or missing dependency remains unresolved
+
+### Review principles
+
+- human review is required when the system encounters contradiction, uncertainty, policy conflict, or low confidence
+- approval matters because it is the publication boundary between proposal and truth
+- contradictions must be surfaced, not silently overwritten
+- unresolved issues must remain visible until resolved or explicitly deferred
+- governance preserves trust by making finalization deliberate
+
+### Review behavior
+
+1. KMI presents the proposed knowledge state and supporting evidence.
+2. The Knowledge Manager evaluates the proposal against source trace, policy, and current finalized content.
+3. The Knowledge Manager decides whether the proposal can be finalized, needs revision, or must be rejected.
+4. If a contradiction cannot be resolved safely, the issue remains open rather than being hidden.
+5. Only approved updates advance to finalized `/wiki` content.
+
+This workflow keeps the system self-managed without making it ungoverned. Automation can prepare decisions, but governance controls publication.
+
+## 2.9 Knowledge Consumption Workflow
+
+Knowledge Consumers use KMS after knowledge is finalized. Their workflow is intentionally separate from maintenance.
+
+1. The consumer opens Infopedia.
+2. The consumer browses the tree or searches for a topic.
+3. The consumer opens the relevant finalized page.
+4. The consumer follows related links or adjacent pages as needed.
+5. The consumer reads the structured knowledge and uses it in their work.
+
+This workflow helps users understand what knowledge exists, not just what source material exists.
+
+Infopedia is designed to surface finalized knowledge in a navigable form so consumers do not need to inspect raw source artifacts to orient themselves.
+
+## 2.10 AI Consumption Workflow
+
+Downstream AI Systems consume finalized knowledge in two primary ways.
+
+### 1. Prompt-driven / Copilot-style usage
+
+1. A user or application issues a prompt in a Copilot-style workflow.
+2. The AI system uses curated `/wiki` markdown as governed context.
+3. The AI system produces an answer, draft, summary, or analysis grounded in finalized knowledge.
+
+In this pattern, KMS acts as a stable knowledge source that improves consistency and reduces reliance on scattered raw inputs.
+
+### 2. Agentic usage
+
+1. An agent receives a task, plan, or workflow objective.
+2. The agent consumes finalized `/wiki` markdown as structured domain memory.
+3. The agent uses the knowledge to plan, validate, explain, or execute within bounds.
+
+In this pattern, finalized markdown matters because agent reliability depends on durable, governed knowledge rather than opportunistic retrieval from raw material.
+
+### What KMS provides to AI consumption
+
+- curated knowledge instead of raw fragmentation
+- stable truth instead of changing source noise
+- human-reviewed context instead of ungoverned content
+- structured markdown that can support both prompt and workflow use cases
+
+KMS does not make the AI authoritative. It makes the knowledge substrate authoritative.
+
+## 2.11 Separation of Authority and Responsibility
+
+KMS depends on clear authority boundaries.
+
+- Only KMI-mediated workflows can change finalized knowledge.
+- Consumers cannot mutate truth through Infopedia.
+- AI consumers cannot redefine truth.
+- Raw inputs are not the same as finalized knowledge.
+- `/wiki` is the authoritative substrate.
+
+This boundary applies across both human and AI usage modes.
+
+### Authority separation
+
+- maintenance authority: Knowledge Manager through KMI
+- publication authority: governed finalization into `/wiki`
+- browsing authority: Knowledge Consumers through Infopedia
+- runtime AI consumption: Downstream AI Systems using finalized markdown
+
+### Responsibility separation
+
+- the Knowledge Manager owns governance and finalization
+- the Knowledge Consumer owns reading and interpretation
+- the AI system owns runtime use of knowledge, not truth definition
+
+The purpose of these boundaries is to prevent accidental truth mutation, preserve trust, and keep operational responsibility aligned with role type.
+
+## 2.12 Section Summary
+
+KMS separates maintainers, consumers, and AI systems into distinct roles with distinct privileges. The Knowledge Manager owns maintenance and finalization through KMI, Knowledge Consumers read finalized knowledge through Infopedia, and Downstream AI Systems consume finalized `/wiki` content as governed context.
+
+The workflows are intentionally different: maintenance transforms source into proposed knowledge, review converts proposal into approved truth, consumption reads finalized knowledge, and AI uses finalized knowledge for prompt-driven or agentic work. This separation is necessary for trust, governance, and long-term maintainability.
 
 # 3. System Architecture and Layered Design
 
@@ -580,6 +1150,8 @@ The design should tolerate growth in source types, knowledge types, and consumpt
 ## 3.15 Section Summary
 
 KMS is a layered governed architecture with a fixed boundary between upstream input, maintenance, finalized knowledge, and read-only navigation. Raw source feeds governed maintenance in KMI, finalized knowledge lives in `/wiki`, Infopedia projects that knowledge for consumption, and metadata/runtime services support the lifecycle without replacing the canonical substrate.
+
+This structure is what makes KMS suitable for durable human knowledge use and downstream AI consumption. The system stays governable because it keeps input, maintenance, publication, and navigation separate.
 
 # 4. Knowledge Model, Wiki Taxonomy, and Markdown Schema
 
@@ -2714,6 +3286,815 @@ graph TD
 ## 6.19 Section Summary
 
 KMS uses bounded agents, not open autonomy. Skills package reusable workflow logic, orchestration remains deterministic, and control gates protect truth before publication. The model supports self-management while preserving auditability, human governance, and the canonical authority of `/wiki`.
+
+# 7. Governance, Validation Rules, and Policy Enforcement
+
+## 7.1 Governance Model Overview
+
+Governance is the runtime enforcement layer that determines whether knowledge may progress from draft state to finalized publication. It is not documentation, guidance, or a review preference. It is executable policy applied before content can reach `/wiki`.
+
+Governance in KMS means:
+
+- rules are executable constraints, not prose recommendations
+- validation is mandatory before publish
+- agents cannot bypass governance
+- the Knowledge Manager Interface (KMI) is the human governance surface
+- the metadata DB may store governance state, but it does not replace `/wiki` as the source of truth
+
+Governance = enforceable constraints over the knowledge lifecycle.
+
+No content reaches `/wiki` without passing governance checks. Any path that attempts to publish without evaluation, approval, or traceability is invalid by design and must be blocked.
+
+## 7.2 Rule Categories
+
+Governance rules are grouped by enforcement intent so each control can be evaluated deterministically at runtime.
+
+| Rule Category | Purpose | Enforced By | Failure Impact |
+|---|---|---|---|
+| Schema Rules | Ensure pages, metadata, and structured fields conform to required shapes | Schema validator, lint agent | Block publish |
+| Content Rules | Enforce required sections, terminology, formatting, and allowed patterns | Policy QA Agent, lint agent | Block publish or escalate review |
+| Source Trace Rules | Require each claim to map to source evidence or approved provenance | Policy QA Agent, orchestrator | Block publish |
+| Relationship Rules | Validate links, parent-child structure, taxonomy placement, and reference integrity | Lint agent, orchestrator | Block publish or log warning |
+| Conflict Rules | Detect contradictions, ambiguity, and competing canonical claims | Contradiction Reviewer, Policy QA Agent | Block publish or escalate review |
+| Freshness Rules | Enforce recency thresholds and refresh requirements for time-sensitive knowledge | Policy QA Agent, orchestrator | Escalate review or block publish |
+| Duplication Rules | Prevent duplicate canonical pages, duplicate metrics, or overlapping authoritative definitions | Policy QA Agent, orchestrator | Block publish |
+| Approval Rules | Require human approval when policy or risk thresholds are crossed | KMI, approval workflow | Block publish until approved |
+
+Rule categories are cumulative. A page must satisfy every applicable category before it can be finalized.
+
+## 7.3 Rule Definition Model
+
+Rules live in `/rules/*.yaml`. Each file defines executable policy that can be loaded by the runtime and applied during validation.
+
+Required rule fields:
+
+- `id`
+- `description`
+- `scope`
+- `severity` (`error` / `warning`)
+- `condition`
+- `action` (`block_publish` / `escalate_review` / `log_only`)
+
+Rule files must be machine-readable and stable. The rule engine should treat missing required fields as a configuration error and fail closed.
+
+```yaml
+id: rule.metric_requires_source_trace
+description: Metric definitions must cite at least one approved source artifact before publication.
+scope:
+  page_types:
+    - canonical-metric
+severity: error
+condition:
+  all:
+    - field: frontmatter.source_traces
+      operator: exists
+    - field: frontmatter.source_traces
+      operator: min_items
+      value: 1
+action: block_publish
+```
+
+## 7.4 Validation Pipeline and Gates
+
+Validation is staged so failures are caught as early as possible, but publish is still blocked if any required gate fails later in the flow.
+
+Validation stages:
+
+1. pre-draft validation
+2. post-draft validation
+3. pre-publish validation
+4. post-publish lint
+
+Mandatory gates:
+
+- schema gate
+- source trace gate
+- conflict gate
+- approval gate
+
+Pre-draft validation checks input shape, required metadata, and obvious rule violations before draft generation proceeds. Post-draft validation evaluates the generated page set against policy rules and source trace requirements. Pre-publish validation is the final blocking checkpoint before `/wiki` write actions. Post-publish lint runs after publish to detect drift, broken references, and non-blocking maintenance issues, but it cannot authorize an invalid publish after the fact.
+
+```mermaid
+flowchart TD
+  A[Draft Input] --> B[Draft Generation]
+  B --> C[Validation Gates]
+  C --> F[Publish to /wiki]
+  F --> G[Post-Publish Lint]
+
+  subgraph V[Validation Gates]
+    S[Schema Gate] --> T[Source Trace Gate]
+    T --> U[Conflict Gate]
+    U --> P[Approval Gate]
+  end
+
+  C -. enters .-> S
+  S -- pass --> T
+  T -- pass --> U
+  U -- pass --> P
+  S -- fail --> X[Block Publish]
+  T -- fail --> X
+  U -- fail --> X
+  P -- fail --> X
+  G -- fail --> Y[Log / Create Follow-up]
+```
+
+The gates are non-bypassable. If any required gate fails, publish is blocked or escalated according to the rule definition. No runtime component may short-circuit this sequence.
+
+## 7.5 Approval and HITL Model
+
+Human-in-the-loop approval is required when the system cannot safely finalize knowledge on its own, when policy says the change is high impact, or when a rule explicitly escalates review.
+
+Explicit review triggers:
+
+- low confidence
+- unresolved contradiction
+- new canonical metric
+- new canonical data-asset
+- major rewrite of existing page
+- missing source trace
+- override request after failed validation
+
+| Trigger | Why Review Is Required | Allowed Outcomes |
+|---|---|---|
+| Low confidence | The system cannot justify finality with sufficient certainty | Approve, request revision, reject |
+| Unresolved contradiction | Competing claims cannot be flattened into one truth | Approve with open question, request revision, reject |
+| New canonical metric | A new authoritative metric changes downstream behavior and terminology | Approve, request revision, reject |
+| New canonical data-asset | A new authoritative data asset changes lineage and ownership assumptions | Approve, request revision, reject |
+| Major rewrite of existing page | Broad semantic change risks breaking established meaning | Approve, request revision, reject |
+| Missing source trace | Claims cannot be proven against source evidence | Approve with remediation, request revision, reject |
+| Override request after failed validation | A user is asking to bypass a blocking rule | Approve override, deny override, require escalation |
+
+Approval is an explicit state transition. It does not imply that rules are disabled; it means the Knowledge Manager has accepted the risk and the system has recorded that decision.
+
+## 7.6 Contradiction Detection and Handling
+
+Contradictions are first-class governance objects. They are identified when source evidence, page claims, or canonical records disagree on a factual statement, definition, ownership boundary, metric logic, or lifecycle state.
+
+Contradictions must never be silently flattened. The system must preserve both the conflict and the context that produced it.
+
+Unresolved contradictions create or update `open-question` pages. Those pages become the durable place where conflicting evidence, analysis, and pending decisions are recorded until the issue is resolved.
+
+Contradiction severity influences publish behavior:
+
+- high severity contradiction blocks publish
+- medium severity contradiction escalates review
+- low severity contradiction may log only if policy explicitly allows it
+
+```text
+Source A (claims metric definition X)
+            \
+             \--> Contradiction Detector --> open-question page --> Knowledge Manager review
+             /
+Source B (claims metric definition Y)
+```
+
+Conflict handling rules:
+
+- retain both source claims
+- record the page or artifact ids involved
+- classify severity
+- assign next action
+- prevent silent merge of incompatible statements
+
+## 7.7 Audit and Traceability Model
+
+Every governance decision must be auditable. The system must be able to explain why a page was blocked, approved, escalated, or published.
+
+Required governance artifacts:
+
+- rule evaluation log
+- approval decision log
+- contradiction report
+- publish summary
+- lineage trace from source to finalized wiki page
+
+| Artifact | Purpose | Retention / Usage |
+|---|---|---|
+| Rule evaluation log | Records which rules were evaluated, their inputs, and outcomes | Retained for audit and debugging of policy enforcement |
+| Approval decision log | Records human approvals, denials, overrides, reviewer identity, and timestamps | Used for governance traceability and compliance review |
+| Contradiction report | Captures conflict details, severity, implicated sources, and disposition | Used to drive open-question workflow and follow-up work |
+| Publish summary | Records what changed, what passed, what failed, and what was published | Used as the transaction record for finalized publication |
+| Lineage trace from source to finalized wiki page | Connects each finalized page to the source evidence that justified it | Used to prove provenance and support later audits |
+
+Governance logs are not optional diagnostics. They are mandatory control artifacts and must be generated whenever validation, approval, or publish decisions occur.
+
+## 7.8 Enforcement Responsibility Model
+
+Enforcement is distributed across bounded components, but responsibility is explicit. No component may claim authority outside its assigned control surface.
+
+| Component | Enforcement Responsibility | Cannot Override |
+|---|---|---|
+| Policy QA Agent | Evaluates rule conditions, source trace completeness, and policy compliance | Human approval requirements and rule definitions |
+| Contradiction Reviewer | Classifies conflicts, creates open-question pages, and routes unresolved issues | Rule severity or publish gate outcomes |
+| Orchestrator Agent | Sequences validation stages and blocks publish when a gate fails | Mandatory gates, approval policy, or contradiction status |
+| Publisher | Writes only validated content to `/wiki` and records publish metadata | Failed validation, missing approval, or blocked rules |
+| Lint Agent | Performs post-publish lint and maintenance checks | Final publish authorization or governance policy |
+
+The enforcement model is intentionally layered. Each component can stop progress within its responsibility, but none can bypass a higher-order governance rule.
+
+## 7.9 Failure Handling and Policy Outcomes
+
+Failure handling must be deterministic. Each failure type maps to an explicit system response and downstream effect.
+
+| Failure Type | Severity | System Response | Downstream Effect |
+|---|---|---|---|
+| Schema failure | Error | Block publish and return validation diagnostics | Draft remains unpublished |
+| Missing required sections | Error | Block publish and mark page incomplete | Requires remediation before retry |
+| Missing source trace | Error | Block publish or escalate to review if policy allows override review | No finalized page until trace is added or approved |
+| Broken links | Warning or error based on scope | Log issue, block if link is required for canonical navigation | Publish may proceed only if policy marks it non-blocking |
+| Duplicate canonical page risk | Error | Block publish and route for deduplication decision | Prevents competing truth sources |
+| Contradiction blocking publish | Error | Block publish and create or update open-question page | Knowledge remains unfinalized until resolved |
+| Approval rejection | Error | Block publish and record decision | Change is not published and requires revision or abandonment |
+
+Failure responses must not silently downgrade severity. If a rule is configured as `error`, the system must behave as if publication is blocked.
+
+## 7.10 Rules vs Agents vs Skills
+
+The system separates policy, execution, and reusable procedure.
+
+- rules define what is allowed
+- agents execute bounded responsibilities
+- skills define reusable procedures
+
+Rules are authoritative. Agents cannot redefine policy, reinterpret blocked rules as optional, or publish through an alternate path. Skills cannot bypass policy because skills only package procedures; they do not own authority. If a skill conflicts with a rule, the rule wins.
+
+## 7.11 Example Rule Set
+
+The runtime should support multiple rules in a single file or a small set of files, as long as every rule remains explicit, machine-readable, and independently enforceable.
+
+```yaml
+rules:
+  - id: rule.page_requires_sections
+    description: Canonical pages must include required sections before publication.
+    scope:
+      page_types:
+        - canonical-process
+        - canonical-metric
+    severity: error
+    condition:
+      all:
+        - field: page.sections
+          operator: contains_all
+          value:
+            - overview
+            - definition
+            - source-trace
+    action: block_publish
+
+  - id: rule.metric_requires_source_trace
+    description: Metric pages must reference source artifacts that justify the final definition.
+    scope:
+      page_types:
+        - canonical-metric
+    severity: error
+    condition:
+      all:
+        - field: frontmatter.source_traces
+          operator: exists
+        - field: frontmatter.source_traces
+          operator: min_items
+          value: 1
+    action: block_publish
+
+  - id: rule.new_canonical_metric_requires_approval
+    description: New canonical metrics require human approval before publication.
+    scope:
+      page_types:
+        - canonical-metric
+    severity: warning
+    condition:
+      any:
+        - field: page.change_type
+          operator: equals
+          value: new_canonical_metric
+    action: escalate_review
+```
+
+This rule set combines a schema/content rule, a source trace rule, and an approval-trigger rule. It is representative of the minimum enforceable pattern, not a special case.
+
+## 7.12 Governance Architecture Diagram
+
+Governance is enforced as a runtime control path, not a back-office checklist.
+
+```mermaid
+flowchart LR
+  A[Agent] --> B[Policy QA]
+  B --> C[Rules YAML]
+  C --> D{Pass / Fail}
+  D -- Pass --> E[Approval]
+  E --> F[Publish]
+  D -- Fail --> G[Block]
+  E -- Deny --> G
+```
+
+The diagram represents the required control chain. Any implementation that allows an agent to publish without passing through policy evaluation, rule loading, and approval handling is non-compliant.
+
+## 7.13 Section Summary
+
+Governance is enforced at runtime. Rules are explicit and machine-readable. Publish is gated. Contradictions are surfaced instead of flattened. Audit trail is mandatory. `/wiki` integrity is protected by policy, and the metadata DB supports governance without replacing `/wiki` as the source of truth.
+
+Boundary conditions are absolute:
+
+- no rule bypass allowed
+- no publish without required validation
+- no silent conflict resolution
+- no agent may override governance policy
+- `/wiki` remains protected from invalid publication
+
+# 8. Knowledge Manager Interface (KMI) and Infopedia UX Design
+
+## 8.1 UX Architecture Overview
+
+KMS exposes two distinct user-facing applications with separate authority boundaries and interaction models.
+
+- KMI is the maintenance and governance surface for the Knowledge Manager
+- Infopedia is the browse-only knowledge consumption surface for Knowledge Consumers
+- KMI supports workflow execution, validation review, approval, and finalization
+- Infopedia supports discovery, reading, navigation, and status-aware consumption
+
+Two surfaces, two responsibilities: governed maintenance vs read-only knowledge navigation.
+
+The same finalized `/wiki` knowledge may appear in both surfaces, but the interaction contract is different. KMI can change what becomes finalized truth through governed workflows. Infopedia can only present finalized knowledge and metadata derived from `/wiki` and supporting indexes.
+
+## 8.2 KMI Design Principles
+
+KMI is a workflow application, not a conversational assistant. Its design must make maintenance state visible and decisions explicit.
+
+Core principles:
+
+- workflow-driven, not chat-driven
+- stage visibility over hidden automation
+- diff-based review over opaque updates
+- rule violations surfaced explicitly
+- contradictions surfaced explicitly
+- approval actions must be deliberate
+- operational artifacts must be inspectable
+
+KMI must not become:
+
+- a generic chatbot
+- a free-form markdown editor bypassing rules
+- a consumer browse portal
+
+The UI should reinforce the governed lifecycle. A user should always know what stage a run is in, what changed, what is blocked, what is waiting for review, and what is eligible for finalization.
+
+## 8.3 Infopedia Design Principles
+
+Infopedia is a read-only navigation layer optimized for fast discovery and stable consumption.
+
+Core principles:
+
+- fast, simple, read-only
+- tree-first navigation
+- hyperlink traversal
+- search and filter support
+- freshness and status visibility
+- no maintenance authority
+
+Infopedia must not become:
+
+- a second source of truth
+- an editing surface
+- a raw-source browser
+
+The application should make finalized knowledge easy to find, easy to read, and easy to traverse without exposing maintenance actions or raw draft state.
+
+## 8.4 KMI Information Architecture
+
+KMI should be organized around maintenance workflows and review stages rather than around generic document management.
+
+| Screen | Primary Purpose | Main User Actions | Key Data Shown | Outputs or Decisions |
+|---|---|---|---|---|
+| Dashboard | Summarize current maintenance state | Open runs, inspect queues, jump to issues | Recent runs, pending reviews, contradictions, health issues | Triage decisions and next-action selection |
+| New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection |
+| Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions |
+| Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation |
+| Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes |
+| Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision |
+| Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open |
+| Approvals / Finalization | Final gate before publish | Review blockers, approve or reject finalization | Validation summary, eligible items, blockers | Finalize or block publish |
+| Maintenance Health / Lint | Track ongoing quality issues | Open stale items, fix links, assign refresh | Broken links, stale pages, duplicates, open questions | Maintenance action or remediation task |
+| Rules / Policy Visibility | Make governance visible to users | Inspect rules and applicability | Rule inventory, severity, scope, failures | Policy-aware maintenance decisions |
+
+Each screen supports a bounded decision. KMI should not blur review, approval, and finalization into a single opaque action.
+
+## 8.5 KMI Dashboard
+
+The dashboard is a control panel, not a landing page. It should answer what requires attention now and what is blocked.
+
+Dashboard content:
+
+- recent runs
+- run statuses
+- pending reviews
+- contradictions requiring attention
+- pages pending approval
+- lint/health summary
+- freshness issues
+- latest finalized updates
+
+| Dashboard Widget | Purpose | Primary Action |
+|---|---|---|
+| Recent runs | Show latest maintenance executions | Open run detail |
+| Run statuses | Show blocked, in progress, complete, failed states | Resume investigation |
+| Pending reviews | Surface items waiting on human review | Open diff or approval screen |
+| Contradictions | Surface open conflicts and their severity | Open contradiction review |
+| Pages pending approval | Show finalization queue | Approve, reject, defer |
+| Lint / health summary | Summarize structural issues | Open maintenance health |
+| Freshness issues | Highlight stale or overdue content | Queue refresh work |
+| Latest finalized updates | Show what changed in `/wiki` | Inspect publish summary |
+
+The dashboard should be filterable by run, page family, severity, and status so the Knowledge Manager can focus on unresolved governance work.
+
+## 8.6 KMI Intake and Run Initiation UX
+
+The new run screen starts the governed ingestion workflow.
+
+Required inputs:
+
+- local source path input
+- optional domain hint
+- optional run notes
+- optional dry-run / strictness controls if consistent with policy and prior sections
+
+The UI must validate the path before run creation and surface the result immediately.
+
+Required feedback states:
+
+- invalid path
+- empty folder
+- inaccessible path
+- supported vs unsupported file summary
+
+Numbered flow:
+
+1. User enters a local source path.
+2. UI validates path existence and access.
+3. UI optionally resolves folder contents and preview metadata.
+4. UI shows supported file types and unsupported file counts.
+5. User adds optional domain hint and run notes.
+6. User starts a dry-run or governed run, subject to policy.
+7. Backend creates a run record and begins orchestration.
+8. KMI transitions to run detail and stage tracking.
+
+The intake screen must prevent accidental launches from bad paths and must not imply that unsupported content is acceptable without review.
+
+## 8.7 KMI Run Detail and Stage Tracking
+
+Run detail must make orchestration visible rather than opaque. The user should be able to see what the system did, what it is doing now, and what it failed to do.
+
+Run detail behavior:
+
+- show ordered stages
+- show current stage and status
+- show source counts
+- show parse outcomes
+- show source-note counts
+- show impact summary
+- show warnings and failures
+- show artifact links
+
+| Stage | Status Values | User Meaning |
+|---|---|---|
+| Intake | queued, running, complete, failed | Source discovery and run creation state |
+| Parse | queued, running, complete, failed | Source files are being parsed and classified |
+| Normalize | queued, running, complete, failed | Raw input is being standardized into structured artifacts |
+| Validate | queued, running, complete, failed, blocked | Rules and gates are being applied |
+| Review | waiting, in_review, approved, rejected, escalated | Human decision is required or in progress |
+| Finalize | queued, running, complete, failed, blocked | Final wiki write is being prepared or executed |
+| Lint | queued, running, complete, failed | Post-publish checks and maintenance are executing |
+
+The run timeline should show the current stage prominently and preserve the ordered stage history so the user can reason about failures without opening backend logs.
+
+## 8.8 KMI Proposed Changes and Diff Review UX
+
+This is the primary review surface for the Knowledge Manager. It must support structured, evidence-backed evaluation of proposed knowledge changes.
+
+Core elements:
+
+- list of impacted pages
+- action type (`create`, `update`, `no-op`, `review`)
+- confidence indicators
+- source trace indicators
+- rule violations inline
+- before/after markdown diff
+- section-level change visibility
+- ability to approve, reject, defer, or escalate where policy allows
+
+Review should always show the relationship between source evidence, generated knowledge, and target wiki pages. The review model must make it clear whether a change is a small correction, a semantic rewrite, or a new canonical entry.
+
+| Review Element | Why It Exists | User Decision Supported |
+|---|---|---|
+| Impacted pages | Show what knowledge will change | Confirm scope and avoid accidental collateral edits |
+| Action type | Explain the system’s intended operation | Approve, reject, or defer by change class |
+| Confidence indicators | Expose uncertainty before publish | Decide whether human review is required |
+| Source trace indicators | Show provenance coverage | Decide whether evidence is sufficient |
+| Inline rule violations | Make policy failures visible in context | Fix, reject, or escalate |
+| Before/after markdown diff | Show exact content delta | Review semantic change before finalization |
+| Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
+
+The review screen must not rely on a generic diff alone. It needs structured overlays for trace, confidence, and rule status so the Knowledge Manager can make a governed decision quickly.
+
+## 8.9 KMI Contradictions and Open Questions UX
+
+The contradiction surface is the place where conflicts remain explicit until they are resolved or intentionally carried forward as open questions.
+
+Required elements:
+
+- contradiction list
+- severity
+- affected pages
+- conflicting evidence summary
+- linked source notes/pages
+- proposed resolution path
+- action to mark for review / convert to open-question / resolve where permitted
+
+Unresolved contradiction handling must remain explicit. The UI should show whether a contradiction is blocking publish, requiring escalation, or being maintained as an open question pending additional evidence.
+
+The review workflow should preserve the conflict record even when a temporary publication decision is made under policy. No screen should visually imply that a contradiction no longer exists until it is explicitly resolved.
+
+## 8.10 KMI Approvals and Finalization UX
+
+The approval surface is the final governed checkpoint before publication to `/wiki`.
+
+Expected content:
+
+- queue of staged revisions
+- validation results summary
+- approval blockers
+- eligible auto-finalize indicators
+- explicit approve/reject actions
+- finalization result summary
+
+The user must know exactly what is being finalized and why. There should be no silent publication, no hidden auto-commit, and no ambiguous approval state.
+
+The finalization screen should show:
+
+- which pages are included
+- which rules passed
+- which rules failed or were escalated
+- whether contradictions remain open
+- whether the publish action is blocked, eligible, or already executed
+
+## 8.11 KMI Maintenance Health and Lint UX
+
+Maintenance health screens track the long-tail quality of finalized knowledge and working artifacts.
+
+Primary findings:
+
+- stale pages
+- orphan pages
+- broken links
+- missing source trace
+- duplicate canonical pages
+- unresolved open questions
+- pages needing refresh
+
+| Health Finding | Severity | Suggested Action |
+|---|---|---|
+| Stale pages | Warning or error based on freshness policy | Queue refresh and review source drift |
+| Orphan pages | Warning | Re-link or remove from taxonomy |
+| Broken links | Warning or error based on importance | Repair references or mark as intentionally deprecated |
+| Missing source trace | Error | Add trace or block publish on refresh |
+| Duplicate canonical pages | Error | Deduplicate and choose one authoritative page |
+| Unresolved open questions | Warning or error based on impact | Escalate, resolve, or retain as managed conflict |
+| Pages needing refresh | Warning | Trigger maintenance run or targeted update |
+
+The health view should support triage, filtering, and assignment. It is a maintenance queue, not a passive report.
+
+## 8.12 KMI Permissions and Action Boundaries
+
+The Knowledge Manager has broad authority in KMI, but that authority is still bounded by governance.
+
+Through KMI, the Knowledge Manager can:
+
+- trigger runs
+- inspect artifacts
+- review diffs
+- approve/reject
+- resolve or escalate contradictions within policy
+- finalize where permitted
+
+KMI must still not allow:
+
+- bypass of validation
+- direct edit of finalized files outside workflow
+- publish without required gates
+
+KMI authority is explicit and operational, but it remains bounded by the governance model in Section 7. The interface should make permissions visible through disabled actions, blocked states, and review prompts rather than hiding unsupported controls.
+
+## 8.13 Infopedia Information Architecture
+
+Infopedia should organize finalized knowledge into a simple read path that helps users discover what exists and where to read it.
+
+| Area | Purpose | Main User Actions | Key Data Shown |
+|---|---|---|---|
+| Tree Navigation | Provide hierarchical entry into finalized knowledge | Expand nodes, click pages, browse families | Domains, page families, page titles |
+| Search Results | Help users locate pages quickly | Search, refine, open results | Titles, snippets, freshness, status |
+| Page View | Render finalized markdown for reading | Read, scroll, follow links | Full page content, metadata, status |
+| Related Pages / Backlinks | Show connected knowledge | Traverse related content | Parent/child links, backlinks, siblings |
+| Filters / Facets | Narrow browse and search results | Filter by type, domain, freshness, status | Facet counts, matching pages |
+| Freshness / Status Indicators | Show whether content is current | Inspect page state, decide trust level | Freshness, review state, update age |
+
+Infopedia should keep the navigation model simple enough that users can answer “what knowledge exists?” and “what is the authoritative page?” without seeing workflow controls.
+
+## 8.14 Infopedia Navigation and Browse Model
+
+Tree navigation should be derived from finalized wiki content and supporting metadata, not maintained as a separate truth store.
+
+Navigation behavior:
+
+- organize by page family, domain, or another deterministic hierarchy
+- support expandable nodes
+- click through to page view
+- support discovery of what knowledge exists
+
+The browse model should preserve canonical hierarchy while allowing users to move laterally through links and backlinks.
+
+```text
+Infopedia
+├─ Domain
+│  ├─ Page family
+│  │  ├─ Page
+│  │  └─ Related page
+│  └─ Page family
+└─ Domain
+   └─ Page family
+```
+
+```text
+Tree navigation -> page family -> page view -> related pages -> backlinks -> other families
+```
+
+The tree is a view over finalized knowledge, not a parallel authoring structure. If the `/wiki` hierarchy changes, Infopedia reflects it through backend-derived navigation data.
+
+## 8.15 Infopedia Search and Page View UX
+
+Infopedia search should support full-text discovery over finalized knowledge and status-aware filtering where the metadata is available.
+
+Supported browse behavior:
+
+- full-text search over finalized knowledge
+- filter by page type, domain, freshness, confidence, status if appropriate
+- page rendering of markdown
+- related links and backlinks
+- display of source trace summary, confidence, and freshness
+
+| Page View Element | Purpose | Derived From |
+|---|---|---|
+| Markdown body | Render authoritative knowledge for reading | Finalized `/wiki` content |
+| Source trace summary | Explain provenance at a glance | Metadata and governance records |
+| Confidence indicator | Show strength of the underlying knowledge | Validation and review results |
+| Freshness indicator | Show update age or review recency | Run history and page metadata |
+| Related links | Enable lateral navigation | Wiki links and metadata graph |
+| Backlinks | Show where the page is referenced | Link index or metadata graph |
+
+Page view should optimize readability without changing truth. The rendering layer may shape presentation, but it must not reinterpret the content or invent governance status.
+
+## 8.16 KMI vs Infopedia UX Boundary
+
+The boundary between KMI and Infopedia is structural, not cosmetic.
+
+| Aspect | KMI | Infopedia |
+|---|---|---|
+| Primary purpose | Maintenance, review, approval, finalization | Browse, search, read |
+| User role | Knowledge Manager | Knowledge Consumer |
+| Authority | Governed write path | Read-only presentation path |
+| Workflow awareness | High | Low |
+| Action surface | Run, review, approve, reject, finalize | Open, search, filter, traverse |
+| Source visibility | Raw and structured source evidence | Finalized knowledge and metadata summaries |
+| Conflict handling | Explicit contradiction management | Read-only display of finalized state and status |
+| Finalization capability | Yes, through governed workflow | No |
+
+The same finalized `/wiki` knowledge may appear in both contexts, but authority differs. KMI is action-oriented and workflow-aware. Infopedia is consumption-oriented and read-only.
+
+## 8.17 UX State Model and Status Indicators
+
+The UI should surface the same core state vocabulary across both surfaces so users can reason about run progress and content trust.
+
+Common statuses:
+
+- run status
+- page status
+- review_required
+- confidence
+- freshness
+- contradiction severity
+
+These states should appear as badges, warnings, queues, and filters. The implementation should keep the semantics consistent across KMI and Infopedia even when the presentation differs.
+
+- badges indicate discrete state
+- warnings indicate degraded trust or incomplete work
+- queues indicate items requiring action
+- filters expose state subsets for triage and browse
+
+Status values must be derived from backend data rather than inferred only from UI state.
+
+## 8.18 UI-to-Backend Interaction Expectations
+
+The UI should be thin over backend logic. It should present state, dispatch actions, and render results rather than re-implementing governance or workflow logic in the browser.
+
+KMI needs:
+
+- run status
+- artifacts
+- diff data
+- validation results
+- approval actions
+- contradictions
+- health findings
+
+Infopedia needs:
+
+- navigation tree
+- page content
+- related links
+- search results
+- metadata indicators
+
+Policy decisions happen in backend services, not only in frontend state. The frontend may initiate a review or approval action, but the backend must decide whether that action is allowed and whether the underlying publish path is valid.
+
+## 8.19 UX Diagrams and Example Flows
+
+### KMI maintenance workflow UX
+
+```mermaid
+flowchart TD
+  A[Knowledge Manager] --> B[KMI Dashboard]
+  B --> C[New Run / Intake]
+  C --> D[Run Detail]
+  D --> E[Source Review]
+  E --> F[Proposed Changes / Diff Review]
+  F --> G[Contradictions / Open Questions]
+  G --> H[Approvals / Finalization]
+  H --> I[Publish to /wiki]
+  I --> J[Maintenance Health / Lint]
+```
+
+### Infopedia browse flow
+
+```mermaid
+flowchart TD
+  A[Knowledge Consumer] --> B[Tree Navigation]
+  B --> C[Search Results]
+  C --> D[Page View]
+  D --> E[Related Pages / Backlinks]
+  D --> F[Filters / Facets]
+  D --> G[Freshness / Status Indicators]
+```
+
+### KMI and Infopedia separation over `/wiki`
+
+```text
+              +-----------------------+
+              |          KMI          |
+              | maintenance, review   |
+              | approval, finalize    |
+              +-----------+-----------+
+                          |
+                          | governed write path
+                          v
+                    +------------+
+                    |   /wiki    |
+                    | finalized  |
+                    | knowledge  |
+                    +------------+
+                          ^
+                          | read-only surface
+              +-----------+-----------+
+              |       Infopedia       |
+              | browse, search, read   |
+              +-----------------------+
+```
+
+### Knowledge Manager journey
+
+1. The Knowledge Manager opens KMI and reviews the dashboard.
+2. A recent run shows one contradiction, one missing source trace, and two pages pending approval.
+3. The Knowledge Manager opens the run detail to inspect stage progress and artifact links.
+4. The user opens diff review, confirms the changes are scoped to one metric page, and inspects inline source traces.
+5. The user opens contradiction review, resolves one issue, and leaves one open question pending further evidence.
+6. The user moves to approvals, sees a blocking validation failure on the remaining page, and rejects finalization until the source trace is added.
+
+### Knowledge Consumer journey
+
+1. The Knowledge Consumer opens Infopedia and searches for a canonical metric page.
+2. Search results show the page title, freshness indicator, and current status.
+3. The user opens the page view and reads the finalized markdown.
+4. The user follows a related page link to a connected process definition.
+5. The user uses tree navigation to discover sibling pages in the same domain without seeing any maintenance controls.
+
+## 8.20 Section Summary
+
+KMI is the governed maintenance interface. Infopedia is the read-only navigation layer. The UX mirrors the authority boundaries of KMS, so review, contradictions, and approvals are visible in KMI while finalized knowledge remains easy to discover in Infopedia.
+
+This separation preserves trust and usability:
+
+- KMI handles workflow, validation, review, and finalization
+- Infopedia handles browse, search, and reading
+- finalized `/wiki` knowledge remains the shared content substrate
+- raw source folders are not consumer-facing browse surfaces
+- UI is not the source of truth; `/wiki` is
 
 # 9. Data Model, Storage, APIs, and Runtime Services
 

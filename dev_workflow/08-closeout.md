@@ -5,32 +5,27 @@ Close the iteration cleanly and leave the next collaborator with an accurate sta
 
 ## Read first
 - `intent/product-intent.md`
-- `intent/feedback-intent.md`
-- `dev_log/*`
+- the active feedback record in `intent/`
+- `dev_log/design-update-log.md`
+- `dev_log/code-update-log.md`
+- `dev_log/test-update-log.md`
+- `dev_log/validation-results.md`
 - `src/README.md`
 - `src/docs/README.md`
 - `src/docs/purpose.md`
 - `src/docs/functionalities.md`
-- `dev_log/iteration-log.md`
-- `dev_log/release-notes.md`
-- `dev_log/version-status.md`
-- `dev_log/validation-log.md`
 - `tests/smoke-checklist.md`
-- `dev_log/issue-log.md`
 
 ## Update
-- `dev_log/release-notes.md`
-- `dev_log/version-status.md`
-- `dev_log/iteration-log.md`
-- `dev_log/backlog.md` if work is deferred
-- recommend updates for `intent/feedback-intent.md` or `intent/product-intent.md`
+- recommend updates for the active feedback record in `intent/` or `intent/product-intent.md`
 - recommend updates for `src/README.md` or `src/docs/` if the project description changed
+- recommend updates for the active `dev_log/` files if the closeout state changed
 
 ## Checklist
 1. Confirm smoke checks are complete.
-2. Confirm release notes match reality and not aspiration.
-3. Summarize what feedback or direction should be written back into `intent/feedback-intent.md` or `intent/product-intent.md`.
-4. Update version status with remaining risks and follow-up items.
+2. Confirm the recorded validation and change details match reality and not aspiration.
+3. Summarize what feedback or direction should be written back into the active feedback record in `intent/` or `intent/product-intent.md`.
+4. Update the active `dev_log/` files with remaining risks and follow-up items.
 5. Carry forward deferred work explicitly.
 6. Leave a concise next-iteration starting point.
 7. Note any design improvements that should be carried into the next iteration from plan and logs.

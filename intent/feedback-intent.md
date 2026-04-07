@@ -22,6 +22,6 @@ This is the human-edited record of manual observations that should influence fut
 - Improvement suggestions
 
 ## Notes for Codex
-- Route operationally actionable items into `dev_log/feedback-log.md`.
+- Route operationally actionable items into `dev_log/design-update-log.md` or `dev_log/validation-results.md` as appropriate.
 - Reflect approved intent changes into `design/` and `tests/`.
 - If feedback conflicts with current design, treat this file as the higher-priority human source for the feedback record.

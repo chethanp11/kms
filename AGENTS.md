@@ -9,29 +9,38 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 - Then propagate any resulting rule changes into design, tests, logs, or workflow files as needed.
 
 ## Operating stance
-- `intent/` is the highest-priority human source of truth.
-- The active intent set is limited to `intent/product-intent.md` and `intent/feedback-intent.md`.
-- `plan/` is the interpreted action layer that buckets the latest intent into design, code, and test work before downstream edits happen.
-- `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
-- Code, tests, and artifacts are implementations of design and must stay aligned with both intent and design.
-- `src/` may start empty; create scaffolding from design first, then create or refactor components inside `src/` as design requires.
-- Acceptance criteria, tests, and manual review are the release gate, not optional documentation.
-- Logs capture what actually happened, including feedback, defects, deviations, and unresolved questions.
-- Small, traceable changes are preferred over broad speculative edits.
-- If intent or design is unclear, stop implementation and surface the ambiguity explicitly.
+1. `intent/` is the highest-priority human source of truth.
+2. The canonical human-owned intent set is `intent/product-intent.md`, `intent/feedback.md`, and the system-generated `intent/gaps.md` view when present.
+3. This repository currently keeps `intent/feedback-intent.md` as the active feedback file during migration, but new guidance should treat `intent/feedback.md` as the target shape.
+4. `plan/` is the interpreted action layer that buckets the latest intent into design, code, and test work before downstream edits happen.
+5. `design/` contains only `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`.
+6. The four design files follow the combined master draft structure: numbered major sections, numbered subsections, and plain headings for content blocks.
+7. `design/system-design.md` covers the system-level behavior and operating model.
+8. `design/architecture.md` covers the structural layout, components, services, and boundaries.
+9. `design/ux-flows.md` covers user journeys, preconditions, steps, edge cases, and failure paths.
+10. `design/acceptance-criteria.md` covers deterministic, testable correctness conditions.
+11. Design files do not use `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*` labels as in-document numbering. Those prefixes are reserved for traceability in plan, tests, and log artifacts.
+12. Code, tests, and artifacts are implementations of design and must stay aligned with both intent and design.
+13. `src/` may start empty; create scaffolding from design first, then create or refactor components inside `src/` as design requires.
+14. Acceptance criteria, tests, and manual review are the release gate, not optional documentation.
+15. `dev_log/` is limited to `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
+16. Logs capture what actually happened, including feedback, defects, unresolved questions, and validation evidence.
+17. Small, traceable changes are preferred over broad speculative edits.
+18. If intent or design is unclear, stop implementation and surface the ambiguity explicitly.
 
 ## Required read order before substantial work
 Read the latest relevant artifacts in this order before modifying more than one file:
 1. `README.md`
 2. `intent/product-intent.md`
-3. `intent/feedback-intent.md`
-4. `plan/design-update.md`
-5. `plan/code-update.md`
-6. `plan/test-update.md`
-7. Relevant files from `design/`
-8. `tests/design-traceability.md` and `tests/test-plan.md`
-9. Latest entries in `dev_log/change-log.md`, `dev_log/issue-log.md`, and `dev_log/validation-log.md`
-10. Relevant step file from `dev_workflow/`
+3. `intent/feedback.md` or the current active feedback file during migration
+4. `intent/gaps.md` when system-detected gaps exist
+5. `plan/design-update.md`
+6. `plan/code-update.md`
+7. `plan/test-update.md`
+8. Relevant files from `design/`
+9. `tests/design-traceability.md` and `tests/test-plan.md`
+10. The active `dev_log/` files
+11. Relevant step file from `dev_workflow/`
 
 ## Required behavior for Codex
 1. Always read `intent/` before starting a task.
@@ -46,16 +55,15 @@ Read the latest relevant artifacts in this order before modifying more than one 
 10. Stay inside the documented version and iteration boundary after intent has been interpreted into plan and design.
 11. Do not invent behavior that is not represented in intent, plan, design, or acceptance artifacts.
 12. Align implementation with both intent and plan-guided design.
-13. Always reflect meaningful intent changes into `plan/*`, `design/*`, `tests/*`, and `dev_log/*`.
+13. Always reflect meaningful intent changes into `plan/*`, `design/*`, `tests/*`, and the active `dev_log/` files.
 14. Update logs when the work changes reality:
-   - `dev_log/change-log.md` for meaningful design, code, test, eval, or workflow updates
-   - `dev_log/feedback-log.md` for routed human feedback and intent follow-up
-   - `dev_log/deviations-log.md` for drift, exceptions, or temporary departures from intended design
-   - `dev_log/issue-log.md` for discovered defects, gaps, or blockers
-   - `dev_log/validation-log.md` for actual validation evidence
+   - `dev_log/design-update-log.md` for meaningful design updates
+   - `dev_log/code-update-log.md` for meaningful code updates
+   - `dev_log/test-update-log.md` for meaningful test updates
+   - `dev_log/validation-results.md` for actual validation evidence
 15. Keep all work traceable to `intent/*`, `plan/*`, and to `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*`.
 16. If a requirement is unclear, log it as a plan or design issue or open question instead of implementing a guess.
-17. Treat manual feedback as first-class input; route it through `dev_log/feedback-log.md` and point back to `intent/feedback-intent.md` when it should influence future direction.
+17. Treat manual feedback as first-class input; route it through the active feedback record in `intent/` and the operational logs in `dev_log/` when it should influence future direction.
 
 ## Skill usage during development
 - Use a skill whenever the task clearly matches its purpose, especially for design update, traceability, architecture review, AI eval review, feedback triage, prompt contract review, release closeout, or test repair.
@@ -76,13 +84,16 @@ Use exactly these categories when classifying issues or feedback:
 - backlog enhancement
 
 ## Traceability rules
-- `intent/*` defines what humans want.
-- `REQ-*` should describe what the system must do.
-- `ACC-*` should define how readiness is judged.
-- `TEST-*` should prove `ACC-*`.
-- `ARCH-*` should constrain implementation details.
-- `FB-*` should capture human feedback without losing source or action target.
-- `DEV-*` should identify operational records such as issues, decisions, deviations, validation runs, and improvements.
+1. `intent/*` defines what humans want.
+2. `design/ux-flows.md` defines how users experience the system.
+3. `design/system-design.md` defines how the system behaves.
+4. `design/acceptance-criteria.md` defines what correct means.
+5. `REQ-*` should describe what the system must do.
+6. `ACC-*` should define how readiness is judged.
+7. `TEST-*` should prove `ACC-*`.
+8. `ARCH-*` should constrain implementation details.
+9. `FB-*` should capture human feedback without losing source or action target.
+10. `DEV-*` should identify operational records such as issues, decisions, deviations, validation runs, and improvements.
 
 ## Testing discipline
 - Create tests for all implemented behavior.
@@ -111,11 +122,10 @@ When artifacts disagree, use this precedence:
 
 If implementation deviates from intent, flag it and log it. Do not silently normalize the drift.
 
-## Template constraints
-- Do not create product-specific business logic in this template repository.
-- Keep this folder reusable by avoiding app-specific examples.
+## Repository constraints
+- Keep the repo reusable by avoiding hardcoded app-specific examples in workflow and contract text unless the active project intent requires them.
 - Use bracketed placeholders such as `[Project Name]`, `[Version]`, and `[Primary Model]` where project-specific content belongs.
-- Treat the copied project as a template baseline, not a finished application.
+- Treat the copied project as a reusable baseline, not a finished application.
 
 ## Editing model
 - Human edits by default: `intent/*`
@@ -128,10 +138,10 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - `src/` may be empty at the beginning; scaffold it from design, then refactor or expand it as design requires.
 
 ## Log ownership rule
-- Every `dev_log/*` file is updated by `dev_workflow/*` prompts, not by ad hoc manual edits.
-- Use workflow prompts to record changes, decisions, validations, deviations, issues, feedback routing, and closeout state.
+- The four `dev_log/` files are updated by `dev_workflow/*` prompts, not by ad hoc manual edits.
+- Use workflow prompts to record changes and validation evidence.
 - If a user wants a direct log update, translate it into the appropriate workflow step and then update the log through that step.
-- Design changes produced by `dev_workflow/00-design-update.md` must be captured in `dev_log/*`, especially `dev_log/change-log.md` and `dev_log/decision-log.md`.
+- Design changes produced by `dev_workflow/00-design-update.md` must be captured in `dev_log/design-update-log.md`.
 
 ## Practical decision rules
 - If intent changes, translate it into design first, then update tests, logs, and only then implementation.
@@ -142,9 +152,9 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Do not code directly from vague intent; structure it into design first.
 
 ## Logging and artifacts
-- Every iteration must update `dev_log/` with what was implemented, what was validated, what was fixed, what gaps remain, and what should flow back into `intent/`.
+- Every iteration must update the four `dev_log/` files with what was implemented and what was validated.
 - Logs must allow continuation by another agent without loss of context.
-- If implementation exposes a design gap, record it before normalizing the code path.
+- If implementation exposes a design gap, record it in the relevant plan or design artifact before normalizing the code path.
 
 ## Alignment enforcement
 - Continuously verify intent to design alignment.
@@ -170,7 +180,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Implementation matches design and design matches intent.
 - Tests exist or are intentionally deferred with documented rationale, and any manual review requirement is explicit.
 - Validation evidence is recorded.
-- Deviations, feedback, and next actions are logged, including what should be updated back in `intent/`.
+- Next actions are clear enough to continue the iteration without archaeology.
 
 ## Behavior expectations
 - Be precise, not verbose.

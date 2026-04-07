@@ -5,7 +5,12 @@ Run the checks that prove the scoped work and record the evidence.
 
 ## Read first
 - `plan/test-update.md`
-- `dev_log/*`
+- `design/ux-flows.md`
+- `design/acceptance-criteria.md`
+- `dev_log/design-update-log.md`
+- `dev_log/code-update-log.md`
+- `dev_log/test-update-log.md`
+- `dev_log/validation-results.md`
 - `src/README.md`
 - `src/docs/README.md`
 - `src/docs/purpose.md`
@@ -13,16 +18,14 @@ Run the checks that prove the scoped work and record the evidence.
 - `.codex/commands.md`
 - `tests/test-plan.md`
 - `tests/design-traceability.md`
-- `dev_log/change-log.md`
 
 ## Update
-- `dev_log/validation-log.md`
-- `dev_log/issue-log.md` for failures
-- `dev_log/version-status.md` if readiness changes materially
+- `dev_log/validation-results.md`
+- `dev_log/design-update-log.md`, `dev_log/code-update-log.md`, or `dev_log/test-update-log.md` if validation changes the scoped work
 
 ## Checklist
 1. Run required unit, integration, e2e, regression, and smoke commands for the active scope.
-2. Validate that observed behavior still matches the interpreted plan, not only the current implementation.
+2. Validate that observed behavior still matches the interpreted plan, UX flows, and acceptance criteria, not only the current implementation.
 3. Record what ran, what did not run, and why.
 4. Classify every failure before changing code.
 5. Treat review gaps as real release input.

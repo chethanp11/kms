@@ -6,16 +6,20 @@ This file is generated from `dev_workflow/plan-update.md`. Do not edit directly.
 Capture the design changes that should be made next after comparing the latest intent with the current design, code, tests, and logs.
 
 ## Current intent signal
-- `[summarize the latest intent that triggered this plan]`
+- Translate all content from `temp_all_in_1_design.md` into the four canonical design files, matching the master draft structure and keeping design-layer content free of traceability prefixes.
 
 ## Required changes
-- `[design updates that should be made next]`
+1. Rebuild `design/system-design.md` with the core behavioral logic from sections 1 and 2 of the master draft.
+2. Rebuild `design/architecture.md` with the structural content from sections 3, 4, 5, 6, 9, and 10 of the master draft.
+3. Rebuild `design/ux-flows.md` with the user and operator journey content from section 8 of the master draft.
+4. Rebuild `design/acceptance-criteria.md` with the governance and correctness content from section 7 of the master draft.
 
 ## Existing drift or deviation
-- `[where current design already conflicts with the latest intent]`
+1. The current design files are now populated but need a final completeness review against the full master draft.
+2. Design-layer prefixes were removed from the design docs and should remain reserved for plan, tests, and logs.
 
 ## Open questions or blockers
-- `[unknowns that must be resolved before design changes are finalized]`
+1. None.
 
 ## Linked IDs
-- `[REQ-xxx, ACC-xxx, ARCH-xxx, API-xxx, DATA-xxx, AI-xxx, TEST-xxx, EVAL-xxx, DEV-xxx]`
+1. `DEV-005`

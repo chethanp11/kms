@@ -7,7 +7,12 @@ Confirm the finished work still matches design intent and that no undocumented b
 - `plan/design-update.md`
 - `plan/code-update.md`
 - `plan/test-update.md`
-- `dev_log/*`
+- `design/ux-flows.md`
+- `design/acceptance-criteria.md`
+- `dev_log/design-update-log.md`
+- `dev_log/code-update-log.md`
+- `dev_log/test-update-log.md`
+- `dev_log/validation-results.md`
 - `src/README.md`
 - `src/docs/README.md`
 - `src/docs/purpose.md`
@@ -15,17 +20,17 @@ Confirm the finished work still matches design intent and that no undocumented b
 - `design/` artifacts for the current iteration
 - `src/` implementation summary
 - `tests/design-traceability.md`
-- `dev_log/deviations-log.md`
-- `dev_log/validation-log.md`
 
 ## Audit for
 - intent/plan/design mismatch
 - design improvement opportunities from plan or logs
+- UX flow completeness
+- acceptance criteria completeness
 - undocumented behavior
 - source documentation drift
 - stale acceptance or test mappings
 - prompt contract drift
-- missing audit or review hooks
+- missing validation hooks
 
 ## Checklist
 1. Compare final behavior to the current plan, active requirements, and acceptance criteria.
