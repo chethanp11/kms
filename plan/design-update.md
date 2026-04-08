@@ -6,7 +6,7 @@ This file is generated from `dev_workflow/plan-update.md`. Do not edit directly.
 Capture the design changes that should be made next after comparing the latest intent with the current design, code, tests, and logs.
 
 ## Current intent signal
-- Translate all content from `temp_all_in_1_design.md` into the four canonical design files, matching the master draft structure and keeping design-layer content free of traceability prefixes.
+- Keep the four canonical design files aligned with the master draft structure and keep design-layer content free of traceability prefixes.
 
 ## Required changes
 1. Rebuild `design/system-design.md` with the core behavioral logic from sections 1 and 2 of the master draft.
