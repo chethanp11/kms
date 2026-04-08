@@ -10,11 +10,22 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 
 ## Contract roles
 1. `AGENTS.md` is the authoritative repo contract. It defines durable policy, precedence, file ownership, traceability rules, and the structure that every other artifact must follow.
-2. `.codex/project-context.md` is the compact working context. It should stay shorter than `AGENTS.md` and only carry the current repo shape, the active design map, and task-start guidance.
-3. If the two files overlap, keep the full rule in `AGENTS.md` and a short operational summary in `.codex/project-context.md`.
-4. If the two files disagree, `AGENTS.md` wins.
+2. `.codex/project-context.md` is the compact high-level design source and working context.
+3. If `AGENTS.md` and `.codex/project-context.md` overlap, keep the durable policy in `AGENTS.md` and the current high-level design summary in `.codex/project-context.md`.
+4. If `.codex/project-context.md` and `design/*` disagree, `.codex/project-context.md` wins for high-level design intent until it is updated.
 5. Always read both files before starting any task.
 6. Reread both files at the start of every new task, and also whenever a prompt changes workflow, precedence, ownership, or operating rules.
+
+## Repo Shape
+- `intent/` holds requirements and feedback inputs.
+- `plan/` is the current iteration workspace.
+- `design/` is the live design source of truth.
+- `src/` is the implementation layer.
+- `tests/` is the validation layer.
+- `dev_log/` is the permanent execution record.
+- `dev_workflow/` contains the prompts and runbooks that drive the loop.
+- `skills/` contains reusable scoped procedures.
+- `.codex/` contains local context and command references only.
 
 ## Boundary rules
 1. If a request is ambiguous about scope, file targets, validation, or ownership, stop and ask before editing.
@@ -25,11 +36,12 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 1. `intent/` is the starting point of requirements.
 2. `intent/product-intent.md` and `intent/feedback.md` are the only human-edited operational inputs for the workflow.
 3. `intent/gaps.md` is a system-edited operational input that is updated by a prompt after reviewing `dev_log/*`.
-4. `design/` is the current source of design truth.
-5. `plan/` is the temporary working area for the current iteration only.
-6. `dev_log/` is the permanent archive of what was actually updated and validated.
-7. `src/` is the implementation space, and `tests/` is the validation space.
-8. A new iteration starts only after `intent/` or `feedback.md` is updated manually, or after validation surfaces gaps that are recorded back into `intent/`.
+4. `.codex/project-context.md` is the high-level design source of truth above `design/*`.
+5. `design/` is the detailed design layer that must align to `.codex/project-context.md`.
+6. `plan/` is the temporary working area for the current iteration only.
+7. `dev_log/` is the permanent archive of what was actually updated and validated.
+8. `src/` is the implementation space, and `tests/` is the validation space.
+9. A new iteration starts only after `intent/` or `feedback.md` is updated manually, or after validation surfaces gaps that are recorded back into `intent/`.
 
 ## Folder contracts
 ### `intent/`
@@ -48,8 +60,8 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 
 ### `design/`
 1. Files that belong here are `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
-2. Create or revise these files when approved intent or plan work changes system behavior, structure, user experience, or correctness rules.
-3. Use this folder for the system truth layer. Keep each file focused on its owned concern and keep the set complementary.
+2. Create or revise these files when approved intent, plan work, or `.codex/project-context.md` changes system behavior, structure, user experience, or correctness rules.
+3. Use this folder for the detailed system layer. Keep each file focused on its owned concern and keep the set complementary.
 4. These files are plain human-readable markdown and do not use prefix IDs as in-document numbering.
 5. Do not add extra design files, prefixed in-document traceability labels, or repeated content that blurs file ownership.
 
@@ -114,22 +126,21 @@ Read the latest relevant artifacts in this order before modifying more than one 
 1. Always read `intent/` before starting a task.
 2. Treat `intent/` as the starting point of every loop and the highest-priority human input.
 3. Do not modify `intent/` unless the user explicitly asks for it.
-4. Translate intent into `plan/*` before coding or rewriting design, code, or tests.
+4. Translate intent into `plan/*` before coding or rewriting `.codex/project-context.md`, design, code, or tests.
 5. Preserve the detail in `intent/*` when translating into `plan/*`; do not compress away constraints, distinctions, or open questions that affect behavior.
-6. Compare the latest intent against current design, code, and tests, then split the needed work into `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
+6. Compare the latest intent against current high-level context, detailed design, code, and tests, then split the needed work into `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
 7. Carry unresolved ambiguities into `plan/*` and the relevant downstream artifact instead of silently choosing a direction.
 8. Make the plan explicit about what changed, what was deferred, and which `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*` items were created or revised.
 9. Update or add tests and eval mappings whenever behavior, contracts, or acceptance criteria change.
-10. Stay inside the documented version and iteration boundary after intent has been interpreted into plan and design.
-11. Do not invent behavior that is not represented in intent, plan, design, or acceptance artifacts.
-12. Align implementation with both intent and plan-guided design.
-13. Always reflect meaningful intent changes into `plan/*`, `design/*`, `tests/*`, and the active `dev_log/` files.
+10. Stay inside the documented version and iteration boundary after intent has been interpreted into plan and context.
+11. Do not invent behavior that is not represented in intent, plan, `.codex/project-context.md`, design, or acceptance artifacts.
+12. Align implementation with both intent and plan-guided context and design.
+13. Always reflect meaningful intent changes into `plan/*`, `.codex/project-context.md`, `design/*`, `tests/*`, and the active `dev_log/` files.
 14. Update logs when the work changes reality:
    - `dev_log/design-update-log.md` for meaningful design updates
    - `dev_log/code-update-log.md` for meaningful code updates
    - `dev_log/test-update-log.md` for meaningful test updates
    - `dev_log/validation-results.md` for actual validation evidence
-15. Keep all work traceable to `intent/*`, `plan/*`, and to `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*`.
 16. If a requirement is unclear, log it as a plan or design issue or open question instead of implementing a guess.
 17. Treat manual feedback as first-class input; route it through the active feedback record in `intent/` and the operational logs in `dev_log/` when it should influence future direction.
 
@@ -144,15 +155,15 @@ Use exactly these categories when classifying issues or feedback:
 
 ## Traceability rules
 1. `intent/*` defines what humans want.
-2. `design/ux-flows.md` defines how users experience the system.
-3. `design/system-design.md` defines how the system behaves.
-4. `design/acceptance-criteria.md` defines what correct means.
-5. `REQ-*` should describe what the system must do.
-6. `ACC-*` should define how readiness is judged.
-7. `TEST-*` should prove `ACC-*`.
-8. `ARCH-*` should constrain implementation details.
-9. `FB-*` should capture human feedback without losing source or action target.
-10. `DEV-*` should identify operational records such as issues, decisions, deviations, validation runs, and improvements.
+2. `.codex/project-context.md` defines the high-level design and operating model above the detailed design files.
+3. `design/ux-flows.md` defines how users experience the system.
+4. `design/system-design.md` defines how the system behaves.
+5. `design/acceptance-criteria.md` defines what correct means.
+6. `REQ-*` should describe design changes
+11. `DEV-*` should describe code changes
+8. `TEST-*` should describe tests
+12. Only `plan/*` , `dev_log/*`  carry `REQ-*` , `DEV-*` `TEST-*` as ID.
+13. `design/*`, `src/*`  and `tests/*` carry `REQ-*` , `DEV-*` `TEST-*` as comments only
 
 ## Testing discipline
 - Create tests for all implemented behavior.
@@ -175,9 +186,10 @@ For every iteration, review:
 When artifacts disagree, use this precedence:
 1. `intent/*`
 2. `plan/*`
-3. `design/*`
-4. `tests/*`
-5. `src/*`
+3. `.codex/project-context.md`
+4. `design/*`
+5. `tests/*`
+6. `src/*`
 
 If implementation deviates from intent, flag it and log it. Do not silently normalize the drift.
 

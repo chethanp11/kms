@@ -1,27 +1,27 @@
 # Codex Project Context
 
-Compact task-start context for this repository. `AGENTS.md` is the authoritative contract; this file stays shorter and operational.
+Compact high-level design context for this repository. `AGENTS.md` is the authoritative contract; this file is the primary design summary above `design/*`.
 
 ## Role
 - Use this file to orient quickly before work.
-- Keep it in sync with `AGENTS.md` for active repo shape and current design-map guidance.
+- Keep it in sync with `AGENTS.md` for active repo shape, high-level design, and task-start guidance.
 - Do not repeat the full policy text from `AGENTS.md`.
 - Always read this file and `AGENTS.md` before starting any task.
-- Treat this file as the compact task-start checklist, not the full contract.
-- Folder-by-folder acceptability rules live in `AGENTS.md`; this file keeps only the quick orientation.
+- Treat this file as the compact high-level design summary, not the full contract.
+- Folder-by-folder acceptability rules live in `AGENTS.md`; this file keeps the operating model and current design map.
 - The numbered folder contracts in `AGENTS.md` define what belongs where, how files are created, and what is not allowed.
 
 ## Current repo shape
 1. `intent/` is the starting point of requirements and contains `product-intent.md`, `feedback.md`, and `gaps.md`.
 2. `plan/` is the temporary iteration workspace and contains `design-update.md`, `code-update.md`, and `test-update.md`.
-3. `design/` is the current source of design truth and contains `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
+3. `design/` is the detailed design layer and contains `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
 4. `src/` is the implementation layer and contains application code, `README.md`, and `src/docs/`.
 5. `tests/` is the validation layer and contains traceability, test plans, and test assets.
 6. `dev_log/` is the permanent archive and contains `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
 7. `dev_workflow/` contains the prompts that update design, code, tests, and logs in order.
 8. `skills/` is used only when the task matches a skill’s scope.
 9. `.codex/` holds local context and command references only.
-10. Source of truth order: `intent/*` -> `plan/*` -> `design/*` -> `tests/*` -> `src/*`.
+10. Source of truth order: `intent/*` -> `plan/*` -> `.codex/project-context.md` -> `design/*` -> `tests/*` -> `src/*`.
 11. Plan entries and log entries use prefix IDs; design, `src/`, and `tests/` stay human-readable and do not use prefix IDs as primary numbering.
 
 ## `intent/`
@@ -34,9 +34,17 @@ Compact task-start context for this repository. `AGENTS.md` is the authoritative
 1. Keep scope explicit, carry open questions forward, and split work into design, code, and test updates.
 2. Number plan entries with prefix IDs so the current iteration is traceable.
 
+## Active design map
+- `.codex/project-context.md` defines the high-level product identity, operating model, and precedence over detailed design.
+- `design/system-design.md` defines the detailed product identity, scope, users, and operating model.
+- `design/architecture.md` defines the detailed layered system architecture and major services.
+- `design/ux-flows.md` defines the detailed KMI and Infopedia interaction model and user flows.
+- `design/acceptance-criteria.md` defines the detailed governance, validation gates, and policy enforcement.
+
 ## `design/`
 1. Keep the four files complementary and aligned to their owned concerns.
 2. Keep them as plain markdown without prefix-numbered IDs in the content.
+3. Keep them aligned to `.codex/project-context.md`.
 
 ## `src/`
 1. Implement from design, then update `src/docs/` when behavior changes.
@@ -61,12 +69,13 @@ Compact task-start context for this repository. `AGENTS.md` is the authoritative
 ## Working loop
 1. Read `intent/` first.
 2. Reconcile into `plan/`.
-3. Update `design/` before `src/` when behavior changes.
-4. Update `tests/` to match acceptance criteria.
-5. Record what changed in `dev_log/`.
-6. Check alignment across intent, plan, design, tests, and code.
-7. Validate the change with an explicit check before finishing.
-8. Keep edits inside the scoped files unless a dependency is required in the same pass.
+3. Update `.codex/project-context.md` before detailed design when high-level behavior changes.
+4. Update `design/` before `src/` when detailed behavior changes.
+5. Update `tests/` to match acceptance criteria.
+6. Record what changed in `dev_log/`.
+7. Check alignment across intent, plan, context, design, tests, and code.
+8. Validate the change with an explicit check before finishing.
+9. Keep edits inside the scoped files unless a dependency is required in the same pass.
 
 ## Conflict rule
 - If this file and `AGENTS.md` disagree, follow `AGENTS.md`.
