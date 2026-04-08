@@ -64,6 +64,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 3. Use this folder for the detailed system layer. Keep each file focused on its owned concern and keep the set complementary.
 4. These files are plain human-readable markdown and do not use prefix IDs as in-document numbering.
 5. Do not add extra design files, prefixed in-document traceability labels, or repeated content that blurs file ownership.
+6. `REQ-*`, `DEV-*`, and `TEST-*` are used in comments only
 
 ### `src/`
 1. Files that belong here are implementation source files, app scaffolding, and application documentation such as `README.md` and `src/docs/`.
@@ -71,6 +72,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 3. If `src/` is empty on the first implementation pass, scaffold it from design before adding behavior.
 4. These files are plain implementation artifacts and do not use prefix IDs as primary numbering.
 5. Do not store design drafts, plan notes, or code that diverges from the current design without an approved update.
+6. `REQ-*`, `DEV-*`, and `TEST-*` are used in comments only
 
 ### `tests/`
 1. Files that belong here are traceability notes, test plans, validation assets, and the test suites that prove the design.
@@ -78,23 +80,27 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 3. If `tests/` is empty on the first test pass, scaffold it from the design before broadening coverage.
 4. These files are plain validation artifacts and do not use prefix IDs as primary numbering.
 5. Do not invent tests without design linkage or keep validation artifacts that do not map back to criteria.
+6. `REQ-*`, `DEV-*`, and `TEST-*` are used in comments only
 
 ### `dev_log/`
 1. Files that belong here are `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
 2. Create or revise these files through the workflow prompts after the corresponding design, code, test, or validation step has actually occurred.
-3. Use prefix IDs in log entries to show what was implemented where, and keep the archive permanent and traceable.
+3. Number log entries with prefixes such as `REQ-*`, `DEV-*`, and `TEST-*` to show what was implemented where, and keep the archive permanent and traceable.
 4. Do not add extra log files, make manual edits outside the workflow, or fabricate validation evidence.
+
 
 ### `dev_workflow/`
 1. Files that belong here are reusable prompts and runbooks that drive the closed loop from design to validation.
 2. Create or revise these files when the repository workflow itself needs a new or better step, order, or guardrail.
 3. Use this folder to orchestrate updates to design, code, tests, and logs in the correct order.
 4. Do not place direct implementation content, hidden one off procedures, or workflow steps that bypass the contract.
+5. Read `AGENTS.md` and `.codex/project-context.md` first before running these prompts.
 
 ### `skills/`
 1. Files that belong here are skill definitions and supporting instructions for reusable scoped workflows.
 2. Create or revise these files only when the task really needs a reusable skill that fits a defined scope.
 3. Use this folder for tasks that match the skill description and benefit from a reusable workflow.
+4. use skills applicable along with `dev_workflow/*` prompts.
 4. Do not use a skill outside its scope or bypass `AGENTS.md` and the active design.
 
 ### `.codex/`
@@ -102,6 +108,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 2. Create or revise these files when local working guidance or command references need to change for the repository.
 3. Use this folder for compact working context that helps Codex operate inside the contract.
 4. Do not replace the top level contract here, store implementation state here, or duplicate the full repo policy.
+5. `.codex/project-context.md` is the compact high-level design source and working context.
 
 ## Validation rules
 1. Every non-trivial change must end with an explicit validation step such as `git diff --check`, a targeted test, or another relevant check.
@@ -110,7 +117,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 
 ## Required read order before substantial work
 Read the latest relevant artifacts in this order before modifying more than one file:
-1. `README.md`
+1. `AGENTS.md` and `.codex/project-context.md`
 2. `intent/product-intent.md`
 3. `intent/feedback.md` or the current active feedback file during migration
 4. `intent/gaps.md` when system-detected gaps exist
@@ -123,6 +130,7 @@ Read the latest relevant artifacts in this order before modifying more than one 
 11. Relevant step file from `dev_workflow/`
 
 ## Required behavior for Codex
+1. start any task by reading `AGENTS.md` and `.codex/project-context.md`
 1. Always read `intent/` before starting a task.
 2. Treat `intent/` as the starting point of every loop and the highest-priority human input.
 3. Do not modify `intent/` unless the user explicitly asks for it.
@@ -130,7 +138,7 @@ Read the latest relevant artifacts in this order before modifying more than one 
 5. Preserve the detail in `intent/*` when translating into `plan/*`; do not compress away constraints, distinctions, or open questions that affect behavior.
 6. Compare the latest intent against current high-level context, detailed design, code, and tests, then split the needed work into `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
 7. Carry unresolved ambiguities into `plan/*` and the relevant downstream artifact instead of silently choosing a direction.
-8. Make the plan explicit about what changed, what was deferred, and which `REQ-*`, `ACC-*`, `ARCH-*`, `TEST-*`, `FB-*`, or `DEV-*` items were created or revised.
+8. Make the plan explicit about what changed, what was deferred, and which `REQ-*`, `TEST-*`, or `DEV-*` items were created or revised.
 9. Update or add tests and eval mappings whenever behavior, contracts, or acceptance criteria change.
 10. Stay inside the documented version and iteration boundary after intent has been interpreted into plan and context.
 11. Do not invent behavior that is not represented in intent, plan, `.codex/project-context.md`, design, or acceptance artifacts.
@@ -195,16 +203,15 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 
 ## Repository constraints
 - Keep the repo reusable by avoiding hardcoded app-specific examples in workflow and contract text unless the active project intent requires them.
-- Use bracketed placeholders such as `[Project Name]`, `[Version]`, and `[Primary Model]` where project-specific content belongs.
-- Treat the copied project as a reusable baseline, not a finished application.
+
 
 ## Editing model
-- Human edits by default: `intent/*`
+- Human edits by default: `intent/product-intent.md`, `intent/feedback-intent.md`
 - Human edits occasionally: `AGENTS.md`, `skills/*`
-- System-managed through workflow: `plan/*`, `design/*`, `src/*`, `tests/*`, `dev_log/*`, `dev_workflow/*`, and usually `.codex/*`
+- System-managed through workflow: `intent/gaps.md`, `plan/*`, `design/*`, `src/*`, `tests/*`, `dev_log/*`, `dev_workflow/*`, and usually `.codex/*`
 
 ## Source tree rule
-- `src/README.md` is the project README for the copied application.
+- `README.md` is the project README for the copied application.
 - `src/docs/` holds application purpose and functionality documentation.
 - `src/` may be empty at the beginning; scaffold it from design, then refactor or expand it as design requires.
 
@@ -232,7 +239,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Continuously verify design to code alignment.
 - Continuously verify code to tests alignment.
 - Continuously verify tests to expected behavior alignment.
-- If misalignment occurs, classify it as a design gap, implementation defect, test gap, or architecture mismatch, then fix it at the correct layer.
+- If misalignment occurs, classify it as a design gap, implementation defect, test gap, or architecture mismatch, then update `intent/gaps.md`.
 
 ## Failure handling
 - State the blocker explicitly.
