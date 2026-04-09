@@ -20,7 +20,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 6. `dev_log/` is the permanent archive and contains `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
 7. `dev_workflow/` contains the prompts that update design, code, tests, and logs in order.
 8. `skills/` is used only when the task matches a skill’s scope.
-9. `.codex/` holds local context and command references only.
+9. `.codex/` holds local context, command references, and the local implementation stack note in `.codex/tech-stack.md`.
 10. Source of truth order: `intent/*` -> `plan/*` -> `.codex/project-context.md` -> `design/*` -> `tests/*` -> `src/*`.
 11. Plan entries and log entries use prefix IDs; design, `src/`, and `tests/` stay human-readable and do not use prefix IDs as primary numbering.
 
@@ -45,10 +45,12 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 1. Keep the four files complementary and aligned to their owned concerns.
 2. Keep them as plain markdown without prefix-numbered IDs in the content.
 3. Keep them aligned to `.codex/project-context.md`.
+4. If any of the four canonical design files are missing on a new project or first pass, create them before broadening the design layer.
 
 ## `src/`
 1. Implement from design, then update `src/docs/` when behavior changes.
 2. Scaffold from design if `src/` is empty on the first implementation pass.
+3. Use `.codex/tech-stack.md` as the local reference for the intended backend, frontend, and test stack when updating `src/`.
 
 ## `tests/`
 1. Prove acceptance criteria and cover happy paths, edge cases, and failures.

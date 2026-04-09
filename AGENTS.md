@@ -65,6 +65,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 4. These files are plain human-readable markdown and do not use prefix IDs as in-document numbering.
 5. Do not add extra design files, prefixed in-document traceability labels, or repeated content that blurs file ownership.
 6. `REQ-*`, `DEV-*`, and `TEST-*` are used in comments only
+7. If any of the four canonical design files are missing on a new project or first pass, create them before broadening the design layer.
 
 ### `src/`
 1. Files that belong here are implementation source files, app scaffolding, and application documentation such as `README.md` and `src/docs/`.
