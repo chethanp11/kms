@@ -1,6 +1,6 @@
 ## AutoAIdev System Override
 
-Primary objective is to improve the AutoAIdev framework itself by implementing `AutoAIdev_requirements.md` in `AGENTS.md`, `.codex/*`, and `dev_workflow/*` 
+Primary objective is to improve the AutoAIdev framework itself by implementing changes in `AGENTS.md`, `.codex/*`, and `dev_workflow/*` 
 MUST DO - when `AGENTS.overrride.md` exists, DO NOT TAKE `AGENTS.md`, `.codex/*` instructions into consideration before executing the task.
 MUST DO - when `AGENTS.overrrideXX.md` exists, READ `AGENTS.md` before executing the task.
 
@@ -13,12 +13,7 @@ MUST DO - when `AGENTS.overrrideXX.md` exists, READ `AGENTS.md` before executing
 - Propagate those changes into `plan/`, `design/`, `tests/`, `dev_log/`, and other supporting artifacts only when the workflow change requires it.
 
 ### Product-development rule
-<<<<<<< ours
 - When working on KMS product intent, follow `AGENTS.md` and the normal intent -> plan -> design -> src -> tests -> dev_log loop.
-=======
-- When working on KMS product intent, follow `AGENTS.md` and the normal intent -> plan -> design -> tests -> src -> dev_log loop.
-- Treat `plan/*` and `design/*` as the source of truth for coding; code implementation does not implicitly require `src/docs/` or project `README.md` updates.
->>>>>>> theirs
 - Do not use this override to bypass the product-development contract in `AGENTS.md`.
 
 ### Precedence

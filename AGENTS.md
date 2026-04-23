@@ -25,7 +25,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 - `dev_log/` is the permanent execution record.
 - `dev_workflow/` contains the prompts and runbooks that drive the loop.
 - `skills/` contains reusable scoped procedures.
-- `.codex/` contains local context and command references only.
+- `.codex/` contains the only local agent context and command references for this repository.
 
 ## Boundary rules
 1. If a request is ambiguous about scope, file targets, validation, or ownership, stop and ask before editing.
@@ -110,12 +110,13 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 4. Do not use a skill outside its scope or bypass `AGENTS.md` and the active design.
 
 ### `.codex/`
-1. Files that belong here are repo local context, command references, and other Codex support files.
-2. Create or revise these files when local working guidance or command references need to change for the repository.
-3. Use this folder for compact working context that helps Codex operate inside the contract.
+1. Files that belong here are repo-local context, command references, and other Codex support files.
+2. Create or revise these files when local working guidance or command references need to change.
+3. Use this folder for compact Codex working context inside the repo contract.
 4. Do not replace the top level contract here, store implementation state here, or duplicate the full repo policy.
 5. `.codex/project-context.md` is the compact high-level design source and working context.
 6. `.codex/tech-stack.md` records the local implementation stack for `src/` and should stay aligned with `design/architecture.md` and `design/system-design.md`.
+7. Do not introduce parallel local agent-instruction folders; keep local agent guidance consolidated under `.codex/`.
 
 ## Validation rules
 1. Every non-trivial change must end with an explicit validation step such as `git diff --check`, a targeted test, or another relevant check.

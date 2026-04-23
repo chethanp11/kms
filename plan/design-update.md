@@ -9,12 +9,12 @@ Capture the design changes that should be made next after comparing the latest i
 - Reconcile the repo-wide contract and support docs so every top-level instruction file describes KMS, not the retired ABA/AutoAIdev variants.
 
 ## Required changes
-1. Normalize `AGENTS.md`, `.codex/project-context.md`, `README.md`, `.github/copilot-instructions.md`, `.github/tech-stack.md`, `.claude/project-memory.md`, and `.claude/tech-stack.md` so they all describe the same KMS operating model and file layout.
+1. Normalize `AGENTS.md`, `.codex/project-context.md`, and `README.md` so they all describe the same KMS operating model and file layout.
 2. Remove or retire legacy conflicting support docs that describe AutoAIdev or ABA rather than KMS.
 3. Bring the `src/` scaffold description in `.codex/project-context.md` into sync with the current placeholder package layout.
 
 ## Existing drift or deviation
-1. Legacy docs in `.github/`, `.claude/`, and the repository root still contain retired framework names and conflict with the KMS contract.
+1. Legacy docs in the repository root still contain retired framework names and conflict with the KMS contract.
 2. The `src/` scaffold exists as placeholder packages but the compact context summary does not yet describe the actual package layout.
 3. A conflicting override file (`AGENTS.overrideXX.md`) remains in the repository and should not coexist with the KMS contract.
 
