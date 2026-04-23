@@ -63,6 +63,8 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 ## `dev_workflow/`
 1. Use these prompts to make design, code, test, and log updates in order.
 2. Treat the prompts as the controlled iteration sequence.
+3. The default iteration sequence is 10 steps: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
+4. Validation and failure-fix steps may loop until failures are resolved or explicitly deferred.
 
 ## `skills/`
 1. Open `SKILL.md` first and use the minimal matching skill.
@@ -73,11 +75,13 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 2. Reconcile into `plan/`.
 3. Update `.codex/project-context.md` before detailed design when high-level behavior changes.
 4. Update `design/` before `src/` when detailed behavior changes.
-5. Update `tests/` to match acceptance criteria.
-6. Record what changed in `dev_log/`.
-7. Check alignment across intent, plan, context, design, tests, and code.
-8. Validate the change with an explicit check before finishing.
-9. Keep edits inside the scoped files unless a dependency is required in the same pass.
+5. Update `tests/` from acceptance criteria before code when behavior changes.
+6. Implement in `src/`.
+7. Validate explicitly, then loop on failure fixes until pass or explicit deferral.
+8. Record what changed in `dev_log/`.
+9. Surface follow-on gaps into `intent/gaps.md` when validation or review exposes them.
+10. Review iteration completeness and only start the next loop when intent or feedback changes.
+11. Keep edits inside the scoped files unless a dependency is required in the same pass.
 
 ## Conflict rule
 - If this file and `AGENTS.md` disagree, follow `AGENTS.md`.

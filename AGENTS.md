@@ -97,6 +97,8 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 3. Use this folder to orchestrate updates to design, code, tests, and logs in the correct order.
 4. Do not place direct implementation content, hidden one off procedures, or workflow steps that bypass the contract.
 5. Read `AGENTS.md` and `.codex/project-context.md` first before running these prompts.
+6. The default development loop follows a strict 10-step sequence: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
+7. Steps 6 and 7 may loop until failures are resolved or explicitly deferred.
 
 ### `skills/`
 1. Files that belong here are skill definitions and supporting instructions for reusable scoped workflows.
@@ -229,6 +231,7 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - If validation fails, classify the failure before changing code.
 - If a requested change exceeds the active scope, move it to backlog unless the design is updated first.
 - Do not code directly from vague intent; structure it into design first.
+- Default workflow order is: `intent/*` -> `plan/*` -> `design/*` -> `tests/*` -> `src/*` -> validation -> failure fixes -> `dev_log/*` -> `intent/gaps.md` -> iteration review.
 
 ## Logging and artifacts
 - Every iteration must update the four `dev_log/` files with what was implemented and what was validated.
