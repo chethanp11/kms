@@ -68,7 +68,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 7. If any of the four canonical design files are missing on a new project or first pass, create them before broadening the design layer.
 
 ### `src/`
-1. Files that belong here are implementation source files, app scaffolding, and application documentation such as `README.md` and `src/docs/`.
+1. Files that belong here are implementation source files and app scaffolding for backend, frontend, and shared packages.
 2. Create or revise these files only after the design has defined the expected behavior and structure for the change.
 3. If `src/` is empty on the first implementation pass, scaffold it from design before adding behavior.
 4. These files are plain implementation artifacts and do not use prefix IDs as primary numbering.
@@ -100,6 +100,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 6. The default development loop follows a strict 10-step sequence: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
 7. Steps 6 and 7 may loop until failures are resolved or explicitly deferred.
 8. Keep one reusable numbered prompt per workflow step using the canonical filenames `01-read-intent.md` through `10-iteration-review.md`, plus `README.md` as the overview and navigation entry point.
+9. The numbered prompts must be execution-complete as a set: running them in order from current intent and repo state must cover the full iteration without relying on unstated workflow assumptions.
 
 ### `skills/`
 1. Files that belong here are skill definitions and supporting instructions for reusable scoped workflows.
@@ -169,15 +170,16 @@ Use exactly these categories when classifying issues or feedback:
 
 ## Traceability rules
 1. `intent/*` defines what humans want.
-2. `.codex/project-context.md` defines the high-level design and operating model above the detailed design files.
-3. `design/ux-flows.md` defines how users experience the system.
-4. `design/system-design.md` defines how the system behaves.
-5. `design/acceptance-criteria.md` defines what correct means.
-6. `REQ-*` should describe design changes
-11. `DEV-*` should describe code changes
-8. `TEST-*` should describe tests
-12. Only `plan/*` , `dev_log/*`  carry `REQ-*` , `DEV-*` `TEST-*` as ID.
-13. `design/*`, `src/*`  and `tests/*` carry `REQ-*` , `DEV-*` `TEST-*` as comments only
+2. `plan/*` defines the active implementation scope for the current iteration.
+3. `.codex/project-context.md` defines the high-level design and operating model above the detailed design files.
+4. `design/ux-flows.md` defines how users experience the system.
+5. `design/system-design.md` defines how the system behaves.
+6. `design/acceptance-criteria.md` defines what correct means.
+7. `REQ-*` should describe design changes.
+8. `DEV-*` should describe code changes.
+9. `TEST-*` should describe tests.
+10. Only `plan/*` and `dev_log/*` carry `REQ-*`, `DEV-*`, and `TEST-*` as IDs.
+11. `design/*`, `src/*`, and `tests/*` carry `REQ-*`, `DEV-*`, and `TEST-*` as comments only.
 
 ## Testing discipline
 - Create tests for all implemented behavior.
@@ -218,7 +220,6 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 
 ## Source tree rule
 - `README.md` is the project README for the copied application.
-- `src/docs/` holds application purpose and functionality documentation.
 - `src/` may be empty at the beginning; scaffold it from design, then refactor or expand it as design requires.
 
 ## Log ownership rule
@@ -227,12 +228,13 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 
 ## Practical decision rules
 - If intent changes, translate it into design first, then update tests, logs, and only then implementation.
-- If behavior changes, update code first, then update `src/docs/` to reflect the changed behavior, and update design, tests, and logs in the same pass.
+- If behavior changes, update design and plan first, then update code and tests in the same pass.
 - If only implementation changes and behavior does not, keep design stable and update tests or logs as needed.
 - If validation fails, classify the failure before changing code.
 - If a requested change exceeds the active scope, move it to backlog unless the design is updated first.
 - Do not code directly from vague intent; structure it into design first.
 - Default workflow order is: `intent/*` -> `plan/*` -> `design/*` -> `tests/*` -> `src/*` -> validation -> failure fixes -> `dev_log/*` -> `intent/gaps.md` -> iteration review.
+- Code implementation follows approved `plan/*` and `design/*`; it does not implicitly require updates to `src/docs/` or the project `README.md`.
 
 ## Logging and artifacts
 - Every iteration must update the four `dev_log/` files with what was implemented and what was validated.

@@ -4,19 +4,39 @@
 
 Use this prompt after validation, logging, and gap detection are complete for the current pass.
 
+## Workflow Position
+
+- Input step: final artifact state for the iteration
+- Output step: explicit closeout status and next-loop readiness
+
 ## Objective
 
-Confirm whether the iteration is complete, identify residual risks or follow-up work, and prepare the repo for the next loop without silently continuing into new scope.
+Confirm whether the iteration is complete, partial, or blocked; identify residual risks or follow-up work; and prepare the repo for the next loop without silently continuing into new scope.
 
-## Required Inputs
+## Required Read Order
 
 Read and use:
 
-1. The outputs from steps `01` through `09`
+1. Outputs from steps `01` through `09`
 2. Relevant updated plan, design, tests, code, and logs
-3. The current gap record and validation evidence
+3. Current gap record and validation evidence
 
-## Instructions
+## Allowed Writes
+
+- Usually none
+- If the repo uses a specific closeout artifact in the future, update only that approved artifact
+
+## Required Outputs
+
+Produce a closeout summary that includes:
+
+- status: `complete`, `partial`, or `blocked`
+- what was actually finished
+- residual risks or explicit deferrals
+- readiness for the next iteration
+- whether new human input is required before continuing
+
+## Procedure
 
 1. Review the full iteration for:
    - requirement coverage
@@ -35,22 +55,9 @@ Read and use:
    - `tests/*`
    - `src/*`
 3. Check that meaningful changes were captured in the correct artifacts and that validation evidence is recorded.
-4. Decide whether the iteration outcome is:
-   - complete
-   - partial
-   - blocked
-5. State any explicit deferrals, residual risks, or follow-up actions needed.
-6. Do not start another iteration automatically. The next loop begins only when intent, feedback, or validated gap input changes the work.
-
-## Produce
-
-Produce a closeout summary that includes:
-
-- status: complete, partial, or blocked
-- what was actually finished
-- residual risks or deferrals
-- readiness for the next iteration
-- whether new human input is required before continuing
+4. Decide whether the current iteration is `complete`, `partial`, or `blocked`.
+5. State explicit deferrals, residual risks, and follow-up actions needed.
+6. Do not start another iteration automatically. The next loop begins only when new intent, new feedback, or a surfaced gap changes the work.
 
 ## Guardrails
 
@@ -63,4 +70,4 @@ Produce a closeout summary that includes:
 
 - The current iteration has an explicit closeout state.
 - Remaining risks and next actions are visible.
-- The repository is ready either for pause or for the next intent-driven loop.
+- Another agent can tell whether to stop, wait for new intent, or begin a fresh loop.

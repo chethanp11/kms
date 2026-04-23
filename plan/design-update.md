@@ -6,17 +6,17 @@ This file is generated from `dev_workflow/plan-update.md`. Do not edit directly.
 Capture the design changes that should be made next after comparing the latest intent with the current design, code, tests, and logs.
 
 ## Current intent signal
-- Keep the four canonical design files aligned with the master draft structure and keep design-layer content free of traceability prefixes.
+- Reconcile the repo-wide contract and support docs so every top-level instruction file describes KMS, not the retired ABA/AutoAIdev variants.
 
 ## Required changes
-1. Rebuild `design/system-design.md` with the core behavioral logic from sections 1 and 2 of the master draft.
-2. Rebuild `design/architecture.md` with the structural content from sections 3, 4, 5, 6, 9, and 10 of the master draft.
-3. Rebuild `design/ux-flows.md` with the user and operator journey content from section 8 of the master draft.
-4. Rebuild `design/acceptance-criteria.md` with the governance and correctness content from section 7 of the master draft.
+1. Normalize `AGENTS.md`, `.codex/project-context.md`, `README.md`, `.github/copilot-instructions.md`, `.github/tech-stack.md`, `.claude/project-memory.md`, and `.claude/tech-stack.md` so they all describe the same KMS operating model and file layout.
+2. Remove or retire legacy conflicting support docs that describe AutoAIdev or ABA rather than KMS.
+3. Bring the `src/` scaffold description in `.codex/project-context.md` into sync with the current placeholder package layout.
 
 ## Existing drift or deviation
-1. The current design files are now populated but need a final completeness review against the full master draft.
-2. Design-layer prefixes were removed from the design docs and should remain reserved for plan, tests, and logs.
+1. Legacy docs in `.github/`, `.claude/`, and the repository root still contain retired framework names and conflict with the KMS contract.
+2. The `src/` scaffold exists as placeholder packages but the compact context summary does not yet describe the actual package layout.
+3. A conflicting override file (`AGENTS.overrideXX.md`) remains in the repository and should not coexist with the KMS contract.
 
 ## Open questions or blockers
 1. None.

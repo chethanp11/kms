@@ -1,73 +1,44 @@
-# ABA Copilot Context
+# KMS Copilot Context
 
-High-level design context for Agentic Business Analytics (ABA). `intent/product-intent.md` is the source of truth. This file summarizes the operating model for `design/*`, `src/*`, and `tests/*`.
+High-level context for KMS. `AGENTS.md` is the authoritative contract, and this file summarizes the operating model for `design/*`, `src/*`, and `tests/*`.
 
 ## System Purpose
 
-ABA is a controlled agentic system for end-to-end business analytics. It is an analytics execution system, not a chatbot or prompt-only workflow. The system turns ambiguous business problems into structured analytical outcomes through stage-driven orchestration, bounded reasoning, governed execution, and traceable validation.
+KMS is a governed Knowledge Management System that turns immutable raw source material into finalized markdown knowledge under Knowledge Manager control. The system is not a chat interface, a document dump, or a generic search engine. It is a controlled knowledge maintenance and publication system with a separate read-only navigation layer.
 
-## Core Architecture Principles
+## Core Boundaries
 
-- Separate reasoning, control, execution, context, validation, and observability responsibilities.
-- Model every run as a graph of explicit stages and transitions.
-- Keep all outputs structured and machine-readable.
-- Support iterative, exploratory, and branchable analysis flows.
-- Treat context as curated input, not an unbounded dump.
-- Preserve evidence, contradictions, failures, and lineage instead of flattening them.
-- Make every decision auditable through state, checkpoints, and trace records.
-- Enforce controlled execution with safe, sandboxed tool use.
+- KMI is the governed maintenance surface.
+- `/wiki` is the canonical finalized knowledge substrate.
+- Infopedia is the read-only browsing surface.
+- Raw source inputs remain immutable upstream material.
+- Metadata, orchestration, and search are supporting services, not alternate truth stores.
 
-## Key Components
+## Design Principles
 
-### Orchestration
+- Curated knowledge over raw retrieval.
+- Determinism over improvisation.
+- One source of truth in `/wiki`.
+- Separation of maintenance and consumption.
+- Governance-first publication.
+- Structured markdown over free-form sprawl.
+- Human control over finalization.
+- Extensibility toward future agentic AI use.
 
-LangGraph is the control layer. It owns run state, stage transitions, branching, loop-back, retry logic, checkpointing, escalation, and termination decisions. The orchestrator is the control brain for the run.
-
-### Agents
-
-Agents are modular reasoning components with strict input and output contracts. They handle intake structuring, business context, data context, context curation, hypothesis generation, hypothesis prioritization, analysis planning, code generation, code review, execution interpretation, pattern or driver analysis, insight generation, recommendation, critic behavior, and insight validation.
-
-Agents do not control flow and do not execute tools directly.
-
-### Context and Memory
-
-ABA uses a stage-aware context pack for each run. Context includes business context, data context, prior outputs, reusable memory, and versioned artifacts. The context layer supports selection, prioritization, reuse, and traceability while preventing context overload and noise propagation.
-
-### Execution Layer
-
-The execution layer handles SQL, Python, and SAS under governed, sandboxed runtime conditions. It exposes execution through structured requests and returns normalized results with logs, artifacts, and metadata. Tool selection is controlled by policy and runtime constraints.
-
-### Validation and Governance
-
-Validation is mandatory at every major stage. Governance applies runtime policy checkpoints, confidence checks, contradiction handling, escalation triggers, and human-in-the-loop gates. Failed validation must block progression, revise the path, retry within policy, or escalate.
-
-### Observability and Traceability
-
-ABA must capture run-level traces, agent-level logs, stage transitions, intermediate artifacts, decision rationale, retry and failure history, and lineage from intake to insight. Observability data must be structured and queryable so runs can be replayed and debugged.
-
-## Design Philosophy
-
-- Agentic, not prompt-driven.
-- Controlled, not free-form.
-- Structured, not narrative-first.
-- Governed, not autonomous.
-- Traceable, not black-box.
-- Repeatable across runs when inputs, policies, and data conditions are equivalent.
-
-## Development Expectations For Codex
+## Repo Expectations For Codex
 
 - Start from `intent/` and keep design aligned to it.
-- Use a design-first workflow before implementation.
-- Respect stage boundaries, contracts, and control-flow ownership.
-- Update the correct layer for the change: design before code, tests to prove acceptance, and logs when reality changes.
-- Do not invent behavior that is not represented in intent or approved design.
-- Keep implementation and validation aligned with the controlled ABA operating model.
+- Treat `AGENTS.md` and `.codex/project-context.md` as the first-read contract for every task.
+- Use `plan/*` before changing design, tests, or code.
+- Update design before code when behavior changes.
+- Update tests from acceptance criteria before implementation when behavior changes.
+- Keep implementation aligned with the approved plan and design.
+- Do not invent behavior that is not represented in intent, plan, context, design, or acceptance artifacts.
+- Do not treat `src/docs/` or project `README.md` updates as part of the default code-implementation path.
 
 ## Drift Prevention Rules
 
-- Treat `intent/product-intent.md` as the source of truth for product behavior.
-- Do not introduce capabilities, stages, agents, outputs, or technologies that are not supported by intent or the approved design layers.
 - Keep `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md` aligned with intent and with each other.
-- If a change affects behavior, update design before implementation and keep tests and documentation aligned in the same pass.
+- If a change affects behavior, update plan and design before implementation and keep tests aligned in the same pass.
 - If a change would create product drift, stop and reconcile it against intent rather than normalizing the drift in code or design.
-- Use the repository stack and workflow only to support the ABA operating model, not to redefine it.
+- Use the repository stack and workflow only to support the KMS operating model, not to redefine it.

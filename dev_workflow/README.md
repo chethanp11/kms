@@ -69,7 +69,7 @@ When artifacts disagree, this is the order the agent must follow:
 | `.codex/project-context.md` | workflow/system | Compact high-level design and operating model | A replacement for `AGENTS.md` |
 | `design/*` | workflow/system | Detailed system definition | A dumping ground for implementation detail |
 | `tests/*` | workflow/system | Proof strategy and test assets | A substitute for design |
-| `src/*` | workflow/system | Executable implementation | The place where new requirements are invented |
+| `src/*` | workflow/system | Executable implementation driven by approved plan and design | The place where new requirements are invented |
 | `dev_log/*` | workflow/system | Permanent record of actual changes and validation | A plan, todo list, or wish list |
 
 ## Exact 10-Step Lifecycle
@@ -107,6 +107,8 @@ flowchart TD
 | `09` | `dev_workflow/09-detect-gaps.md` | System-detected gap surfacing |
 | `10` | `dev_workflow/10-iteration-review.md` | Closeout and next-loop readiness |
 
+The 10 prompt files are intended to be execution-complete as a set. If followed in order, they should cover the full iteration using only current intent and repository artifacts, without depending on hidden workflow knowledge from chat history.
+
 ## Step-By-Step Execution Semantics
 
 | Step | Reads from | May update | Must achieve | Must not do |
@@ -115,7 +117,7 @@ flowchart TD
 | `02` Create Plan | `intent/*`, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work | Hide ambiguity or compress away constraints |
 | `03` Update Design | `plan/*`, `.codex/project-context.md`, `design/*` | `.codex/project-context.md` when needed, `design/*` | Design baseline for downstream work | Let code define behavior first |
 | `04` Update Tests | `design/*`, acceptance criteria, traceability | `tests/*` | Proving strategy and validation assets before code | Write tests from implementation convenience |
-| `05` Implement Code | `plan/*`, `design/*`, `tests/*`, stack notes | `src/*`, relevant docs in `src/` | Approved behavior implemented | Invent new requirements in code |
+| `05` Implement Code | `plan/*`, `design/*`, `tests/*`, stack notes | `src/*` | Approved behavior implemented | Invent new requirements in code |
 | `06` Run Validation | Changed artifacts, test plan, validation methods | No permanent logs yet | Real pass, fail, or partial evidence | Claim success without proof |
 | `07` Fix Failures | Validation findings and implicated artifacts | The correct failing layer | Root cause fixed or explicitly deferred | Patch around a design or test problem with a code-only hack |
 | `08` Update Logs | Final diffs and final validation result | `dev_log/*` | Permanent, factual execution record | Log intended work that did not happen |
@@ -149,7 +151,7 @@ The agent updates traceability, test plans, and relevant suites before implement
 
 ### 5. Implementation only after upstream artifacts are ready
 
-Implementation in `src/*` happens only after intent, plan, design, and tests establish what should be built and how it will be proven.
+Implementation in `src/*` happens only after intent, plan, design, and tests establish what should be built and how it will be proven. Code work follows approved `plan/*` and `design/*`; it does not implicitly require updates to `src/docs/` or the project `README.md`.
 
 ### 6. Validation as a real gate
 

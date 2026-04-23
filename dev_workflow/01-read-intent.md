@@ -2,13 +2,18 @@
 
 ## Use This Prompt When
 
-Use this prompt at the start of a new task or iteration before planning, design, testing, coding, or validation.
+Use this prompt at the start of every task or iteration before planning, design, testing, coding, validation, or logging.
+
+## Workflow Position
+
+- Input step: external request plus current repo state
+- Output step: a complete intent brief that step `02` can plan from
 
 ## Objective
 
-Establish the current human intent, scope boundary, constraints, feedback, and known gaps without changing downstream artifacts yet.
+Interpret current human intent and repo constraints precisely enough that the rest of the workflow can proceed without guessing.
 
-## Required Inputs
+## Required Read Order
 
 Read these in order:
 
@@ -17,39 +22,48 @@ Read these in order:
 3. `intent/product-intent.md`
 4. `intent/feedback-intent.md`
 5. `intent/gaps.md` when present
+6. Any user-referenced local artifacts that materially affect scope
 
-## Instructions
+## Allowed Writes
 
-1. Read the contract and high-level context first.
-2. Read all active intent inputs before touching plan, design, tests, code, or logs.
-3. Extract the current product goals, explicit constraints, workflows, acceptance expectations, and non-goals.
-4. Capture any feedback-driven changes, surprises, weak points, or manual observations that affect the next iteration.
-5. Review `intent/gaps.md` only as system-detected evidence, not as human reinterpretation.
-6. Identify the in-scope request, the out-of-scope items, and anything that must be deferred.
-7. Note conflicts, ambiguity, or drift between intent and the apparent repo state, but do not resolve them in this step.
-8. If the current request changes workflow, precedence, ownership, or operating rules, plan to update `AGENTS.md` and `.codex/project-context.md` before downstream work.
-9. Preserve detail. Do not compress away distinctions that will affect behavior, planning, or validation.
+- Normally: none
+- Exception: if the current request explicitly changes workflow, precedence, ownership, or operating rules, update `AGENTS.md` and `.codex/project-context.md` immediately before ending this step
 
-## Produce
+## Required Outputs
 
-Produce a concise step result that includes:
+Produce an intent brief that states:
 
-- current scope
-- explicit constraints
-- required behavior or outcomes
-- known feedback and gaps that matter now
-- open questions or ambiguities
-- whether contract/context updates are required before later steps
+- the in-scope request
+- explicit goals and required outcomes
+- constraints and non-goals
+- feedback or gap inputs that matter now
+- scope exclusions and deferrals
+- ambiguities, conflicts, or missing information
+- whether the repo contract or high-level context had to be updated first
+
+## Procedure
+
+1. Read the contract and high-level context first so intent is interpreted inside the repo rules.
+2. Read all active human input files before touching plan, design, tests, code, or logs.
+3. Extract current goals, users, workflows, constraints, expected behavior, and explicit non-goals.
+4. Capture feedback-driven changes, manual observations, and previously surfaced gaps that shape this iteration.
+5. Distinguish human intent from system-detected gaps. Treat `intent/gaps.md` as evidence input, not as a human requirements rewrite.
+6. Identify whether the request is workflow-only, design-only, test-only, code-only, or a multi-layer change.
+7. Identify direct dependencies that must be touched in the same pass and out-of-scope work that must not be pulled in.
+8. Check whether the new request changes workflow, precedence, ownership, or operating rules. If yes, update `AGENTS.md` and `.codex/project-context.md` now before any downstream work.
+9. Record unresolved ambiguity explicitly. If the ambiguity is too risky to infer and cannot be resolved from the repo, ask the user a concise clarifying question. Otherwise carry it into plan.
+10. Preserve detail. Do not compress away distinctions that will affect planning, design, testing, implementation, or validation.
 
 ## Guardrails
 
-- Do not modify `intent/*` unless explicitly asked, except for the system-managed gaps step later in the workflow.
+- Do not modify `intent/product-intent.md` or `intent/feedback-intent.md` unless explicitly asked by the user.
 - Do not invent missing requirements.
-- Do not start planning from implementation convenience.
-- Do not skip feedback or gaps because they seem secondary.
+- Do not plan from implementation convenience.
+- Do not skip feedback or gaps because they look secondary.
+- Do not start coding or editing downstream artifacts in this step.
 
 ## Exit Criteria
 
 - Current intent is understood well enough to plan without guessing.
-- Scope boundaries and unresolved ambiguities are explicit.
-- Any required contract or context updates are identified before downstream changes.
+- Scope boundaries, constraints, and unresolved ambiguities are explicit.
+- Any required contract or high-level context updates have already been applied.

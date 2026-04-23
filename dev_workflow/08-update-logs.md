@@ -4,11 +4,16 @@
 
 Use this prompt after the iteration has a final validation outcome for the current pass and the actual design, test, and code changes are known.
 
+## Workflow Position
+
+- Input step: final changed artifacts plus final validation outcome
+- Output step: permanent execution record
+
 ## Objective
 
 Record what actually changed and what was actually validated in the permanent `dev_log/*` artifacts.
 
-## Required Inputs
+## Required Read Order
 
 Read and use:
 
@@ -17,24 +22,18 @@ Read and use:
 3. Existing `dev_log/*` entries
 4. Linked `REQ-*`, `DEV-*`, `TEST-*`, `ACC-*`, `ARCH-*`, and feedback IDs when relevant
 
-## Instructions
+## Allowed Writes
 
-1. Use the repo's log structure and next available entry numbering convention.
-2. Update only the logs that correspond to real work that actually happened:
-   - `dev_log/design-update-log.md`
-   - `dev_log/code-update-log.md`
-   - `dev_log/test-update-log.md`
-   - `dev_log/validation-results.md`
-3. Record design, code, and test changes separately when they were genuinely distinct.
-4. Record validation with the real method, commands, result, findings, failure classification, and follow-up.
-5. Include enough traceability so another agent can continue without archaeology.
-6. Link the log entries back to the relevant IDs and intent sources.
-7. If a layer did not change, do not force a meaningless log entry.
-8. Keep the log factual. Describe what changed and what was proven, not what was intended earlier.
+- `dev_log/design-update-log.md`
+- `dev_log/code-update-log.md`
+- `dev_log/test-update-log.md`
+- `dev_log/validation-results.md`
 
-## Produce
+Create any missing canonical log file using the approved filenames above.
 
-Produce log entries that state:
+## Required Outputs
+
+Produce factual log entries that state:
 
 - what changed
 - why it changed
@@ -42,6 +41,17 @@ Produce log entries that state:
 - which intent sources drove it
 - what validation actually happened
 - what follow-up remains, if any
+
+## Procedure
+
+1. Use the repo's existing log structure and next available entry numbering convention.
+2. Update only the logs that correspond to real work that actually happened.
+3. Record design, code, and test changes separately when they were genuinely distinct.
+4. Record validation with the real method, commands, result, findings, failure classification, and follow-up.
+5. Include enough traceability so another agent can continue without archaeology.
+6. Link log entries back to the relevant IDs and intent sources.
+7. If a layer did not change, do not force a meaningless log entry.
+8. Keep the log factual. Describe what changed and what was proven, not what was intended earlier.
 
 ## Guardrails
 
@@ -53,5 +63,5 @@ Produce log entries that state:
 ## Exit Criteria
 
 - The permanent logs reflect the iteration accurately.
-- Validation evidence is durable and traceable.
-- The next step can detect system gaps from reliable log data.
+- Validation evidence is durable, traceable, and usable by the next agent.
+- Step `09` can detect system gaps from reliable log data.

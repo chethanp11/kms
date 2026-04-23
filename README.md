@@ -156,7 +156,7 @@ This repository contains the product contract, design, implementation, and valid
 - [`intent/`](./intent/) holds product intent and feedback inputs
 - [`plan/`](./plan/) holds the current iteration workspace
 - [`design/`](./design/) holds the detailed design artifacts
-- [`src/`](./src/) holds implementation code and product documentation
+- [`src/`](./src/) holds implementation code
 - [`tests/`](./tests/) holds validation assets and test plans
 - [`dev_log/`](./dev_log/) holds the permanent execution record
 - [`dev_workflow/`](./dev_workflow/) holds the workflow prompts and runbooks
@@ -172,7 +172,7 @@ If you are new to KMS, start here:
 3. Read the detailed design files in [`design/system-design.md`](./design/system-design.md), [`design/architecture.md`](./design/architecture.md), [`design/ux-flows.md`](./design/ux-flows.md), and [`design/acceptance-criteria.md`](./design/acceptance-criteria.md).
 4. Review the current plan files in [`plan/design-update.md`](./plan/design-update.md), [`plan/code-update.md`](./plan/code-update.md), and [`plan/test-update.md`](./plan/test-update.md) if you are changing behavior.
 5. Use the workflow prompts in [`dev_workflow/`](./dev_workflow/) when updating the product.
-6. Use [`src/docs/`](./src/docs/) for implementation-level guidance when code exists.
+6. Use `plan/*` and `design/*` as the source of truth when implementing code.
 
 ## Notes For Contributors
 

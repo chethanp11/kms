@@ -15,7 +15,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 1. `intent/` is the starting point of requirements and contains `product-intent.md`, `feedback-intent.md`, and `gaps.md`.
 2. `plan/` is the temporary iteration workspace and contains `design-update.md`, `code-update.md`, and `test-update.md`.
 3. `design/` is the detailed design layer and contains `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
-4. `src/` is the implementation layer and contains application code, `README.md`, and `src/docs/`.
+4. `src/` is the implementation layer and currently contains backend-oriented scaffold packages in `src/app`, `src/agents`, `src/context`, `src/contracts`, `src/execution`, `src/governance`, `src/observability`, `src/orchestrator`, and `src/shared`.
 5. `tests/` is the validation layer and contains traceability, test plans, and test assets.
 6. `dev_log/` is the permanent archive and contains `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
 7. `dev_workflow/` contains the prompts that update design, code, tests, and logs in order.
@@ -48,8 +48,8 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 4. If any of the four canonical design files are missing on a new project or first pass, create them before broadening the design layer.
 
 ## `src/`
-1. Implement from design, then update `src/docs/` when behavior changes.
-2. Scaffold from design if `src/` is empty on the first implementation pass.
+1. Implement from approved `plan/*` and `design/*`.
+2. Scaffold from design if `src/` is empty on the first implementation pass; the current scaffold is placeholder-only and backend-oriented.
 3. Use `.codex/tech-stack.md` as the local reference for the intended backend, frontend, and test stack when updating `src/`.
 
 ## `tests/`
@@ -66,6 +66,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 3. The default iteration sequence is 10 steps: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
 4. Validation and failure-fix steps may loop until failures are resolved or explicitly deferred.
 5. `README.md` documents the loop, and numbered prompt files `01-read-intent.md` through `10-iteration-review.md` provide the reusable step instructions.
+6. The prompt set is intended to be execution-complete: an agent should be able to move from intent to validated iteration closeout by following the numbered prompts and current repo artifacts alone.
 
 ## `skills/`
 1. Open `SKILL.md` first and use the minimal matching skill.
@@ -83,6 +84,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 9. Surface follow-on gaps into `intent/gaps.md` when validation or review exposes them.
 10. Review iteration completeness and only start the next loop when intent or feedback changes.
 11. Keep edits inside the scoped files unless a dependency is required in the same pass.
+12. Code changes follow the approved plan and design; they do not implicitly require `src/docs/` or `README.md` updates.
 
 ## Conflict rule
 - If this file and `AGENTS.md` disagree, follow `AGENTS.md`.

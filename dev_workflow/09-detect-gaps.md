@@ -2,13 +2,18 @@
 
 ## Use This Prompt When
 
-Use this prompt after logs and validation results are current and the system needs to surface follow-on gaps for future reconciliation.
+Use this prompt after logs and validation results are current and the system needs to surface evidence-backed follow-on gaps for future reconciliation.
+
+## Workflow Position
+
+- Input step: permanent logs plus final validation evidence
+- Output step: updated system gap record for the next iteration
 
 ## Objective
 
-Update the system-managed gap record from evidence in logs, validation outcomes, repeated failures, and unresolved deferrals.
+Update the system-managed gap record from evidence in logs, validation outcomes, repeated failures, unresolved deferrals, or persistent repo misalignment.
 
-## Required Inputs
+## Required Read Order
 
 Read and use:
 
@@ -18,9 +23,22 @@ Read and use:
 4. `dev_log/validation-results.md`
 5. The current `intent/gaps.md`
 
-## Instructions
+## Allowed Writes
 
-1. Review the permanent log evidence and validation outcomes, not just the latest user request.
+- `intent/gaps.md` only
+
+## Required Outputs
+
+Produce a gap record that tells the next planning step:
+
+- what gap exists
+- how important it is
+- which evidence exposed it
+- what kind of downstream action is likely needed
+
+## Procedure
+
+1. Review permanent log evidence and validation outcomes, not just the latest user prompt.
 2. Identify system-detected gaps such as:
    - missing capability
    - design inconsistency
@@ -29,19 +47,10 @@ Read and use:
    - repeated failure pattern
    - blocked work caused by environment or dependencies
 3. Distinguish real evidence-backed gaps from human preference or interpretation.
-4. Update `intent/gaps.md` using the repo's current structure and language.
-5. Include priority, source evidence, and a suggested next action when the gap record format expects them.
-6. If no new gap is detected, keep the record truthful. Either leave it unchanged or state explicitly that no additional system-detected gaps were found, following repo conventions.
-7. Keep this file system-generated in tone. Do not rewrite it as a human feedback essay.
-
-## Produce
-
-Produce a gap record that tells the next planning step:
-
-- what gap exists
-- how important it is
-- which evidence exposed it
-- what kind of downstream action is likely needed
+4. Update `intent/gaps.md` using the repo's current structure and tone.
+5. Include priority, source evidence, and suggested next action when the gap record format expects them.
+6. If no new gap is detected, keep the record truthful. Leave it unchanged or explicitly state that no new system-detected gap was exposed, following current repo conventions.
+7. Keep the file system-generated in tone. It is not a manual feedback note and not a product-backlog wish list.
 
 ## Guardrails
 
