@@ -12,7 +12,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 - The numbered folder contracts in `AGENTS.md` define what belongs where, how files are created, and what is not allowed.
 
 ## Current repo shape
-1. `intent/` is the starting point of requirements and contains `product-intent.md`, `feedback.md`, and `gaps.md`.
+1. `intent/` is the starting point of requirements and contains `product-intent.md`, `feedback-intent.md`, and `gaps.md`.
 2. `plan/` is the temporary iteration workspace and contains `design-update.md`, `code-update.md`, and `test-update.md`.
 3. `design/` is the detailed design layer and contains `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
 4. `src/` is the implementation layer and contains application code, `README.md`, and `src/docs/`.
@@ -26,7 +26,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 
 ## `intent/`
 1. Read first; do not edit unless explicitly asked.
-2. `product-intent.md` and `feedback.md` are the only human-edited operational inputs.
+2. `product-intent.md` and `feedback-intent.md` are the only human-edited operational inputs.
 3. `gaps.md` is system-edited from validation and `dev_log/*`.
 4. Preserve full detail when translating to `plan/`.
 
@@ -65,6 +65,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 2. Treat the prompts as the controlled iteration sequence.
 3. The default iteration sequence is 10 steps: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
 4. Validation and failure-fix steps may loop until failures are resolved or explicitly deferred.
+5. `README.md` documents the loop, and numbered prompt files `01-read-intent.md` through `10-iteration-review.md` provide the reusable step instructions.
 
 ## `skills/`
 1. Open `SKILL.md` first and use the minimal matching skill.

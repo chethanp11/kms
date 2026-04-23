@@ -11,7 +11,7 @@ This folder documents the default closed-loop development flow for this reposito
 | Validation gate | Code is not considered done until validation passes or failures are explicitly deferred |
 | Loop point | Steps `06` and `07` repeat until the validation loop is resolved |
 | Gap surfacing | New gaps found during validation or review feed `intent/gaps.md` |
-| Next iteration trigger | A new loop starts when intent or feedback changes |
+| Next iteration trigger | A new loop starts when intent or feedback intent changes |
 
 ## Iteration Lifecycle
 
@@ -48,11 +48,26 @@ flowchart TD
 | `09` | Detect Gaps | Surface follow-on gaps into `intent/gaps.md` | Updated or confirmed gap record |
 | `10` | Iteration Review | Confirm done and prepare the next loop | Closure decision and next-iteration readiness |
 
+## Prompt Files
+
+| Step | Prompt file |
+| --- | --- |
+| `01` | `dev_workflow/01-read-intent.md` |
+| `02` | `dev_workflow/02-create-plan.md` |
+| `03` | `dev_workflow/03-update-design.md` |
+| `04` | `dev_workflow/04-update-tests.md` |
+| `05` | `dev_workflow/05-implement-code.md` |
+| `06` | `dev_workflow/06-run-validation.md` |
+| `07` | `dev_workflow/07-fix-failures.md` |
+| `08` | `dev_workflow/08-update-logs.md` |
+| `09` | `dev_workflow/09-detect-gaps.md` |
+| `10` | `dev_workflow/10-iteration-review.md` |
+
 ## Flow With File Mapping
 
 ```mermaid
 flowchart TD
-    A[intent/product-intent.md<br>intent/feedback.md or active feedback file] --> B[01 Read Intent]
+    A[intent/product-intent.md<br>intent/feedback-intent.md] --> B[01 Read Intent]
     B --> C[plan/design-update.md<br>plan/code-update.md<br>plan/test-update.md]
     C --> D[03 Update Design<br>.codex/project-context.md when needed<br>design/system-design.md<br>design/architecture.md<br>design/ux-flows.md<br>design/acceptance-criteria.md]
     D --> E[04 Update Tests<br>tests/design-traceability.md<br>tests/test-plan.md<br>test suites]
@@ -120,7 +135,7 @@ sequenceDiagram
 
 ## Practical Notes
 
-- The active repo still has `intent/feedback-intent.md`; use the active feedback artifact until migration is complete.
+- Use `intent/feedback-intent.md` as the canonical human-edited feedback input.
 - `.codex/project-context.md` should be updated before detailed design only when high-level workflow or behavior changes.
 - Not every iteration requires code, but every iteration still follows the ordered loop and explicit validation discipline.
 - If validation exposes a design problem rather than an implementation problem, fix the correct layer before continuing.

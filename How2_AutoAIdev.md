@@ -10,13 +10,13 @@ AutoAI Dev is the operating system for this repository.
 ## Core Flow
 AutoAI Dev works as a controlled loop:
 
-1. Read the current product intent from `intent/product-intent.md` and `intent/feedback.md`.
+1. Read the current product intent from `intent/product-intent.md` and `intent/feedback-intent.md`.
 2. Translate the intent into a scoped plan in `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`.
 3. Update design first when behavior or structure changes.
 4. Implement the approved change in `src/`.
 5. Add or update validation in `tests/`.
 6. Record the actual change and validation evidence in `dev_log/`.
-7. Feed unresolved gaps back into `intent/gaps.md` or `intent/feedback.md` as appropriate.
+7. Feed unresolved gaps back into `intent/gaps.md` or `intent/feedback-intent.md` as appropriate.
 
 ## How To Use It For Product Development
 Use AutoAI Dev as the path from product direction to validated implementation.
@@ -42,7 +42,7 @@ When starting work, read files in this order:
 2. `.codex/project-context.md`
 3. `README.md`
 4. `intent/product-intent.md`
-5. `intent/feedback.md`
+5. `intent/feedback-intent.md`
 6. `plan/design-update.md`
 7. `plan/code-update.md`
 8. `plan/test-update.md`
@@ -52,4 +52,3 @@ When starting work, read files in this order:
 
 ## Outcome
 If the loop is working, product intent becomes design, design becomes code and tests, and code and tests become validated history in `dev_log/`.
-

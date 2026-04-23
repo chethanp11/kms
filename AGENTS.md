@@ -34,20 +34,20 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 
 ## Workflow contract
 1. `intent/` is the starting point of requirements.
-2. `intent/product-intent.md` and `intent/feedback.md` are the only human-edited operational inputs for the workflow.
+2. `intent/product-intent.md` and `intent/feedback-intent.md` are the only human-edited operational inputs for the workflow.
 3. `intent/gaps.md` is a system-edited operational input that is updated by a prompt after reviewing `dev_log/*`.
 4. `.codex/project-context.md` is the high-level design source of truth above `design/*`.
 5. `design/` is the detailed design layer that must align to `.codex/project-context.md`.
 6. `plan/` is the temporary working area for the current iteration only.
 7. `dev_log/` is the permanent archive of what was actually updated and validated.
 8. `src/` is the implementation space, and `tests/` is the validation space.
-9. A new iteration starts only after `intent/` or `feedback.md` is updated manually, or after validation surfaces gaps that are recorded back into `intent/`.
+9. A new iteration starts only after `intent/` or `feedback-intent.md` is updated manually, or after validation surfaces gaps that are recorded back into `intent/`.
 
 ## Folder contracts
 ### `intent/`
-1. Files that belong here are `product-intent.md`, `feedback.md`, and `gaps.md`.
+1. Files that belong here are `product-intent.md`, `feedback-intent.md`, and `gaps.md`.
 2. Create or revise `product-intent.md` manually when product goals, scope, user flows, constraints, or expected behavior change.
-3. Create or revise `feedback.md` manually when manual review, testing, usage feedback, bug observations, or scope changes introduce new findings.
+3. Create or revise `feedback-intent.md` manually when manual review, testing, usage feedback, bug observations, or scope changes introduce new findings.
 4. Update `gaps.md` through a prompt that reads `dev_log/*` and records system-detected gaps, not human-authored interpretation.
 5. Do not place implementation code, ad hoc design rewrites, or silent reinterpretation here.
 
@@ -99,6 +99,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 5. Read `AGENTS.md` and `.codex/project-context.md` first before running these prompts.
 6. The default development loop follows a strict 10-step sequence: read intent, create plan, update design, update tests, implement code, run validation, fix failures, update logs, detect gaps, and review the iteration.
 7. Steps 6 and 7 may loop until failures are resolved or explicitly deferred.
+8. Keep one reusable numbered prompt per workflow step using the canonical filenames `01-read-intent.md` through `10-iteration-review.md`, plus `README.md` as the overview and navigation entry point.
 
 ### `skills/`
 1. Files that belong here are skill definitions and supporting instructions for reusable scoped workflows.
@@ -124,7 +125,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 Read the latest relevant artifacts in this order before modifying more than one file:
 1. `AGENTS.md` and `.codex/project-context.md`
 2. `intent/product-intent.md`
-3. `intent/feedback.md` or the current active feedback file during migration
+3. `intent/feedback-intent.md`
 4. `intent/gaps.md` when system-detected gaps exist
 5. `plan/design-update.md`
 6. `plan/code-update.md`
