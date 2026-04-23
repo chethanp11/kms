@@ -67,6 +67,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 4. Validation and failure-fix steps may loop until failures are resolved or explicitly deferred.
 5. `README.md` documents the loop, and numbered prompt files `01-read-intent.md` through `10-iteration-review.md` provide the reusable step instructions.
 6. The prompt set is intended to be execution-complete: an agent should be able to move from intent to validated iteration closeout by following the numbered prompts and current repo artifacts alone.
+7. The workflow is artifact-driven: each step reads upstream artifacts, updates only its allowed downstream artifacts, and must satisfy its gate before the next step proceeds.
 
 ## `skills/`
 1. Open `SKILL.md` first and use the minimal matching skill.
@@ -85,6 +86,7 @@ Compact high-level design context for this repository. `AGENTS.md` is the author
 10. Review iteration completeness and only start the next loop when intent or feedback changes.
 11. Keep edits inside the scoped files unless a dependency is required in the same pass.
 12. Code changes follow the approved plan and design; they do not implicitly require `src/docs/` or `README.md` updates.
+13. Update `dev_log/*` only after actual outcomes are known, and update `intent/gaps.md` only for evidence-backed system-detected follow-on gaps.
 
 ## Conflict rule
 - If this file and `AGENTS.md` disagree, follow `AGENTS.md`.

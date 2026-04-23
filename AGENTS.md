@@ -42,6 +42,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 7. `dev_log/` is the permanent archive of what was actually updated and validated.
 8. `src/` is the implementation space, and `tests/` is the validation space.
 9. A new iteration starts only after `intent/` or `feedback-intent.md` is updated manually, or after validation surfaces gaps that are recorded back into `intent/`.
+10. The workflow is artifact-driven, not chat-driven: each step must read its upstream artifacts, update only its allowed downstream artifacts, and satisfy its gate before the next step proceeds.
 
 ## Folder contracts
 ### `intent/`
@@ -101,6 +102,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 7. Steps 6 and 7 may loop until failures are resolved or explicitly deferred.
 8. Keep one reusable numbered prompt per workflow step using the canonical filenames `01-read-intent.md` through `10-iteration-review.md`, plus `README.md` as the overview and navigation entry point.
 9. The numbered prompts must be execution-complete as a set: running them in order from current intent and repo state must cover the full iteration without relying on unstated workflow assumptions.
+10. Each prompt must define what the step reads, what it may update, what it must achieve, and what it must not do.
 
 ### `skills/`
 1. Files that belong here are skill definitions and supporting instructions for reusable scoped workflows.
@@ -122,6 +124,7 @@ Provide repo-level rules for Codex and other AI collaborators working in this te
 1. Every non-trivial change must end with an explicit validation step such as `git diff --check`, a targeted test, or another relevant check.
 2. Document the validation command or check in the workflow or log artifact that records the iteration.
 3. Keep validation aligned with the changed layer: design changes validate structure and content, code changes validate behavior, and test changes validate coverage.
+4. Validation must record the activity type, command or method, result status (`pass`, `fail`, or `partial`), findings, and required follow-up when relevant.
 
 ## Required read order before substantial work
 Read the latest relevant artifacts in this order before modifying more than one file:
@@ -159,6 +162,9 @@ Read the latest relevant artifacts in this order before modifying more than one 
    - `dev_log/validation-results.md` for actual validation evidence
 16. If a requirement is unclear, log it as a plan or design issue or open question instead of implementing a guess.
 17. Treat manual feedback as first-class input; route it through the active feedback record in `intent/` and the operational logs in `dev_log/` when it should influence future direction.
+18. Treat each workflow step as gated work: do not advance to the next layer until the current layer has been updated enough to serve as the downstream source of truth.
+19. Do not write `dev_log/*` until the actual outcome of the iteration is known.
+20. Update `intent/gaps.md` only for evidence-backed system-detected gaps surfaced by validation or review.
 
 ## Allowed issue classifications
 Use exactly these categories when classifying issues or feedback:
@@ -236,6 +242,9 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Do not code directly from vague intent; structure it into design first.
 - Default workflow order is: `intent/*` -> `plan/*` -> `design/*` -> `tests/*` -> `src/*` -> validation -> failure fixes -> `dev_log/*` -> `intent/gaps.md` -> iteration review.
 - Code implementation follows approved `plan/*` and `design/*`; it does not implicitly require updates to `src/docs/` or the project `README.md`.
+- If validation passes, update logs, then detect gaps, then review the iteration before treating the pass as complete.
+- If validation fails, fix the correct failing layer rather than hiding the problem with a downstream workaround.
+- If operating rules or repo workflow change, update `AGENTS.md` and `.codex/project-context.md` before editing workflow prompts or downstream artifacts.
 
 ## Logging and artifacts
 - Every iteration must update the four `dev_log/` files with what was implemented and what was validated.
@@ -254,6 +263,14 @@ If implementation deviates from intent, flag it and log it. Do not silently norm
 - Classify the root cause.
 - Propose concrete next steps.
 - Proceed as far as safely possible with assumptions clearly logged.
+
+## Workflow anti-patterns
+- Do not code directly from the latest user prompt without reconciling intent into `plan/*`.
+- Do not let code behavior become the de facto design source.
+- Do not write tests only after code exists when behavior changed.
+- Do not log planned work as if it already happened.
+- Do not edit human-owned intent files to resolve ambiguity.
+- Do not close an iteration while validation, logs, or review are incomplete.
 
 ## Reusability requirement
 - Keep workflows, prompts, and structures reusable across projects.
