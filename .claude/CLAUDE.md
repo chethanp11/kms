@@ -1,1 +1,0 @@
-Follow all instructions defined in @AGENTS.md as the primary source of  behavior and rules.
