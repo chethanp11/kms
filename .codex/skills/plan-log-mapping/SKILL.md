@@ -9,7 +9,7 @@ description: Translate completed application `plan/*` entries into the four cano
 Map completed plan items to permanent log entries without losing IDs, scope, or validation evidence.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `dev_log/design-update-log.md`, `dev_log/code-update-log.md`, `dev_log/test-update-log.md`, and `dev_log/validation-results.md`
 - Relevant `design/*`, `tests/*`, or `src/` files only as needed to verify what changed

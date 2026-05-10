@@ -4,9 +4,9 @@
 Turn human intent and repository state into a bounded, phased execution plan.
 
 ## Reads
-- `AGENTS.md`
+- selected `.devmode/*` entry point
 - `.codex/project-context.md`
-- `.codex/appflow.md`
+- `.devmode/app.md`
 - relevant `intent/*`, `plan/*`, and `.codex/context/*`
 
 ## Outputs

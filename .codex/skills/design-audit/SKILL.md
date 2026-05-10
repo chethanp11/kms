@@ -9,7 +9,7 @@ description: Audit application artifacts for drift across intent, plan, project 
 Validate whether implementation, tests, and logs remain aligned with the current plan, design, and target behavior.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`

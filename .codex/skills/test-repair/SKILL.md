@@ -9,7 +9,7 @@ description: Repair or improve application tests when failures are caused by sta
 Repair or improve tests while preserving the requirements they are meant to validate.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - Relevant `intent/*` and `plan/*` files
 - Failing test reports or validation output
 - `design/acceptance-criteria.md` and other relevant `design/*` files

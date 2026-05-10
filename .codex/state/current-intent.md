@@ -17,4 +17,4 @@ Refactor AppFlow into an 11-step lifecycle where the raw user prompt is first co
 ## Constraints
 - Keep `.codex` reusable and project-agnostic except project context and tech stack.
 - Do not add unnecessary new folders.
-- Preserve project-specific guidance in root `AGENTS.md` and project docs.
+- Preserve project-specific guidance in `.devmode/app.md` and project docs.

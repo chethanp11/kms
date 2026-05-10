@@ -6,7 +6,7 @@ Use this folder for small reusable prompt templates that support governed execut
 
 - Prompts must name required inputs and expected outputs.
 - Prompts must preserve source-of-truth order.
-- Prompts must not grant authority beyond `AGENTS.md`.
+- Prompts must not grant authority beyond the selected `.devmode/*` entry point.
 - Prefer short task templates over giant instruction blobs.
 
 ## Templates

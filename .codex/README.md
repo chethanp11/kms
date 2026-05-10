@@ -48,8 +48,7 @@ If the user explicitly asks for answer-only, planning-only, or no file changes, 
 
 | Path | Purpose |
 | --- | --- |
-| `.codex/AGENTS.md` | Portable AppFlow operating contract |
-| `.codex/appflow.md` | Lifecycle and routing contract |
+| `.devmode/app.md` | Portable AppFlow operating, lifecycle, and routing contract |
 | `.codex/dev_workflow/` | Canonical 11-step workflow prompts |
 | `.codex/agents/` | Bounded agent role contracts |
 | `.codex/skills/` | Reusable specialized procedures |
@@ -63,13 +62,12 @@ If the user explicitly asks for answer-only, planning-only, or no file changes, 
 
 ## Project-Specific Files
 
-When copying `.codex/` into a new repository, only these files should normally need project-specific edits:
+When using AppFlow for a new application, only these files should normally need project-specific edits:
 
-1. root `AGENTS.md`
-2. `.codex/project-context.md`
-3. `.codex/tech-stack.md`
+1. `.codex/project-context.md`
+2. `.codex/tech-stack.md`
 
-Everything else in `.codex/` should remain reusable unless the AppFlow factory itself is being improved.
+Root `AGENTS.md`, `.devmode/*`, and everything else in `.codex/` should remain reusable unless the AppFlow framework itself is being improved.
 
 ## The 11-Step Lifecycle
 

@@ -18,9 +18,8 @@ Reconcile current-turn intent, existing project intent, and repo constraints pre
 Read these in order:
 
 1. `.codex/state/current-intent.md`
-2. `.codex/AGENTS.md`
-3. `AGENTS.md`
-4. `.codex/project-context.md`
+2. selected `.devmode/*` entry point
+3. `.codex/project-context.md`
 5. `intent/product-intent.md`
 6. `intent/feedback-intent.md`
 7. `intent/gaps.md` when present
@@ -29,7 +28,7 @@ Read these in order:
 ## Allowed Writes
 
 - Normally: none
-- Exception: if the current request explicitly changes workflow, precedence, ownership, or operating rules, update `AGENTS.md` and `.codex/project-context.md` immediately before ending this step
+- Exception: if the current request explicitly changes workflow, precedence, ownership, or operating rules, update the selected `.devmode/*` entry point and `.codex/project-context.md` immediately before ending this step
 
 ## Required Outputs
 
@@ -52,7 +51,7 @@ Produce an intent brief that states:
 5. Distinguish human intent from system-detected gaps. Treat `intent/gaps.md` as evidence input, not as a human requirements rewrite.
 6. Identify whether the request is workflow-only, design-only, test-only, code-only, or a multi-layer change.
 7. Identify direct dependencies that must be touched in the same pass and out-of-scope work that must not be pulled in.
-8. Check whether the new request changes workflow, precedence, ownership, or operating rules. If yes, update `AGENTS.md` and `.codex/project-context.md` now before any downstream work.
+8. Check whether the new request changes workflow, precedence, ownership, or operating rules. If yes, update the selected `.devmode/*` entry point and `.codex/project-context.md` now before any downstream work.
 9. Record unresolved ambiguity explicitly. If the ambiguity is too risky to infer and cannot be resolved from the repo, ask the user a concise clarifying question. Otherwise carry it into plan.
 10. Preserve detail. Do not compress away distinctions that will affect planning, design, testing, implementation, or validation.
 

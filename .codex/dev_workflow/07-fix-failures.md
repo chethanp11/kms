@@ -29,7 +29,7 @@ Only the layer actually responsible for the failure, for example:
 - `.codex/project-context.md` and `design/*` for design defects
 - `tests/*` for test defects or eval gaps
 - `src/*` and related app docs for implementation defects
-- `AGENTS.md` and `.codex/project-context.md` when validation reveals a workflow or operating-rule problem
+- the selected `.devmode/*` entry point and `.codex/project-context.md` when validation reveals a workflow or operating-rule problem
 
 Do not update permanent logs in this step.
 

@@ -18,8 +18,8 @@ Capture what the user asked for, what must change, and what must not be assumed 
 Read these in order:
 
 1. The current user prompt
-2. `.codex/AGENTS.md`
-3. root `AGENTS.md`
+2. `.devmode/app.md`
+3. `.devmode/app.md`
 4. `.codex/project-context.md`
 5. `.codex/tech-stack.md` when stack or validation may matter
 

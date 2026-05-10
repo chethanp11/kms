@@ -34,10 +34,12 @@ GENERIC_UPPERCASE_TERMS = {
 }
 
 REQUIRED_FILES = [
+    "AGENTS.md",
+    ".devmode/mode.yaml",
+    ".devmode/app.md",
+    ".devmode/framework.md",
     ".codex/README.md",
-    ".codex/AGENTS.md",
     ".codex/project-context.md",
-    ".codex/appflow.md",
     ".codex/dev_workflow/README.md",
     ".codex/dev_workflow/00-create-intent.md",
     ".codex/dev_workflow/01-read-intent.md",
@@ -66,6 +68,7 @@ REQUIRED_FILES = [
 ]
 
 REQUIRED_DIRS = [
+    ".devmode",
     ".codex/agents",
     ".codex/dev_workflow",
     ".codex/skills",
@@ -147,7 +150,7 @@ def validate_skills() -> None:
 
 
 def validate_required_mentions() -> None:
-    agents = read_text(ROOT / ".codex" / "AGENTS.md")
+    agents = read_text(ROOT / ".devmode" / "app.md")
     for required in [
         ".codex/agents/",
         ".codex/dev_workflow/",
@@ -161,12 +164,12 @@ def validate_required_mentions() -> None:
         ".codex/state/",
     ]:
         if required not in agents:
-            fail(f".codex/AGENTS.md does not mention {required}")
+            fail(f".devmode/app.md does not mention {required}")
 
-    appflow = read_text(ROOT / ".codex" / "appflow.md")
+    appflow = read_text(ROOT / ".devmode" / "app.md")
     for phrase in ["intent", "plan", "validation", "implementation", "evidence"]:
         if phrase not in appflow:
-            fail(f".codex/appflow.md missing lifecycle concept: {phrase}")
+            fail(f".devmode/app.md missing lifecycle concept: {phrase}")
     if "appflow_run.py" not in read_text(ROOT / ".codex" / "tools" / "README.md"):
         fail(".codex/tools/README.md does not mention appflow_run.py")
 
@@ -267,7 +270,6 @@ def validate_workflow_semantics() -> None:
 
 def validate_project_artifacts() -> None:
     required_project_files = [
-        "AGENTS.md",
         "intent/product-intent.md",
         "intent/feedback-intent.md",
         "intent/gaps.md",

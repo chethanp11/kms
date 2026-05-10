@@ -6,7 +6,7 @@ This catalog defines bounded agent roles for repository-visible orchestration. T
 
 - Use one role when the task maps clearly to that responsibility.
 - Combine roles through `.codex/orchestration/implementation-review-validation.md` for larger work.
-- Agents must read `AGENTS.md`, `.codex/project-context.md`, and the relevant workflow/context files before acting.
+- Agents must read the selected `.devmode/*` entry point, `.codex/project-context.md`, and the relevant workflow/context files before acting.
 - Agents may recommend changes outside their role, but should not silently implement them.
 
 ## Roles

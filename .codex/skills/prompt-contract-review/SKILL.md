@@ -9,7 +9,7 @@ description: Review application prompt contracts for structured inputs, output e
 Validate AI prompt contracts, including inputs, outputs, tool policy, and fallback behavior.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - Relevant `intent/*` and `plan/*` files
 - `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
 - Prompt files, tool definitions, schemas, and model-routing code when present

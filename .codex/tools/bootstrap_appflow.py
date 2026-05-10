@@ -16,43 +16,70 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 FILES: dict[str, str] = {
-    "AGENTS.md": """# Project Contract
+    "AGENTS.md": """# Repository Mode Router
 
-This is the project-specific contract for this application. The reusable AppFlow factory contract lives in `.codex/AGENTS.md`.
+Read `.devmode/mode.yaml` first.
 
-## Project Identity
+If it contains:
 
-Describe the application, users, core value, and non-goals.
+```yaml
+mode: app
+```
 
-## Source-of-Truth Chain
+then read and follow `.devmode/app.md`.
 
-Define the order for intent, plan, context, design, validation, implementation, and evidence artifacts.
+If it contains:
 
-## Architecture Boundaries
+```yaml
+mode: framework
+```
 
-Define authoritative state, write paths, external integrations, AI/model/tool boundaries, and human approval requirements.
+then read and follow `.devmode/framework.md`.
 
-## Validation
+Do not apply app-mode workflow rules in framework mode. Do not apply framework-mode direct-edit rules in app mode.
+""",
+    ".devmode/mode.yaml": "mode: app\n",
+    ".devmode/app.md": """# App Mode
 
-Define the commands or review methods required before closeout.
+App mode uses AppFlow to create or change an application. Treat each user prompt as application intent and route work through the AppFlow lifecycle.
+
+## Lifecycle
+
+Prompt -> intent -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> gaps -> closeout.
+
+## Project-Specific Files
+
+Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`.
+
+## Reusable Support
+
+Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/context/`, `.codex/memory/`, `.codex/rules/`, `.codex/tools/`, `.codex/prompts/`, and `.codex/state/` as reusable AppFlow support infrastructure.
+""",
+    ".devmode/framework.md": """# Framework Mode
+
+Framework mode improves the AppFlow framework directly from the prompt. Treat prompts as-is and do not run application workflow unless explicitly requested.
 """,
     ".codex/project-context.md": """# Project Context
 
-Compact project-specific context for AppFlow.
+Project-specific context for AppFlow. This file and `.codex/tech-stack.md` are the expected project-specific files for new application development.
 
-## Purpose
+## Product Identity
 
-Describe what this application does and why it exists.
+Describe what this application does, who uses it, and what outcomes it governs.
+
+## Source of Truth and Precedence
+
+Define the order for prompt intent, human intent, plan, context, design, validation, implementation, and evidence artifacts.
 
 ## Repository Map
 
 List important folders and ownership boundaries.
 
-## Current Architecture
+## Architecture Boundaries
 
-Summarize runtime entrypoints, major modules, data flow, and known constraints.
+Define authoritative state, write paths, external integrations, AI/model/tool boundaries, and human approval requirements.
 
-## Current Workflow
+## Workflow Expectations
 
 Summarize how planning, design, validation, implementation, and evidence are handled in this repository.
 """,
@@ -101,6 +128,7 @@ DIRS = [
     "src",
     "tests",
     "dev_log",
+    ".devmode",
 ]
 
 

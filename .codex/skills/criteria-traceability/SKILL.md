@@ -9,7 +9,7 @@ description: Ensure every application correctness criterion has a concrete trace
 Ensure every correctness criterion has a usable path from human intent to proof.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md` when feedback affects correctness expectations
 - `intent/gaps.md` when system-detected gaps exist

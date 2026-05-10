@@ -4,7 +4,7 @@
 Review architecture fit, boundaries, execution flow, service ownership, persistence, observability, and AI-agent constraints.
 
 ## Reads
-- `AGENTS.md`
+- selected `.devmode/*` entry point
 - `.codex/context/architecture-map.md`
 - `design/architecture.md`
 - `design/system-design.md`

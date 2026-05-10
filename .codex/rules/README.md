@@ -10,4 +10,4 @@ Repository-visible operational rules for governed AI-native development.
 - `security-constraints.md`
 - `observability-requirements.md`
 
-Rules are normative support for `AGENTS.md`; they do not replace it.
+Rules are normative support for the selected `.devmode/*` entry point; they do not replace it.

@@ -6,18 +6,18 @@ This file is generated from the active agentic workflow. Do not edit directly ou
 Capture design and workflow-support changes required by the current iteration.
 
 ## Current intent signal
-- Convert `.codex/` into a reusable, project-agnostic AppFlow factory that can be copied into new application repositories. Only root `AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` should require project-specific changes.
+- Convert `.codex/` into a reusable, project-agnostic AppFlow factory that can be copied into new application repositories. Only root `AGENTS.md` router, `.codex/project-context.md`, and `.codex/tech-stack.md` should require project-specific changes.
 
 ## Required changes
 1. `DEV-007`: Establish a complete repo-level Codex operating contract in `AGENTS.md`.
 2. `DEV-007`: Add purposeful `.codex` support structures for agents, workflows, orchestration, memory, context, rules, prompts, tools, and state.
 3. `DEV-007`: Add human-facing index folders for workflows, governance, observability, and knowledge only where they point to active execution artifacts.
-4. `DEV-007`: Update `.codex/project-context.md`, `.codex/appflow.md`, `.codex/dev_workflow/README.md`, and `README.md` so repository navigation reflects the Codex-native structure.
-5. `DEV-008`: Add `.codex/AGENTS.md` as the portable AppFlow factory contract.
+4. `DEV-007`: Update `.codex/project-context.md`, `.devmode/app.md`, `.codex/dev_workflow/README.md`, and `README.md` so repository navigation reflects the Codex-native structure.
+5. `DEV-008`: Add `.devmode/app.md` as the portable AppFlow factory contract.
 6. `DEV-008`: Remove project-specific KMS coupling from reusable `.codex` files outside `.codex/project-context.md` and `.codex/tech-stack.md`.
-7. `DEV-008`: Reframe root `AGENTS.md` as the KMS project contract that extends the reusable `.codex` factory.
+7. `DEV-008`: Reframe root `AGENTS.md` router as the KMS project contract that extends the reusable `.codex` factory.
 8. `DEV-009`: Add copy/drop bootstrap guidance so a copied `.codex` folder can initialize missing project-specific AppFlow artifacts without overwriting existing files.
-9. `DEV-010`: Translate durable guidance from `kms.md` into root `AGENTS.md` for KMS-specific repository contracts and `.codex/AGENTS.md` for reusable AppFlow factory rules.
+9. `DEV-010`: Translate durable guidance from `kms.md` into root `AGENTS.md` router for KMS-specific repository contracts and `.devmode/app.md` for reusable AppFlow factory rules.
 10. `DEV-011`: Make AppFlow automatic for every development prompt, move the canonical 11-step workflow from root `dev_workflow/` into `.codex/dev_workflow/`, remove unnecessary top-level index folders, and document that only `src/` is production runtime.
 11. `DEV-012`: Add lifecycle evidence enforcement, deeper semantic contract validation, factual memory entries, and minimal concrete runtime/test coverage for review gaps.
 12. `DEV-013`: Add `00-create-intent` before `01-read-intent`, keep user prompt as the source for current-turn intent, retire the redundant workflow-pattern directory, and align AppFlow traceability around `REQ-*`, `DEV-*`, and `TEST-*`.

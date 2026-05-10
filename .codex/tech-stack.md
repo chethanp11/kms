@@ -1,31 +1,125 @@
-## KMS Source Stack
+# KMS Tech Stack
 
-This file records the intended implementation stack for `src/`.
+This file is the project-specific technical reference for KMS. It must stay aligned with `design/architecture.md`, especially sections 9 and 10.
 
-## Stack Summary
+For AppFlow reuse in a new application, this file and `.codex/project-context.md` are the only files expected to require project-specific edits.
 
-| Layer | Technology | Purpose | Notes | | --- | --- | --- | --- | | Frontend | React + TypeScript | Build KMI and Infopedia web applications | Frontend implementation should live under `src/` and follow approved `plan/*` and `design/*` | | Frontend tooling | Vite | Frontend build tooling and local development entrypoint | Keep setup lightweight and aligned to the React + TypeScript stack | | Backend | Python | Implement APIs, orchestration, domain logic, and background jobs | Backend implementation should follow approved `plan/*` and `design/*` | | Backend API | Python HTTP service | Serve KMI and Infopedia backend capabilities | Current design allows a Python web framework such as FastAPI or Flask | | Background work | Python workers/jobs | Handle orchestration and scheduled processing | Keep worker responsibilities separate from request/response handling | | Backend testing | `pytest` | Unit and integration testing for Python backend behavior | Align tests to correctness criteria and planned validation | | Frontend testing | TypeScript-based React test stack | Component and browser-flow validation for frontend behavior | Choose the concrete test tools when implementation is scaffolded | | Local guidance | `.codex/*` | Repo-local workflow and stack guidance for Codex | Support files are not part of the product runtime |
+## Target Stack Summary
 
-## File And Data Format Map
+| Layer | Technology | Purpose | Notes |
+| --- | --- | --- | --- |
+| Backend language | Python | APIs, orchestration, parsing, validation, publishing, and jobs | Backend should be built before advanced UI depth. |
+| Backend API | FastAPI or Flask-style Python HTTP service | JSON API for KMI and Infopedia | Keep API contracts stable and governed; UI must not access storage directly. |
+| Worker runtime | Python worker/job runner | Run orchestration, source processing, validation, publishing, indexing | Separate background work from request/response handling. |
+| Frontend | React + TypeScript | KMI and Infopedia web applications | KMI is governed maintenance; Infopedia is read-only consumption. |
+| Frontend tooling | Vite | Local development and frontend build entrypoints | Applies to both KMI and Infopedia apps. |
+| API contracts | JSON over REST or GraphQL | UI-to-backend and service-facing exchange | REST endpoints are the current representative design; GraphQL remains optional. |
+| Backend tests | pytest or equivalent Python test runner | Unit, integration, golden, fixture, and regression validation | Current scaffold may still use `unittest` until pytest is installed. |
+| Frontend tests | TypeScript React test stack | Component and browser-flow validation | Choose concrete tools when frontend scaffold is added. |
 
-| Format | Where it is used | Purpose | Examples | | --- | --- | --- | --- | | Markdown (`.md`) | Canonical knowledge, repo workflow artifacts, templates, and human-readable design/validation docs | Primary human-readable and AI-usable knowledge format | `/wiki/*.md`, `design/*.md`, `plan/*.md`, `tests/*.md`, `dev_log/*.md`, `templates/*.md` | | YAML (`.yaml`, `.yml`) | Governance rules, machine-readable policy files, frontmatter, and environment/config templates | Machine-readable rules and structured metadata | `/rules/*.yaml`, wiki page frontmatter, config templates | | JSON (`.json`) | API payloads, UI-service contracts, structured artifacts, and runtime exchange formats | Structured application data exchange | REST/GraphQL responses, run artifacts, UI payloads | | TOML (`.toml`) | Python project and tool configuration | Python dependency and tooling configuration | `pyproject.toml`, local tool config | | Environment files / config manifests | Centralized runtime configuration | Environment-driven configuration and secret references | `/config/*`, env templates, runtime manifests |
+## Target Runtime Repository Layout
 
-## Storage And Persistence
+Design target from `design/architecture.md`:
 
-| Storage layer | Technology / type | Purpose | Notes | | --- | --- | --- | --- | | Canonical knowledge store | Filesystem-based Markdown store | Persist finalized knowledge under `/wiki` | This is the authoritative knowledge substrate | | Raw source store | Filesystem / mounted source folders | Hold immutable upstream source artifacts | Inputs remain outside canonical truth | | Metadata database | SQL metadata DB | Store runs, approvals, contradictions, revisions, QA state, and lifecycle metadata | Operational authority only; not the knowledge source of truth | | Optional artifact storage | File or object-style artifact storage | Retain parse outputs, diffs, extracted text, and review bundles | Supporting operational storage | | Optional search/index layer | Derived index store | Support browse/search over finalized content and metadata | Derived support layer, not canonical truth |
+```text
+kms/
+├─ pyproject.toml
+├─ apps/
+│  ├─ api/              # Python HTTP API service
+│  ├─ worker/           # Python background worker / jobs
+│  ├─ kmi/              # React + TypeScript KMI frontend
+│  └─ infopedia/        # React + TypeScript read-only frontend
+├─ config/              # Runtime config manifests and env templates
+├─ agents/              # Product agent definitions and bounded specs
+├─ rules/               # Executable governance policy definitions
+├─ templates/           # Markdown templates and page blueprints
+├─ wiki/                # Canonical finalized markdown knowledge
+├─ raw/                 # Local immutable upstream source inputs
+├─ docs/                # Product/operational documentation
+├─ tests/               # Unit, integration, e2e, fixtures, regression
+├─ packages/
+│  ├─ domain/           # Shared Python domain entities and rules
+│  ├─ shared/           # Shared Python utilities, logging, errors, typing
+│  └─ config/           # Shared runtime configuration definitions
+└─ scripts/             # Build, validation, and maintenance scripts
+```
 
-## Service And Interface Contracts
+The current repository is still scaffold-stage and may not yet match this target layout. New implementation should move toward this layout through planned, validated steps.
 
-| Area | Technology / style | Purpose | Notes | | --- | --- | --- | --- | | UI to backend contracts | JSON over REST or GraphQL | Governed application-facing service boundary | UI must not access the database directly | | Backend domain logic | Python packages/modules | Shared domain behavior, validators, rules, and orchestration logic | Keep domain logic reusable across API and worker layers | | Templates | Markdown templates with structured metadata | Generate governed wiki pages and related artifacts | Template ownership belongs in `/templates` | | Rules engine inputs | YAML rule files | Enforce publish, traceability, freshness, and governance rules | Missing required fields should fail closed |
+## Storage and Persistence
 
-## Notes
+| Store | Technology / type | Authority | Purpose |
+| --- | --- | --- | --- |
+| `/wiki` | Filesystem markdown store | Canonical truth | Finalized governed knowledge. |
+| `/raw` | Filesystem or mounted source folders | Upstream evidence only | Immutable source inputs for maintenance runs. |
+| Metadata database | SQL database | Operational support | Runs, approvals, contradictions, revisions, QA state, projections, audit events. |
+| Artifact storage | File/object-style storage | Supporting evidence | Parse outputs, diffs, extracted text, review bundles. |
+| Search/index store | Derived index | Rebuildable projection | Search and navigation acceleration for KMI and Infopedia. |
 
-- React + TypeScript is the intended frontend stack.
-- Python is the intended backend stack.
-- Markdown is the canonical knowledge format.
-- YAML is used for rules and structured metadata where machine-readable policy is needed.
-- JSON is used for application contracts and structured runtime data exchange.
-- The metadata DB is operational support and must not replace `/wiki` as canonical truth.
-- The repository is still at scaffold stage, so this stack is the target implementation direction rather than a fully installed runtime.
-- Keep `src/` aligned to `design/architecture.md`, `design/system-design.md`, and the approved `plan/*` files.
-- Until a Python project runner is installed, run concrete standard-library unit tests with `python -m unittest discover -s tests/unit -p 'test_*.py'`.
+The metadata DB and indexes must not replace `/wiki` as the knowledge source of truth.
+
+## Data and File Formats
+
+| Format | Use |
+| --- | --- |
+| Markdown | Canonical wiki pages, templates, design docs, plans, logs, validation docs. |
+| YAML | Wiki frontmatter, governance rules, machine-readable policy, config templates. |
+| JSON | API payloads, service contracts, run artifacts, UI data exchange. |
+| TOML | Python project and tooling configuration. |
+| Environment/config manifests | Runtime configuration and secret references; never commit secret values. |
+
+## Service and API Contracts
+
+Representative API categories:
+
+- run APIs
+- source APIs
+- review/diff APIs
+- approval APIs
+- contradiction APIs
+- health/lint APIs
+- wiki read APIs
+- Infopedia navigation/search APIs
+
+Representative REST-style endpoints from design:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/runs` | Create a governed maintenance run. |
+| `GET` | `/api/runs/{run_id}` | Fetch run status and summary. |
+| `GET` | `/api/runs/{run_id}/artifacts` | List run artifacts and outputs. |
+| `GET` | `/api/reviews/{revision_id}/diff` | Fetch review diff and validation context. |
+| `POST` | `/api/approvals/{revision_id}` | Submit approval or rejection. |
+| `GET` | `/api/wiki/pages/{slug}` | Read finalized wiki page content. |
+| `GET` | `/api/infopedia/tree` | Fetch navigation projection. |
+| `GET` | `/api/infopedia/search` | Search finalized knowledge. |
+| `GET` | `/api/contradictions/{id}` | Read contradiction detail. |
+| `GET` | `/api/health/findings` | Read lint and maintenance issues. |
+
+## Validation Commands
+
+Current scaffold validation:
+
+```bash
+python -m unittest discover -s tests/unit -p 'test_*.py'
+python .codex/tools/validate_codex_contract.py
+git diff --check
+```
+
+Target validation as the stack is installed:
+
+- Python format/lint/type checks through the chosen Python toolchain.
+- Backend unit and integration tests through `pytest` or equivalent.
+- Golden tests for deterministic markdown generation and diffs.
+- Fixture-based tests for source folders, wiki outputs, lint failures, and contradictions.
+- React component and browser-flow tests for KMI and Infopedia.
+- End-to-end tests for run initiation, diff review, approval, publish, and read-only page browse.
+
+## Engineering Constraints
+
+- Backend domain logic belongs in Python services/packages, not only in frontend code.
+- Status enums and API schemas should be shared consistently across backend and frontend contracts.
+- All `/wiki` writes must go through governed backend services.
+- Rules should fail closed when required fields or traceability are missing.
+- Search/index and Infopedia projection layers must be rebuildable from `/wiki` plus metadata.
+- Local development should run API, worker, metadata DB, `/raw`, and `/wiki` together so authority boundaries match production intent.

@@ -9,7 +9,7 @@ description: Review application architecture for alignment with intent, design, 
 Ensure the architecture can support the intended AI behavior, interfaces, and operational constraints.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md` when feedback changes operating constraints
 - Relevant `plan/*` files

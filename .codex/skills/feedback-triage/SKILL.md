@@ -9,7 +9,7 @@ description: Triage application stakeholder, reviewer, or user feedback into int
 Capture manual feedback and route it to the right artifact without flattening every finding into a bug.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md`
 - `intent/gaps.md` when feedback relates to known gaps

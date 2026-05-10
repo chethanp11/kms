@@ -1,6 +1,6 @@
 # Architecture Boundary Rules
 
-Every application should define project-specific architecture boundaries in root `AGENTS.md` and design docs.
+Every application should define project-specific architecture boundaries in the selected `.devmode/*` entry point and design docs.
 
 Reusable boundary checks:
 

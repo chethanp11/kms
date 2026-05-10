@@ -10,4 +10,4 @@ This folder defines reusable staged execution patterns for long-horizon autonomo
 
 ## Governance
 
-Orchestration files define process only. They do not grant authority to bypass `AGENTS.md`, product design, validation, or human-owned decisions.
+Orchestration files define process only. They do not grant authority to bypass the selected `.devmode/*` entry point, product design, validation, or human-owned decisions.

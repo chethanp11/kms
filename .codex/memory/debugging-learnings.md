@@ -6,9 +6,9 @@ Reusable failure patterns after validation or debugging.
 
 - Symptom: `.codex/tools/validate_codex_contract.py` fails with a project-specific term found in a reusable `.codex` file.
 - Root cause classification: design defect.
-- Minimal fix: Move domain-specific wording into root `AGENTS.md`, `.codex/project-context.md`, or `.codex/tech-stack.md`; keep other `.codex` files generic.
+- Minimal fix: Move domain-specific wording into `.devmode/app.md`, `.codex/project-context.md`, or `.codex/tech-stack.md`; keep other `.codex` files generic.
 - Validation: Rerun `python .codex/tools/validate_codex_contract.py`.
-- Prevention: The validator derives project-specific terms from root `AGENTS.md` and checks reusable markdown.
+- Prevention: The validator derives project-specific terms from the repository router and checks reusable markdown.
 
 ## Failure Pattern: stale workflow path references
 
@@ -16,7 +16,7 @@ Reusable failure patterns after validation or debugging.
 - Root cause classification: test defect or design defect depending on source artifact.
 - Minimal fix: Normalize references to `.codex/dev_workflow/`.
 - Validation: Rerun `python .codex/tools/validate_codex_contract.py` and targeted grep for stale paths.
-- Prevention: Keep canonical workflow path in `.codex/AGENTS.md`, `.codex/appflow.md`, and `.codex/project-context.md`.
+- Prevention: Keep canonical workflow path in `.devmode/app.md`, and `.codex/project-context.md`.
 
 ## Template
 

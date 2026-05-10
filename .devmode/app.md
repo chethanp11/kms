@@ -1,6 +1,6 @@
 # App Mode
 
-App mode uses AppFlow to create or change the application.
+App mode uses AppFlow to create or change an application.
 
 ## Activation
 
@@ -12,9 +12,42 @@ mode: app
 
 use this file as the active operating entry point.
 
+## AppFlow Purpose
+
+AppFlow is a portable, prompt-driven application-development workflow. It turns human intent into governed repository changes by moving work through explicit artifacts instead of relying on chat memory or ad hoc edits.
+
+AppFlow exists to:
+
+- convert every application-development prompt into a structured engineering workflow
+- keep development aligned to intent, plan, project context, design, validation, implementation, and evidence
+- make work reproducible across Codex CLI, VS Code Codex, Codex Desktop, and future agents
+- support long-horizon application development without uncontrolled autonomy
+
+## Project-Specific Files
+
+For a new application, only these files should need project-specific updates:
+
+1. `.codex/project-context.md` for product identity, domain rules, architecture boundaries, source-of-truth order, repository shape, and project-specific operating instructions.
+2. `.codex/tech-stack.md` for implementation stack, runtime layout, commands, dependencies, storage choices, and validation commands.
+
+Root `AGENTS.md`, `.devmode/app.md`, `.devmode/framework.md`, and reusable `.codex/*` workflow files should remain project-agnostic unless the AppFlow framework itself is being improved.
+
 ## Prompt Handling
 
-Treat each user prompt as application intent. Convert the prompt into current-turn intent, then route the work through the AppFlow lifecycle.
+Treat each user prompt as application intent. Convert the prompt into current-turn intent, then route work through the AppFlow lifecycle.
+
+Every ordinary development prompt is an AppFlow trigger by default. The user should not need to say "run the workflow."
+
+When a user says something like "Improve the UI", "Fix this bug", "Refactor this module", or "Add a feature", the agent must automatically:
+
+1. classify the request
+2. start at `.codex/dev_workflow/00-create-intent.md`
+3. use `.codex/orchestration/*` only when long-horizon coordination is needed
+4. run the 11-step AppFlow loop as far as the task can safely proceed
+5. ask the user only for genuinely blocking ambiguity, approval, or HITL decisions
+6. validate and close out without requiring the user to manually name workflow files
+
+If the user explicitly asks for an answer-only response, planning-only response, or no file changes, do not force implementation steps; still apply AppFlow reasoning and stop at the requested boundary.
 
 ## AppFlow Lifecycle
 
@@ -28,178 +61,196 @@ Treat each user prompt as application intent. Convert the prompt into current-tu
 8. Fix failures at the correct layer.
 9. Record factual evidence.
 10. Surface gaps or follow-up work.
-11. Review iteration and stop when scope is complete or blocked.
+11. Review iteration and stop when scope is complete, blocked, or explicitly bounded by the user.
 
-## Operating Rules
+## Portable Source-of-Truth Pattern
 
-- Use `.codex/dev_workflow/*` as the workflow engine.
-- Preserve the prompt → intent → plan → design → tests → implementation → validation → logs → gaps chain.
-- Do not invent requirements beyond the prompt and repository source-of-truth artifacts.
-- Ask only for genuinely blocking ambiguity, approval, or human-owned decisions.
-- Validate changed behavior with the most targeted checks available.
+Adapt this generic order through `.codex/project-context.md`:
 
----
+1. user prompt and current-turn intent
+2. human intent and feedback
+3. active plan or backlog item
+4. project context
+5. architecture, design, contracts, and correctness criteria
+6. validation plan, tests, evals, and review checklists
+7. implementation
+8. logs, validation evidence, gaps, and decisions
 
-# KMS Project Contract
+Do not let generated code, chat memory, or hidden assumptions outrank explicit repository artifacts.
 
-This is the project-specific operating contract for KMS. The reusable AppFlow factory contract lives in `.codex/AGENTS.md`.
+## Artifact-Driven Workflow Rules
 
-When adapting this repository pattern to a new application, `.devmode/app.md`, `.devmode/framework.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` are the expected project-specific files to rewrite.
+- The user prompt is first converted into current-turn intent.
+- Human intent and feedback are reconciled before planning.
+- Plans translate intent into scoped work before implementation.
+- Design and contracts define behavior before code where behavior changes.
+- Validation expectations must be explicit before closeout.
+- Evidence/logs record actual outcomes only after work and validation happen.
+- Gaps are evidence-backed follow-up work, not hidden assumptions.
+- Do not code directly from vague intent. Structure it into plan, design, validation, and implementation steps first.
 
-## Project Identity
+## Prompt Operating Rules
 
-KMS is a governed Knowledge Management System that turns immutable raw source material into finalized markdown knowledge under Knowledge Manager control.
+Each AppFlow prompt should:
 
-The product publishes finalized knowledge to `/wiki` and exposes that knowledge through a separate read-only navigation layer.
+- state the lifecycle phase
+- name required inputs
+- define allowed writes
+- preserve traceability between intent, design, validation, and implementation
+- stop at phase exit criteria
+- record real outcomes only after validation or explicit review
 
-## Instruction Precedence
+## Factory Structure
 
-1. System and developer instructions from the active Codex runtime.
-2. `AGENTS.overrride.md` when present. If this exact file exists, do not use mode-selected `.devmode/*` or `.codex/*` instructions before executing the task.
-3. `AGENTS.overrrideXX.md` when present. If this pattern exists, read the mode-selected `.devmode/*` entry point before executing the task.
-4. `.codex/AGENTS.md` for reusable AppFlow factory behavior.
-5. `.devmode/app.md` for KMS-specific application behavior.
-6. `.codex/project-context.md` and `.codex/tech-stack.md`.
-7. KMS artifacts in `intent/`, `plan/`, `design/`, `tests/`, `src/`, and `dev_log/`.
+- `.codex/agents/`: bounded role contracts.
+- `.codex/dev_workflow/`: canonical 11-step prompt-to-change AppFlow lifecycle.
+- `.codex/skills/`: reusable task procedures.
+- `.codex/orchestration/`: staged long-horizon execution and HITL checkpoints.
+- `.codex/context/`: project-agnostic context templates and indexing guidance.
+- `.codex/memory/`: project-agnostic memory structure and maintenance rules.
+- `.codex/rules/`: reusable execution, validation, security, governance, and observability rules.
+- `.codex/prompts/`: reusable prompt templates.
+- `.codex/tools/`: deterministic validation helpers for the factory.
+- `.codex/state/`: temporary resumable task state.
 
-## KMS Source-of-Truth Chain
+## Project Boundary Rules
 
-Use this order when KMS artifacts disagree:
+Project-specific behavior belongs only in:
 
-1. User prompt and `.codex/state/current-intent.md` for the active turn.
-2. `intent/*`
-3. `plan/*`
-4. `.codex/project-context.md`
-5. `design/*`
-6. `tests/*`
-7. `src/*`
-8. `dev_log/*`
+- `.codex/project-context.md`: product identity, architecture boundaries, source-of-truth order, repository map, and project-specific workflow instructions
+- `.codex/tech-stack.md`: stack, runtime layout, dependencies, storage, commands, and validation instructions
+- project artifacts such as `intent/`, `plan/`, `design/`, `tests/`, implementation source, and logs
 
-Do not edit `intent/product-intent.md` or `intent/feedback-intent.md` unless explicitly asked. Use `intent/gaps.md` only for evidence-backed system-detected gaps.
+Reusable framework files must not encode a specific application's domain, users, architecture, or stack unless the task is explicitly about making a generic framework capability.
 
-## KMS Repository Map
+## Copy/Drop Bootstrap Behavior
 
-- `intent/`: human-owned product intent, feedback, and system-detected gaps.
-- `plan/`: current iteration workspace split into design, code, and test updates.
-- `design/`: detailed KMS design layer.
-- `src/`: implementation source and app scaffolding.
-- `tests/`: validation plans, traceability, fixtures, and test suites.
-- `dev_log/`: permanent execution and validation record.
-- `.codex/dev_workflow/`: reusable AppFlow prompts and runbooks that execute the project loop.
-- `.devmode/mode.yaml`: selects `app` or `framework` operating mode.
-- `.devmode/app.md`: app-mode entry point; treats prompts as application intent and routes them through AppFlow.
-- `.devmode/framework.md`: framework-mode entry point; treats prompts as-is and improves the framework directly.
-- `.codex/`: reusable AppFlow factory plus KMS-specific `project-context.md` and `tech-stack.md`.
+When AppFlow is copied into a new repository:
 
-## KMS Folder Contracts
+1. check whether `AGENTS.md`, `.devmode/mode.yaml`, `.devmode/app.md`, `.devmode/framework.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` exist
+2. rewrite only `.codex/project-context.md` and `.codex/tech-stack.md` for the new application unless changing the framework itself
+3. if required files are missing, offer to create starter placeholders with `.codex/tools/bootstrap_appflow.py`
+4. if the project has no planning, design, validation, or evidence folders, offer to scaffold the generic AppFlow artifact chain
+5. do not force a project to use a specific framework or runtime stack
+6. keep reusable `.devmode/*` and `.codex/*` files project-agnostic after bootstrap
 
-### `intent/`
-- Human-owned inputs: `product-intent.md` and `feedback-intent.md`.
-- System-managed gap record: `gaps.md`.
-- Do not use this folder for implementation notes or silent reinterpretation.
+## Agent Discipline
 
-### `plan/`
-- Canonical files: `design-update.md`, `code-update.md`, and `test-update.md`.
-- Use this folder to classify current iteration work into design, implementation, and validation.
-- Keep plan entries traceable with project IDs such as `REQ-*`, `DEV-*`, and `TEST-*` when applicable.
+Agents are bounded roles, not autonomous authority grants. Every agent must:
 
-### `design/`
-- Canonical files: `system-design.md`, `architecture.md`, `ux-flows.md`, and `acceptance-criteria.md`.
-- Keep design files complementary and aligned to `.codex/project-context.md`.
-- Do not let code redefine behavior without an approved design update.
+- read the relevant project-specific context before acting
+- keep scope explicit
+- preserve contracts unless asked to change them
+- validate changed behavior or state deferral clearly
+- record evidence only after work is real
 
-### `src/`
-- Implement only behavior represented in intent, plan, project context, design, and validation expectations.
-- Scaffold from design when implementation is empty or incomplete.
-- Use `.codex/tech-stack.md` for stack and layout guidance.
+## Boundary Rules
 
-### `tests/`
-- Prove correctness criteria and changed behavior.
-- Keep traceability in `tests/design-traceability.md`.
-- Keep validation intent in `tests/test-plan.md`.
+1. If a request is ambiguous about scope, file targets, validation, or ownership, ask before editing unless a safe minimal assumption is clear.
+2. Do not edit outside explicit task scope unless the change is a direct dependency and is called out.
+3. Prefer the smallest set of files that fully completes the task.
+4. Do not introduce project-specific examples into reusable framework files.
+5. Do not let implementation behavior become the de facto design source.
 
-### `dev_log/`
-- Canonical files: `design-update-log.md`, `code-update-log.md`, `test-update-log.md`, and `validation-results.md`.
-- Record actual outcomes only after work and validation occur.
-- Do not fabricate validation evidence.
+## Validation Rules
 
-### `.codex/dev_workflow/`
-- Holds reusable AppFlow workflow prompts and runbooks.
-- Preserve the intent → plan → design → tests → src → validation → logs → gaps loop.
-- Do not use workflow prompts to bypass `.devmode/app.md` or `.codex/AGENTS.md`.
+Every non-trivial change must end with explicit validation:
 
-## Architecture Boundaries
+- docs/factory changes: static checks and `git diff --check`
+- design changes: review against intent, project context, architecture, and correctness criteria
+- code changes: targeted tests first, broader tests only after local success
+- eval/AI changes: grounding, prompt-boundary, tool-policy, and hallucination-risk review
 
-- Raw source inputs are immutable upstream evidence, not finalized truth.
-- KMI is the governed maintenance and approval surface.
-- `/wiki` is the finalized markdown source of truth.
-- Infopedia is read-only and must not mutate finalized knowledge.
-- Metadata/runtime services support orchestration and auditability; they do not replace `/wiki`.
-- AI agents may propose, compare, validate, and review, but they must not silently finalize truth.
+Validation evidence should state method, result (`pass`, `fail`, or `partial`), findings, failure classification, and follow-up.
 
-## Product Development Rule
+For factory-only changes:
 
-When working on KMS product behavior, follow:
+- confirm required files exist
+- confirm reusable files are project-agnostic
+- run `python .codex/tools/validate_codex_contract.py`
+- run `git diff --check`
 
-user prompt → `.codex/state/current-intent.md` → `intent/*` → `plan/*` → `.codex/project-context.md` → `design/*` → `tests/*` → `src/*` → validation → `dev_log/*` → `intent/gaps.md`.
+For project behavior changes, use the project-specific validation commands in `.codex/tech-stack.md` and the project validation plan.
 
-Implementation must follow approved plan/design/test artifacts. Code must not invent requirements.
+## Issue Classifications
 
-## Required Read Order Before Substantial KMS Work
+Use these categories consistently:
 
-1. `.devmode/mode.yaml`, then `.devmode/app.md` or `.devmode/framework.md` as selected
-2. `.codex/AGENTS.md`
-3. `.codex/state/current-intent.md` when present
-4. `.codex/project-context.md`
-5. `.codex/tech-stack.md`
-6. `intent/product-intent.md`
-7. `intent/feedback-intent.md`
-8. `intent/gaps.md` when present
-9. current `plan/*`
-10. relevant `design/*`
-11. `tests/design-traceability.md` and `tests/test-plan.md`
-12. relevant `dev_log/*`
-13. relevant `.codex/dev_workflow/*` step file when using the AppFlow workflow
+- design defect
+- implementation defect
+- test defect
+- eval gap
+- environment issue
+- backlog enhancement
 
-## Production Deployment Boundary
+## Traceability Discipline
 
-Only `src/` is intended to become production runtime code in this repository.
+- Intent defines what humans want.
+- Plan defines active scope.
+- Project context defines compact high-level design and operating model.
+- Design/contracts define expected behavior and boundaries.
+- Tests/evals/checklists define proof.
+- Implementation follows approved intent, plan, design, and validation expectations.
+- Logs/evidence record what actually happened.
 
-`intent/`, `plan/`, `design/`, `tests/`, `dev_log/`, and `.codex/` are engineering control-plane artifacts. They guide development, validation, traceability, and governance but are not production deployment artifacts.
+Use only `REQ-*`, `DEV-*`, and `TEST-*` as AppFlow traceability ID prefixes.
 
-## KMS Traceability Rules
+## Testing and Review Discipline
 
-- `intent/*` defines human intent and feedback.
-- `plan/*` defines active iteration scope.
-- `.codex/project-context.md` defines compact high-level KMS design and operating model.
-- `design/ux-flows.md` defines user experience.
-- `design/system-design.md` defines system behavior.
-- `design/architecture.md` defines structure and boundaries.
-- `design/acceptance-criteria.md` defines correctness.
-- `tests/*` defines proof.
-- `dev_log/*` records actual work and validation evidence.
+For implemented behavior, cover happy paths, edge cases, and failure scenarios where practical.
 
-## Repository Improvement Rule
+For every iteration, review:
 
-When improving the reusable AppFlow factory, keep `.codex/` project-agnostic except:
+- requirement coverage
+- architecture alignment
+- code quality and modularity
+- duplication and coupling
+- failure handling
+- performance risks
+- security considerations
+- test sufficiency
 
-- `.codex/project-context.md`
-- `.codex/tech-stack.md`
+## Failure Handling
 
-Project-specific workflow guidance belongs in `.devmode/app.md`, not in reusable factory files.
+When blocked:
 
-## Validation
+1. state the blocker explicitly
+2. classify the root cause
+3. propose concrete next steps
+4. proceed only as far as safely possible with assumptions visible
 
-- For AppFlow factory changes: run `python .codex/tools/validate_codex_contract.py` and `git diff --check`.
-- For KMS documentation/workflow changes: also review affected KMS artifacts for source-of-truth alignment.
-- For KMS product implementation changes: run the targeted validation from `.codex/tech-stack.md` and `tests/test-plan.md`.
+If validation fails, fix the correct failing layer rather than hiding the problem with a downstream workaround.
 
-## Stop Conditions
+## Workflow Anti-Patterns
 
-Stop and surface the issue when:
+- coding directly from the latest prompt without reconciling intent
+- using code behavior as the design source
+- writing tests only after code exists when behavior changed
+- logging planned work as completed work
+- editing human-owned intent to resolve ambiguity
+- closing an iteration while validation, logs, or review are incomplete
 
-- KMS source-of-truth artifacts conflict and cannot be safely reconciled
-- validation fails and the root cause is not understood
-- a change would bypass KMS governance or publication boundaries
-- a human-owned intent decision is missing
-- a requested action would make reusable `.codex` files project-specific
+## Definition of Done
+
+A scoped iteration is done only when:
+
+- relevant intent and context were read
+- in-scope work is explicit
+- implementation matches design and design matches intent
+- tests or manual validation are present or explicitly deferred
+- validation evidence exists
+- residual risks and next actions are clear enough for another agent to continue
+
+## Governance
+
+Use repository-visible artifacts over hidden runtime memory. If a convention becomes durable, promote it to `.codex/project-context.md`, `.codex/tech-stack.md`, design docs, tests, or logs as appropriate.
+
+## Behavior Expectations
+
+- Be precise, not verbose.
+- Challenge weak or incomplete design.
+- Do not skip gates in the loop.
+- Do not generate large code blindly.
+- Prefer structured progress over speed.
+- Surface assumptions explicitly.
+- Maintain engineering discipline at all times.

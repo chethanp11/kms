@@ -12,7 +12,7 @@ Default behavior:
 
 1. Treat the prompt as AppFlow input.
 2. Start at `.codex/dev_workflow/00-create-intent.md`.
-3. Read `.codex/AGENTS.md`, root `AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md`.
+3. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, and `.codex/tech-stack.md`.
 4. Execute steps `00` through `10` as far as the task can safely proceed.
 5. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/rules/`, and `.codex/tools/` as support.
 6. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
@@ -42,7 +42,7 @@ The agent is not supposed to improvise outside this chain. It converts the promp
 | Principle | Exact rule | Prevents |
 | --- | --- | --- |
 | Prompt to intent | Convert the user prompt into current-turn intent first | Coding directly from chat text |
-| Contract first | Read `.codex/AGENTS.md`, root `AGENTS.md`, and project context before substantial work | Local edits that violate repo policy |
+| Contract first | Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, and project context before substantial work | Local edits that violate repo policy |
 | Intent first | Reconcile current-turn intent with project intent before planning | Hidden scope drift |
 | Plan before downstream edits | Translate intent into `plan/*` before changing design, tests, or code | Untracked assumptions |
 | Design before code | If behavior changes, update design/contracts before implementation | Code inventing behavior |
@@ -98,8 +98,8 @@ The 11 prompt files are intended to be execution-complete as a set. If followed 
 
 | Step | Reads from | May update | Must achieve | Must not do |
 | --- | --- | --- | --- | --- |
-| `00` Create Intent | User prompt, `.codex/AGENTS.md`, root `AGENTS.md`, `.codex/project-context.md` | `.codex/state/current-intent.md` | Current-turn intent exists before repo reconciliation | Start coding or edit project intent |
-| `01` Read Intent | `.codex/state/current-intent.md`, `AGENTS.md`, `.codex/project-context.md`, `intent/*` | None | Scope, constraints, ambiguity, and feedback context are clear | Start coding or plan from memory |
+| `00` Create Intent | User prompt, selected `.devmode/*` entry point, `.codex/project-context.md` | `.codex/state/current-intent.md` | Current-turn intent exists before repo reconciliation | Start coding or edit project intent |
+| `01` Read Intent | `.codex/state/current-intent.md`, selected `.devmode/*` entry point, `.codex/project-context.md`, `intent/*` | None | Scope, constraints, ambiguity, and feedback context are clear | Start coding or plan from memory |
 | `02` Create Plan | current intent, `intent/*`, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work | Hide ambiguity or compress constraints |
 | `03` Update Design | `plan/*`, `.codex/project-context.md`, `design/*` | `.codex/project-context.md` when needed, `design/*` | Design baseline for downstream work | Let code define behavior first |
 | `04` Update Tests | `design/*`, correctness criteria, traceability | `tests/*` | Proving strategy and validation assets before code | Write tests from implementation convenience |
@@ -145,7 +145,7 @@ Validation must state the method, result, findings, failure classification if re
 
 | If this happens | The workflow must do this next |
 | --- | --- |
-| Prompt changes operating model or repo rules | Update `AGENTS.md` and `.codex/project-context.md` before downstream artifacts |
+| Prompt changes operating model or repo rules | Update the selected `.devmode/*` entry point and `.codex/project-context.md` before downstream artifacts |
 | Behavior changes | Update design before code |
 | Correctness criteria or workflows change | Update tests before code |
 | Validation fails | Enter step `07`, classify root cause, fix the correct layer, rerun step `06` |

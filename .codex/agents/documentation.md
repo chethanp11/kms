@@ -5,7 +5,7 @@ Keep repository-visible context, workflow, and architecture documentation accura
 
 ## Reads
 - `README.md`
-- `AGENTS.md`
+- selected `.devmode/*` entry point
 - `.codex/project-context.md`
 - `.codex/context/*`
 - relevant design/workflow docs

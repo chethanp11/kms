@@ -9,7 +9,7 @@ description: Close out an application iteration by checking scope completion, va
 Capture final iteration status, release readiness, and the next starting point.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `design/*` and `tests/*` summaries

@@ -9,7 +9,7 @@ description: Translate active application plan items and validated findings into
 Turn approved plan scope and evidence into design updates before implementation proceeds.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - Existing `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md`

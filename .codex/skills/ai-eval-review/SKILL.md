@@ -9,7 +9,7 @@ description: Review AI evaluation evidence for application behavior, including h
 Decide whether evaluation evidence is strong enough to support the claimed AI behavior.
 
 ## Read
-- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `.devmode/app.md` and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md` when feedback changes eval expectations
 - `intent/gaps.md` when eval gaps are recorded

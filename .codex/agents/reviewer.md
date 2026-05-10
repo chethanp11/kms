@@ -5,7 +5,7 @@ Review changed artifacts for scope control, contract alignment, maintainability,
 
 ## Reads
 - current diff
-- `AGENTS.md`
+- selected `.devmode/*` entry point
 - `.codex/project-context.md`
 - relevant design/test/workflow docs
 
