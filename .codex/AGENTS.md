@@ -1,7 +1,7 @@
 # CHECK MODE
 
 FIRST:
-Check `.foundation/mode.yaml`
+Check `.devmode/mode.yaml`
 
 If:
 
@@ -9,7 +9,7 @@ If:
 mode: framework
 ```
 
-then enter FRAMEWORK MODE.
+then read `.devmode/framework.md` and enter FRAMEWORK MODE.
 
 ---
 
@@ -85,7 +85,7 @@ Framework mode is META-ENGINEERING mode, not application delivery mode. Below is
 # CHECK MODE
 
 FIRST:
-Check `.foundation/mode.yaml`
+Check `.devmode/mode.yaml`
 
 If:
 
@@ -93,7 +93,7 @@ If:
 mode: app
 ```
 
-then enter APP MODE.
+then read `.devmode/app.md` and enter APP MODE.
 
 ---
 
@@ -105,9 +105,10 @@ This file is the portable, project-agnostic contract for Codex CLI, VS Code Code
 
 Copying `.codex/` into a new repository should provide an elite workflow foundation. For a new application, update only:
 
-1. root `AGENTS.md` for project-specific rules and architecture boundaries
-2. `.codex/project-context.md` for project-specific context
-3. `.codex/tech-stack.md` for project-specific stack and validation commands
+1. `.devmode/app.md` for project-specific app rules, workflow routing, and architecture boundaries
+2. `.devmode/framework.md` for framework-mode direct-edit rules
+3. `.codex/project-context.md` for project-specific context
+4. `.codex/tech-stack.md` for project-specific stack and validation commands
 
 Everything else in `.codex/` should remain reusable unless the factory itself is being improved.
 
@@ -145,16 +146,16 @@ If the user explicitly asks for an answer-only response, planning-only response,
 
 When a user prompt changes workflow, precedence, ownership, or operating rules:
 
-1. update root `AGENTS.md` and `.codex/project-context.md` first when the change is project-specific
+1. update `.devmode/app.md` or `.devmode/framework.md` and `.codex/project-context.md` first when the change is project-specific
 2. update `.codex/AGENTS.md` first when the change is reusable AppFlow factory behavior
 3. propagate resulting rule changes into design, validation, logs, workflow files, or project docs only as needed
 4. keep durable policy in the relevant `AGENTS.md` file and current high-level project design in `.codex/project-context.md`
 
-Always reread `.codex/AGENTS.md`, root `AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` at the start of substantial work.
+Always reread `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` at the start of substantial work.
 
 ## Source-of-Truth Pattern
 
-Use the project-specific root `AGENTS.md` and `.codex/project-context.md` to adapt this generic order:
+Use the selected `.devmode/*` entry point and `.codex/project-context.md` to adapt this generic order:
 
 1. user prompt and current-turn intent
 2. human intent and feedback
@@ -194,7 +195,8 @@ Do not code directly from vague intent. Structure it into plan, design, validati
 
 ## Project-Specific Extension Points
 
-- Root `AGENTS.md`: project identity, architecture boundaries, domain rules, source-of-truth paths, validation commands, and special constraints.
+- `.devmode/app.md`: project identity, architecture boundaries, domain rules, source-of-truth paths, validation commands, and special constraints.
+- `.devmode/framework.md`: framework-mode behavior and direct framework evolution rules.
 - `.codex/project-context.md`: compact project map and current design summary.
 - `.codex/tech-stack.md`: technology stack, dependency boundaries, tool commands, and runtime conventions.
 
@@ -208,7 +210,7 @@ All `.codex/`, planning, design, validation, log, and workflow artifacts are eng
 
 When `.codex/` is copied into a new repository:
 
-1. Check whether root `AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` exist and describe the new application.
+1. Check whether `.devmode/app.md`, `.devmode/framework.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` exist and describe the new application/framework mode split.
 2. If any are missing, offer to create starter placeholders with `.codex/tools/bootstrap_appflow.py`.
 3. If the project has no planning, design, validation, or evidence folders, offer to scaffold the generic AppFlow artifact chain.
 4. Do not force a project to use a specific framework or runtime stack.
@@ -314,7 +316,7 @@ A scoped iteration is done only when:
 
 ## Governance
 
-Use repository-visible artifacts over hidden runtime memory. If a convention becomes durable, promote it to root `AGENTS.md`, `.codex/project-context.md`, `.codex/tech-stack.md`, design docs, tests, or logs as appropriate.
+Use repository-visible artifacts over hidden runtime memory. If a convention becomes durable, promote it to the selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, design docs, tests, or logs as appropriate.
 
 ## Behavior Expectations
 
