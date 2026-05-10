@@ -11,40 +11,12 @@ For AppFlow reuse in a new application, this file and `.codex/project-context.md
 | Backend language | Python | APIs, orchestration, parsing, validation, publishing, and jobs | Backend should be built before advanced UI depth. |
 | Backend API | FastAPI or Flask-style Python HTTP service | JSON API for KMI and Infopedia | Keep API contracts stable and governed; UI must not access storage directly. |
 | Worker runtime | Python worker/job runner | Run orchestration, source processing, validation, publishing, indexing | Separate background work from request/response handling. |
-| Frontend | React + TypeScript | KMI and Infopedia web applications | KMI is governed maintenance; Infopedia is read-only consumption. |
-| Frontend tooling | Vite | Local development and frontend build entrypoints | Applies to both KMI and Infopedia apps. |
+| Frontend | HTML + CSS + JavaScript | KMI and Infopedia web applications | KMI is governed maintenance; Infopedia is read-only consumption. |
+| Frontend tooling | static web tooling | Local development and frontend build entrypoints | Applies to both KMI and Infopedia apps. |
 | API contracts | JSON over REST or GraphQL | UI-to-backend and service-facing exchange | REST endpoints are the current representative design; GraphQL remains optional. |
 | Backend tests | pytest or equivalent Python test runner | Unit, integration, golden, fixture, and regression validation | Current scaffold may still use `unittest` until pytest is installed. |
-| Frontend tests | TypeScript React test stack | Component and browser-flow validation | Choose concrete tools when frontend scaffold is added. |
+| Frontend tests | JavaScript browser/component test stack | Component and browser-flow validation | Choose concrete tools when frontend scaffold is added. |
 
-## Target Runtime Repository Layout
-
-Design target from `design/architecture.md`:
-
-```text
-kms/
-├─ pyproject.toml
-├─ apps/
-│  ├─ api/              # Python HTTP API service
-│  ├─ worker/           # Python background worker / jobs
-│  ├─ kmi/              # React + TypeScript KMI frontend
-│  └─ infopedia/        # React + TypeScript read-only frontend
-├─ config/              # Runtime config manifests and env templates
-├─ agents/              # Product agent definitions and bounded specs
-├─ rules/               # Executable governance policy definitions
-├─ templates/           # Markdown templates and page blueprints
-├─ wiki/                # Canonical finalized markdown knowledge
-├─ raw/                 # Local immutable upstream source inputs
-├─ docs/                # Product/operational documentation
-├─ tests/               # Unit, integration, e2e, fixtures, regression
-├─ packages/
-│  ├─ domain/           # Shared Python domain entities and rules
-│  ├─ shared/           # Shared Python utilities, logging, errors, typing
-│  └─ config/           # Shared runtime configuration definitions
-└─ scripts/             # Build, validation, and maintenance scripts
-```
-
-The current repository is still scaffold-stage and may not yet match this target layout. New implementation should move toward this layout through planned, validated steps.
 
 ## Storage and Persistence
 
@@ -112,7 +84,7 @@ Target validation as the stack is installed:
 - Backend unit and integration tests through `pytest` or equivalent.
 - Golden tests for deterministic markdown generation and diffs.
 - Fixture-based tests for source folders, wiki outputs, lint failures, and contradictions.
-- React component and browser-flow tests for KMI and Infopedia.
+- JavaScript component and browser-flow tests for KMI and Infopedia.
 - End-to-end tests for run initiation, diff review, approval, publish, and read-only page browse.
 
 ## Engineering Constraints

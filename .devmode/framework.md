@@ -28,7 +28,7 @@ For new application development, the framework contract is that only these files
 Framework mode may change:
 
 - root router behavior in `AGENTS.md`
-- mode contracts in `.devmode/app.md` and `.devmode/framework.md`
+- mode contracts in `.devmode/app.md`, `.devmode/framework.md`, and `.devmode/override.md`
 - lifecycle prompts under `.codex/dev_workflow/`
 - role contracts under `.codex/agents/`
 - skill contracts under `.codex/skills/`
@@ -48,11 +48,25 @@ Framework mode is control-plane-only. Do not modify application artifacts, inclu
 
 If validation exposes application failures while in framework mode, report them as out-of-scope instead of fixing application code.
 
+
+## Files Framework Mode Must Not Modify
+
+Framework mode must not modify application/product artifacts unless the current prompt explicitly asks for application work after switching to app mode or explicitly requests a bounded project-specific edit. Forbidden-by-default paths include:
+
+- implementation source: `src/`, `apps/`, `packages/`, runtime `scripts/`, and product code
+- product design and requirements: `design/`, `intent/`, product docs, and acceptance criteria
+- product validation artifacts: `tests/` and app-specific test plans
+- planning and evidence artifacts: `plan/` and `dev_log/`
+- project-specific extension files `.codex/project-context.md` and `.codex/tech-stack.md`, except generic extension-point guidance or an explicit project-specific prompt
+- product data/content folders such as `wiki/`, `raw/`, `templates/`, `rules/`, `config/`, and `docs/` when they contain application facts
+
+If framework work appears to require these paths, report the boundary and ask for app or override mode unless the prompt already grants explicit scope.
+
 ## Execution Behavior
 
 For framework-enhancement prompts:
 
-1. Read `.devmode/mode.yaml`, `AGENTS.md`, this file, `.devmode/app.md`, and the relevant `.codex` framework files.
+1. Read `.devmode/mode.yaml`, `AGENTS.md`, the selected first-class `.devmode/<mode>.md` instruction file, sibling mode files needed for synchronization, and the relevant `.codex` framework files.
 2. Identify whether the request changes routing, lifecycle, roles, skills, state, tools, validation, bootstrap, or documentation.
 3. Inspect current references before editing; do not rename, remove, or add framework folders without updating references and validation.
 4. Make minimal, reversible, project-agnostic changes.
@@ -80,6 +94,7 @@ When changing framework structure, check and update as needed:
 - `AGENTS.md`
 - `.devmode/app.md`
 - `.devmode/framework.md`
+- `.devmode/override.md`
 - `.codex/README.md`
 - `.codex/dev_workflow/README.md`
 - affected `.codex/dev_workflow/*` steps

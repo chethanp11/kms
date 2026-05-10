@@ -38,6 +38,7 @@ REQUIRED_FILES = [
     ".devmode/mode.yaml",
     ".devmode/app.md",
     ".devmode/framework.md",
+    ".devmode/override.md",
     ".codex/README.md",
     ".codex/project-context.md",
     ".codex/dev_workflow/README.md",
@@ -124,8 +125,8 @@ def require_dirs() -> None:
 
 def validate_devmode() -> None:
     mode_text = read_text(ROOT / ".devmode" / "mode.yaml").strip()
-    if mode_text not in {"mode: app", "mode: framework"}:
-        fail(".devmode/mode.yaml must be exactly 'mode: app' or 'mode: framework'")
+    if mode_text not in {"mode: app", "mode: framework", "mode: override"}:
+        fail(".devmode/mode.yaml must be exactly 'mode: app', 'mode: framework', or 'mode: override'")
 
     router = read_text(ROOT / "AGENTS.md")
     required_router_phrases = [
@@ -133,15 +134,21 @@ def validate_devmode() -> None:
         "Never blend modes",
         "Never run `.codex/dev_workflow/*` in framework mode",
         "Never modify application artifacts in framework mode",
+        "If `mode: override`, read and follow `.devmode/override.md`",
     ]
     for phrase in required_router_phrases:
         if phrase not in router:
             fail(f"AGENTS.md missing devmode enforcement phrase: {phrase}")
 
     framework = read_text(ROOT / ".devmode" / "framework.md")
-    for phrase in ["Framework mode is control-plane-only", "report them as out-of-scope instead of fixing application code"]:
+    for phrase in ["Framework mode is control-plane-only", "report them as out-of-scope instead of fixing application code", "Files Framework Mode Must Not Modify"]:
         if phrase not in framework:
             fail(f".devmode/framework.md missing strict boundary phrase: {phrase}")
+
+    override = read_text(ROOT / ".devmode" / "override.md")
+    for phrase in ["Override mode", "may modify any repository file", "not AppFlow application workflow"]:
+        if phrase not in override:
+            fail(f".devmode/override.md missing override phrase: {phrase}")
 
 
 def validate_skills() -> None:

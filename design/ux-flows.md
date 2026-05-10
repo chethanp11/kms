@@ -64,7 +64,18 @@ The application should make finalized knowledge easy to find, easy to read, and 
 
 KMI should be organized around maintenance workflows and review stages rather than around generic document management.
 
-| Screen | Primary Purpose | Main User Actions | Key Data Shown | Outputs or Decisions | |---|---|---|---|---| | Dashboard | Summarize current maintenance state | Open runs, inspect queues, jump to issues | Recent runs, pending reviews, contradictions, health issues | Triage decisions and next-action selection | | New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection | | Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions | | Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation | | Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes | | Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision | | Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open | | Approvals / Finalization | Final gate before publish | Review blockers, approve or reject finalization | Validation summary, eligible items, blockers | Finalize or block publish | | Maintenance Health / Lint | Track ongoing quality issues | Open stale items, fix links, assign refresh | Broken links, stale pages, duplicates, open questions | Maintenance action or remediation task | | Rules / Policy Visibility | Make governance visible to users | Inspect rules and applicability | Rule inventory, severity, scope, failures | Policy-aware maintenance decisions |
+| Screen | Primary Purpose | Main User Actions | Key Data Shown | Outputs or Decisions |
+|---|---|---|---|---|
+| Dashboard | Summarize current maintenance state | Open runs, inspect queues, jump to issues | Recent runs, pending reviews, contradictions, health issues | Triage decisions and next-action selection |
+| New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection |
+| Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions |
+| Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation |
+| Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes |
+| Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision |
+| Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open |
+| Approvals / Finalization | Final gate before publish | Review blockers, approve or reject finalization | Validation summary, eligible items, blockers | Finalize or block publish |
+| Maintenance Health / Lint | Track ongoing quality issues | Open stale items, fix links, assign refresh | Broken links, stale pages, duplicates, open questions | Maintenance action or remediation task |
+| Rules / Policy Visibility | Make governance visible to users | Inspect rules and applicability | Rule inventory, severity, scope, failures | Policy-aware maintenance decisions |
 
 Each screen supports a bounded decision. KMI should not blur review, approval, and finalization into a single opaque action.
 
@@ -83,7 +94,16 @@ Dashboard content:
 - freshness issues
 - latest finalized updates
 
-| Dashboard Widget | Purpose | Primary Action | |---|---|---| | Recent runs | Show latest maintenance executions | Open run detail | | Run statuses | Show blocked, in progress, complete, failed states | Resume investigation | | Pending reviews | Surface items waiting on human review | Open diff or approval screen | | Contradictions | Surface open conflicts and their severity | Open contradiction review | | Pages pending approval | Show finalization queue | Approve, reject, defer | | Lint / health summary | Summarize structural issues | Open maintenance health | | Freshness issues | Highlight stale or overdue content | Queue refresh work | | Latest finalized updates | Show what changed in `/wiki` | Inspect publish summary |
+| Dashboard Widget | Purpose | Primary Action |
+|---|---|---|
+| Recent runs | Show latest maintenance executions | Open run detail |
+| Run statuses | Show blocked, in progress, complete, failed states | Resume investigation |
+| Pending reviews | Surface items waiting on human review | Open diff or approval screen |
+| Contradictions | Surface open conflicts and their severity | Open contradiction review |
+| Pages pending approval | Show finalization queue | Approve, reject, defer |
+| Lint / health summary | Summarize structural issues | Open maintenance health |
+| Freshness issues | Highlight stale or overdue content | Queue refresh work |
+| Latest finalized updates | Show what changed in `/wiki` | Inspect publish summary |
 
 The dashboard should be filterable by run, page family, severity, and status so the Knowledge Manager can focus on unresolved governance work.
 
@@ -135,7 +155,15 @@ Run detail behavior:
 - show warnings and failures
 - show artifact links
 
-| Stage | Status Values | User Meaning | |---|---|---| | Intake | queued, running, complete, failed | Source discovery and run creation state | | Parse | queued, running, complete, failed | Source files are being parsed and classified | | Normalize | queued, running, complete, failed | Raw input is being standardized into structured artifacts | | Validate | queued, running, complete, failed, blocked | Rules and gates are being applied | | Review | waiting, in_review, approved, rejected, escalated | Human decision is required or in progress | | Finalize | queued, running, complete, failed, blocked | Final wiki write is being prepared or executed | | Lint | queued, running, complete, failed | Post-publish checks and maintenance are executing |
+| Stage | Status Values | User Meaning |
+|---|---|---|
+| Intake | queued, running, complete, failed | Source discovery and run creation state |
+| Parse | queued, running, complete, failed | Source files are being parsed and classified |
+| Normalize | queued, running, complete, failed | Raw input is being standardized into structured artifacts |
+| Validate | queued, running, complete, failed, blocked | Rules and gates are being applied |
+| Review | waiting, in_review, approved, rejected, escalated | Human decision is required or in progress |
+| Finalize | queued, running, complete, failed, blocked | Final wiki write is being prepared or executed |
+| Lint | queued, running, complete, failed | Post-publish checks and maintenance are executing |
 
 The run timeline should show the current stage prominently and preserve the ordered stage history so the user can reason about failures without opening backend logs.
 
@@ -156,7 +184,15 @@ Core elements:
 
 Review should always show the relationship between source evidence, generated knowledge, and target wiki pages. The review model must make it clear whether a change is a small correction, a semantic rewrite, or a new canonical entry.
 
-| Review Element | Why It Exists | User Decision Supported | |---|---|---| | Impacted pages | Show what knowledge will change | Confirm scope and avoid accidental collateral edits | | Action type | Explain the system’s intended operation | Approve, reject, or defer by change class | | Confidence indicators | Expose uncertainty before publish | Decide whether human review is required | | Source trace indicators | Show provenance coverage | Decide whether evidence is sufficient | | Inline rule violations | Make policy failures visible in context | Fix, reject, or escalate | | Before/after markdown diff | Show exact content delta | Review semantic change before finalization | | Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
+| Review Element | Why It Exists | User Decision Supported |
+|---|---|---|
+| Impacted pages | Show what knowledge will change | Confirm scope and avoid accidental collateral edits |
+| Action type | Explain the system’s intended operation | Approve, reject, or defer by change class |
+| Confidence indicators | Expose uncertainty before publish | Decide whether human review is required |
+| Source trace indicators | Show provenance coverage | Decide whether evidence is sufficient |
+| Inline rule violations | Make policy failures visible in context | Fix, reject, or escalate |
+| Before/after markdown diff | Show exact content delta | Review semantic change before finalization |
+| Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
 
 The review screen must not rely on a generic diff alone. It needs structured overlays for trace, confidence, and rule status so the Knowledge Manager can make a governed decision quickly.
 
@@ -215,7 +251,15 @@ Primary findings:
 - unresolved open questions
 - pages needing refresh
 
-| Health Finding | Severity | Suggested Action | |---|---|---| | Stale pages | Warning or error based on freshness policy | Queue refresh and review source drift | | Orphan pages | Warning | Re-link or remove from taxonomy | | Broken links | Warning or error based on importance | Repair references or mark as intentionally deprecated | | Missing source trace | Error | Add trace or block publish on refresh | | Duplicate canonical pages | Error | Deduplicate and choose one authoritative page | | Unresolved open questions | Warning or error based on impact | Escalate, resolve, or retain as managed conflict | | Pages needing refresh | Warning | Trigger maintenance run or targeted update |
+| Health Finding | Severity | Suggested Action |
+|---|---|---|
+| Stale pages | Warning or error based on freshness policy | Queue refresh and review source drift |
+| Orphan pages | Warning | Re-link or remove from taxonomy |
+| Broken links | Warning or error based on importance | Repair references or mark as intentionally deprecated |
+| Missing source trace | Error | Add trace or block publish on refresh |
+| Duplicate canonical pages | Error | Deduplicate and choose one authoritative page |
+| Unresolved open questions | Warning or error based on impact | Escalate, resolve, or retain as managed conflict |
+| Pages needing refresh | Warning | Trigger maintenance run or targeted update |
 
 The health view should support triage, filtering, and assignment. It is a maintenance queue, not a passive report.
 
@@ -244,7 +288,14 @@ KMI authority is explicit and operational, but it remains bounded by the governa
 
 Infopedia should organize finalized knowledge into a simple read path that helps users discover what exists and where to read it.
 
-| Area | Purpose | Main User Actions | Key Data Shown | |---|---|---|---| | Tree Navigation | Provide hierarchical entry into finalized knowledge | Expand nodes, click pages, browse families | Domains, page families, page titles | | Search Results | Help users locate pages quickly | Search, refine, open results | Titles, snippets, freshness, status | | Page View | Render finalized markdown for reading | Read, scroll, follow links | Full page content, metadata, status | | Related Pages / Backlinks | Show connected knowledge | Traverse related content | Parent/child links, backlinks, siblings | | Filters / Facets | Narrow browse and search results | Filter by type, domain, freshness, status | Facet counts, matching pages | | Freshness / Status Indicators | Show whether content is current | Inspect page state, decide trust level | Freshness, review state, update age |
+| Area | Purpose | Main User Actions | Key Data Shown |
+|---|---|---|---|
+| Tree Navigation | Provide hierarchical entry into finalized knowledge | Expand nodes, click pages, browse families | Domains, page families, page titles |
+| Search Results | Help users locate pages quickly | Search, refine, open results | Titles, snippets, freshness, status |
+| Page View | Render finalized markdown for reading | Read, scroll, follow links | Full page content, metadata, status |
+| Related Pages / Backlinks | Show connected knowledge | Traverse related content | Parent/child links, backlinks, siblings |
+| Filters / Facets | Narrow browse and search results | Filter by type, domain, freshness, status | Facet counts, matching pages |
+| Freshness / Status Indicators | Show whether content is current | Inspect page state, decide trust level | Freshness, review state, update age |
 
 Infopedia should keep the navigation model simple enough that users can answer “what knowledge exists?” and “what is the authoritative page?” without seeing workflow controls.
 
@@ -290,7 +341,14 @@ Supported browse behavior:
 - related links and backlinks
 - display of source trace summary, confidence, and freshness
 
-| Page View Element | Purpose | Derived From | |---|---|---| | Markdown body | Render authoritative knowledge for reading | Finalized `/wiki` content | | Source trace summary | Explain provenance at a glance | Metadata and governance records | | Confidence indicator | Show strength of the underlying knowledge | Validation and review results | | Freshness indicator | Show update age or review recency | Run history and page metadata | | Related links | Enable lateral navigation | Wiki links and metadata graph | | Backlinks | Show where the page is referenced | Link index or metadata graph |
+| Page View Element | Purpose | Derived From |
+|---|---|---|
+| Markdown body | Render authoritative knowledge for reading | Finalized `/wiki` content |
+| Source trace summary | Explain provenance at a glance | Metadata and governance records |
+| Confidence indicator | Show strength of the underlying knowledge | Validation and review results |
+| Freshness indicator | Show update age or review recency | Run history and page metadata |
+| Related links | Enable lateral navigation | Wiki links and metadata graph |
+| Backlinks | Show where the page is referenced | Link index or metadata graph |
 
 Page view should optimize readability without changing truth. The rendering layer may shape presentation, but it must not reinterpret the content or invent governance status.
 
@@ -298,7 +356,16 @@ Page view should optimize readability without changing truth. The rendering laye
 
 The boundary between KMI and Infopedia is structural, not cosmetic.
 
-| Aspect | KMI | Infopedia | |---|---|---| | Primary purpose | Maintenance, review, approval, finalization | Browse, search, read | | User role | Knowledge Manager | Knowledge Consumer | | Authority | Governed write path | Read-only presentation path | | Workflow awareness | High | Low | | Action surface | Run, review, approve, reject, finalize | Open, search, filter, traverse | | Source visibility | Raw and structured source evidence | Finalized knowledge and metadata summaries | | Conflict handling | Explicit contradiction management | Read-only display of finalized state and status | | Finalization capability | Yes, through governed workflow | No |
+| Aspect | KMI | Infopedia |
+|---|---|---|
+| Primary purpose | Maintenance, review, approval, finalization | Browse, search, read |
+| User role | Knowledge Manager | Knowledge Consumer |
+| Authority | Governed write path | Read-only presentation path |
+| Workflow awareness | High | Low |
+| Action surface | Run, review, approve, reject, finalize | Open, search, filter, traverse |
+| Source visibility | Raw and structured source evidence | Finalized knowledge and metadata summaries |
+| Conflict handling | Explicit contradiction management | Read-only display of finalized state and status |
+| Finalization capability | Yes, through governed workflow | No |
 
 The same finalized `/wiki` knowledge may appear in both contexts, but authority differs. KMI is action-oriented and workflow-aware. Infopedia is consumption-oriented and read-only.
 
@@ -379,20 +446,10 @@ flowchart TD
 
 ### KMI and Infopedia separation over `/wiki`
 
-```text
-              +-----------------------+
-              |          KMI          | | maintenance, review   | | approval, finalize    |
-              +-----------+-----------+
-                          | | governed write path
-                          v
-                    +------------+
-                    |   /wiki    | | finalized  | | knowledge  |
-                    +------------+
-                          ^
-                          | read-only surface
-              +-----------+-----------+
-              |       Infopedia       | | browse, search, read   |
-              +-----------------------+
+```mermaid
+flowchart TD
+  KMI[KMI<br/>maintenance, review, approval, finalize] -->|governed write path| WIKI[/wiki<br/>finalized knowledge]
+  WIKI -->|read-only surface| INFO[Infopedia<br/>browse, search, read]
 ```
 
 ### Knowledge Manager journey

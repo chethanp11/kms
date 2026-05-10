@@ -25,6 +25,23 @@ For a new application, only these files should require project-specific edits:
 
 Root `AGENTS.md`, `.devmode/*`, and reusable `.codex/*` files must stay project-agnostic unless the AppFlow framework itself is being improved.
 
+
+## Files App Mode Must Not Modify
+
+App mode must not modify framework/control-plane files unless the current prompt explicitly changes AppFlow behavior, routing, validators, bootstrap, agents, skills, orchestration, mode behavior, or reusable workflow docs. Forbidden-by-default paths include:
+
+- `AGENTS.md`
+- `.devmode/*`
+- `.codex/dev_workflow/*`
+- `.codex/agents/*`
+- `.codex/skills/*`
+- `.codex/orchestration/*`
+- `.codex/tools/*`
+- `.codex/state/*` conventions and schemas, except current-turn run state written by documented tools
+- reusable `.codex/README.md` and `.codex/memory/*` framework docs
+
+If app work appears to require these files, stop and ask for an explicit framework or override-mode prompt.
+
 ## Strict Mode Boundaries
 
 App mode is application-delivery mode. Do not change AppFlow framework/control-plane behavior unless the current prompt explicitly asks to change workflow, routing, validators, bootstrap, agents, skills, orchestration, or mode behavior.

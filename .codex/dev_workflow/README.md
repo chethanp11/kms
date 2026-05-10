@@ -6,7 +6,7 @@ The workflow is artifact-driven, not chat-driven: each step reads specific upstr
 
 ## Mode Gate
 
-Before using this workflow, read `.devmode/mode.yaml`. Execute these app workflow steps only when `mode: app`. When `mode: framework`, do not run this lifecycle to fix application artifacts; edit workflow/framework files directly only if the prompt asks for framework changes.
+Before using this workflow, read `.devmode/mode.yaml`. Execute these app workflow steps only when `mode: app`. When `mode: framework`, do not run this lifecycle to fix application artifacts; edit workflow/framework files directly only if the prompt asks for framework changes. When `mode: override`, do not run this lifecycle automatically; follow `.devmode/override.md` and the prompt directly.
 
 ## Automatic Prompt Routing
 

@@ -36,7 +36,15 @@ mode: framework
 
 then read and follow `.devmode/framework.md`.
 
-Do not apply app-mode workflow rules in framework mode. Do not apply framework-mode direct-edit rules in app mode.
+If it contains:
+
+```yaml
+mode: override
+```
+
+then read and follow `.devmode/override.md`.
+
+Do not apply app-mode workflow rules in framework mode. Do not apply framework-mode direct-edit rules in app mode. In override mode, follow the prompt directly without treating AppFlow or framework docs as workflows.
 """,
     ".devmode/mode.yaml": "mode: app\n",
     ".devmode/app.md": """# App Mode
@@ -58,6 +66,14 @@ Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestr
     ".devmode/framework.md": """# Framework Mode
 
 Framework mode improves the AppFlow framework directly from the prompt. Treat prompts as-is and do not run application workflow unless explicitly requested.
+
+Framework mode must not modify application/product artifacts such as source, design, tests, plans, logs, or project-specific `.codex/project-context.md` and `.codex/tech-stack.md` unless explicitly requested.
+""",
+    ".devmode/override.md": """# Override Mode
+
+Override mode follows the prompt directly. It is not AppFlow application workflow and it is not framework workflow.
+
+Override mode may modify any repository file when the prompt requires it, while preserving normal safety, reviewability, and validation expectations.
 """,
     ".codex/project-context.md": """# Project Context
 

@@ -23,7 +23,7 @@ AppFlow helps Codex CLI, VS Code Codex, Codex Desktop, and future agents:
 
 ## Devmode Enforcement
 
-`AGENTS.md` routes every turn through `.devmode/mode.yaml`. AppFlow application workflow is active only in `mode: app`. In `mode: framework`, agents may edit framework/control-plane files but must not repair application code, product design, tests, plans, or logs unless the user explicitly changes mode or asks for app work.
+`AGENTS.md` routes every turn through `.devmode/mode.yaml`. AppFlow application workflow is active only in `mode: app`. In `mode: framework`, agents may edit framework/control-plane files but must not repair application code, product design, tests, plans, or logs unless the user explicitly changes mode or asks for app work. In `mode: override`, agents follow the prompt directly and may modify any file without treating AppFlow or framework docs as workflows.
 
 ## Default Prompt Behavior
 
@@ -53,6 +53,8 @@ If the user explicitly asks for answer-only, planning-only, or no file changes, 
 | Path | Purpose |
 | --- | --- |
 | `.devmode/app.md` | Portable AppFlow operating, lifecycle, and routing contract |
+| `.devmode/framework.md` | Framework/control-plane operating contract |
+| `.devmode/override.md` | Direct prompt-driven override contract |
 | `.codex/dev_workflow/` | Canonical 11-step workflow prompts |
 | `.codex/agents/` | Bounded agent role contracts |
 | `.codex/skills/` | Reusable specialized procedures |
