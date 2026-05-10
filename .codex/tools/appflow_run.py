@@ -17,6 +17,37 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 STATE_PATH = ROOT / ".codex" / "state" / "appflow-current.json"
+PRODUCT_INTENT_PATH = ROOT / "intent" / "product-intent.md"
+FEEDBACK_INTENT_PATH = ROOT / "intent" / "feedback-intent.md"
+GAPS_PATH = ROOT / "intent" / "gaps.md"
+
+PRODUCT_INTENT_TEMPLATE = """# Product Intent
+
+This file is populated at AppFlow step `00` from the current app-mode prompt when the prompt requests product, design, test, code, documentation, or behavior changes.
+
+## Current-cycle product intent
+
+- None.
+"""
+
+FEEDBACK_INTENT_TEMPLATE = """# Feedback Intent
+
+This file is populated at AppFlow step `00` from the current app-mode prompt when the prompt contains manual feedback, review observations, corrections, complaints, or user-reported issues.
+
+## Current-cycle feedback
+
+- None.
+"""
+
+EMPTY_GAPS_TEMPLATE = """# Gaps
+
+This file is system-generated at AppFlow step `09` from logs, validation results, and workflow evidence. It should contain only next-cycle gaps.
+
+## Current gaps
+
+- None.
+"""
+
 STEPS = [
     "00-create-intent",
     "01-read-intent",
@@ -99,6 +130,22 @@ def add_validation(args: argparse.Namespace) -> None:
     print("Recorded validation evidence")
 
 
+def closeout_intake(args: argparse.Namespace) -> None:
+    """Clear consumed prompt intake artifacts at cycle closeout.
+
+    Product intent and feedback intent are always current-cycle inputs, so they
+    reset to empty templates. Gaps are next-cycle input; preserve the current
+    step-09 gap record unless the caller explicitly requests an empty gap file.
+    """
+
+    PRODUCT_INTENT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PRODUCT_INTENT_PATH.write_text(PRODUCT_INTENT_TEMPLATE, encoding="utf-8")
+    FEEDBACK_INTENT_PATH.write_text(FEEDBACK_INTENT_TEMPLATE, encoding="utf-8")
+    if args.empty_gaps or not GAPS_PATH.exists():
+        GAPS_PATH.write_text(EMPTY_GAPS_TEMPLATE, encoding="utf-8")
+    print("Cleared consumed AppFlow intake artifacts")
+
+
 def validate_state(args: argparse.Namespace) -> None:
     state = load_state()
     errors: list[str] = []
@@ -164,6 +211,17 @@ def build_parser() -> argparse.ArgumentParser:
     validation_parser.add_argument("--command", required=True)
     validation_parser.add_argument("--result", choices=["pass", "partial", "fail"], required=True)
     validation_parser.set_defaults(func=add_validation)
+
+    closeout_parser = sub.add_parser(
+        "closeout-intake",
+        help="clear consumed product/feedback intent after step 09 has written next-cycle gaps",
+    )
+    closeout_parser.add_argument(
+        "--empty-gaps",
+        action="store_true",
+        help="also reset intent/gaps.md to an explicit empty next-cycle gap record",
+    )
+    closeout_parser.set_defaults(func=closeout_intake)
 
     validate_parser = sub.add_parser("validate", help="validate current AppFlow state")
     validate_parser.add_argument("--require-complete", action="store_true")

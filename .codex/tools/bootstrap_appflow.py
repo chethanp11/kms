@@ -53,11 +53,11 @@ App mode uses AppFlow to create or change an application. Treat each user prompt
 
 ## Lifecycle
 
-Prompt -> intent -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> gaps -> closeout.
+Prompt -> product/feedback intent plus current gaps -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> new gaps -> closeout cleanup.
 
 ## Project-Specific Files
 
-Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`. Intent for each app-mode turn comes from the current user prompt, not from pre-filled files.
+Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`. Intent for each app-mode turn comes from the current user prompt, is written to `intent/product-intent.md` or `intent/feedback-intent.md`, is reconciled with `intent/gaps.md`, and is cleared at closeout after new gaps are written.
 
 ## Reusable Support
 
@@ -123,7 +123,9 @@ Project-specific technology, dependency, and validation commands.
 
 Document dependency boundaries and approval expectations.
 """,
-    "intent/gaps.md": "# Gaps\n\nSystem-detected evidence-backed gaps go here.\n",
+    "intent/product-intent.md": "# Product Intent\n\nThis file is populated from the current app-mode prompt and cleared at closeout.\n\n## Current-cycle product intent\n\n- None.\n",
+    "intent/feedback-intent.md": "# Feedback Intent\n\nThis file is populated from current app-mode feedback prompts and cleared at closeout.\n\n## Current-cycle feedback\n\n- None.\n",
+    "intent/gaps.md": "# Gaps\n\nThis file is system-generated at step 09 and should contain only next-cycle gaps.\n\n## Current gaps\n\n- None.\n",
     "plan/design-update.md": "# Design Update Plan\n\nCurrent design work items go here.\n",
     "plan/code-update.md": "# Code Update Plan\n\nCurrent implementation work items go here.\n",
     "plan/test-update.md": "# Test Update Plan\n\nCurrent validation work items go here.\n",

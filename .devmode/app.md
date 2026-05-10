@@ -94,12 +94,18 @@ Do not let generated code, chat memory, or hidden assumptions outrank explicit r
 ## Artifact Rules
 
 - Prompt-derived intent is written to `.codex/state/current-intent.md` when files will change.
+- At step `00`, also populate exactly one prompt intake file from the raw prompt:
+  - `intent/product-intent.md` for product, design, test, code, documentation, or behavior-change prompts.
+  - `intent/feedback-intent.md` for manual feedback, review observations, complaints, corrections, or user-reported issues.
+- `intent/gaps.md` is system-managed input from the previous cycle. Read it with product intent and feedback intent during reconciliation; do not treat it as human-authored requirements.
+- Steps `01` through `08` must progress all three intake channels (`product-intent`, `feedback-intent`, and `gaps`) into the normal plan, design, test, implementation, validation, and log artifacts as applicable.
+- Step `09` writes only newly detected evidence-backed gaps for the next cycle.
+- Step `10` clears consumed `intent/product-intent.md`, `intent/feedback-intent.md`, and old `intent/gaps.md` content after closeout; keep only the new gaps produced by step `09`.
 - Plans translate current-turn intent into scoped work before implementation.
 - Design and contracts define behavior before code when behavior changes.
 - Validation expectations must be explicit before closeout.
 - Evidence/logs record actual outcomes only after work and validation happen.
 - Gaps are evidence-backed follow-up work, not hidden assumptions.
-- Do not edit project-owned intent or requirements files unless the user explicitly asks.
 
 ## State and Tool Use
 
@@ -110,7 +116,7 @@ For substantial app-mode changes that edit files, use `.codex/tools/appflow_run.
 3. record validation commands and results with `python .codex/tools/appflow_run.py validation ...`
 4. run `python .codex/tools/appflow_run.py validate --require-complete` before closeout when a full lifecycle was expected
 
-Use `.codex/state/current-intent.md` only for the current prompt-derived intent. Do not carry it across unrelated turns as pre-filled application intent.
+Use `.codex/state/current-intent.md`, `intent/product-intent.md`, and `intent/feedback-intent.md` only for the current prompt-derived cycle. Do not carry them across unrelated turns as pre-filled application intent. Use `python .codex/tools/appflow_run.py closeout-intake` at step `10` when the cycle is complete so consumed prompt intent and feedback are cleared while newly detected gaps remain available for the next cycle.
 
 Use `.codex/tools/validate_codex_contract.py` for framework/control-plane validation and `.codex/tools/bootstrap_appflow.py` only when bootstrapping missing AppFlow files.
 

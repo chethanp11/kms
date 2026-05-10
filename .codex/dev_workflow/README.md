@@ -16,10 +16,12 @@ Default behavior:
 
 1. Treat the prompt as AppFlow input.
 2. Start at `.codex/dev_workflow/00-create-intent.md`.
-3. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, and `.codex/tech-stack.md`.
-4. Execute steps `00` through `10` as far as the task can safely proceed.
-5. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, and `.codex/tools/` as support when the step needs them.
-6. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
+3. Populate exactly one transient prompt intake artifact: `intent/product-intent.md` for product/change prompts or `intent/feedback-intent.md` for manual feedback and issue prompts.
+4. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, and all three intake channels: product intent, feedback intent, and gaps.
+5. Execute steps `00` through `10` as far as the task can safely proceed, progressing all non-empty intake channels into plan/design/test/code/validation/log artifacts.
+6. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, and `.codex/tools/` as support when the step needs them.
+7. At closeout, clear consumed product intent, consumed feedback intent, and old gaps; keep only new step-`09` gaps for the next cycle.
+8. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
 
 ## Core Operating Model
 
@@ -39,13 +41,13 @@ flowchart LR
     K --> L[10 Iteration Review]
 ```
 
-The agent is not supposed to improvise outside this chain. It converts the prompt into current-turn intent, reconciles that intent with project context and relevant artifacts, plans work, updates design and validation expectations, implements approved behavior, proves the result, records what happened, and feeds evidence-backed gaps into the next loop.
+The agent is not supposed to improvise outside this chain. It converts the prompt into current-turn intent and either product intent or feedback intent, reconciles that intent with project context plus existing gaps, plans work, updates design and validation expectations, implements approved behavior, proves the result, records what happened, writes only new evidence-backed gaps into the next loop, and clears consumed intake artifacts at closeout.
 
 ## Workflow Principles
 
 | Principle | Exact rule | Prevents |
 | --- | --- | --- |
-| Prompt to intent | Convert the user prompt into current-turn intent first | Coding directly from chat text |
+| Prompt to intent | Convert the user prompt into current-turn intent and either product intent or feedback intent first | Coding directly from chat text |
 | Contract first | Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, and project context before substantial work | Local edits that violate repo policy |
 | Context first | Reconcile current-turn intent with project context before planning | Hidden scope drift |
 | Plan before downstream edits | Translate intent into `plan/*` before changing design, tests, or code | Untracked assumptions |
@@ -53,13 +55,14 @@ The agent is not supposed to improvise outside this chain. It converts the promp
 | Tests before code | Update validation expectations before implementation | Post hoc testing |
 | Validation before closeout | Every meaningful change ends with explicit validation | Unproven completion claims |
 | Logs record reality | `dev_log/*` records actual changes and validation | Fake progress tracking |
-| Gaps feed the next loop | Evidence-backed gaps go into `intent/gaps.md` | Rediscovering known issues |
+| Intake is transient | Product intent, feedback intent, and old gaps are consumed during the cycle; only new evidence-backed gaps remain after closeout | Stale intent silently driving later prompts |
+| Gaps feed the next loop | Evidence-backed gaps go into `intent/gaps.md` at step `09` | Rediscovering known issues |
 
 ## Source of Truth Order
 
 | Priority | Artifact layer | Role |
 | --- | --- | --- |
-| 1 | user prompt and current-turn intent | Immediate task input |
+| 1 | user prompt, current-turn intent, product intent, feedback intent, and current gaps | Immediate task input and intake channels |
 | 2 | `.codex/project-context.md` and `.codex/tech-stack.md` | Project context, constraints, and stack |
 | 3 | `plan/*` | Active iteration interpretation of prompt-derived intent |
 | 4 | `design/*` | Detailed behavior, architecture, flows, and correctness |
@@ -71,8 +74,8 @@ The agent is not supposed to improvise outside this chain. It converts the promp
 
 | Step | Prompt file | What it controls |
 | --- | --- | --- |
-| `00` | `.codex/dev_workflow/00-create-intent.md` | Convert raw user prompt into current-turn intent |
-| `01` | `.codex/dev_workflow/01-read-intent.md` | Reconcile current-turn intent with project context and repo constraints |
+| `00` | `.codex/dev_workflow/00-create-intent.md` | Convert raw user prompt into current-turn intent and product/feedback intake |
+| `01` | `.codex/dev_workflow/01-read-intent.md` | Reconcile current-turn intent, product intent, feedback intent, gaps, project context, and repo constraints |
 | `02` | `.codex/dev_workflow/02-create-plan.md` | Scope reconciliation and traceable work item creation |
 | `03` | `.codex/dev_workflow/03-update-design.md` | High-level and detailed design updates |
 | `04` | `.codex/dev_workflow/04-update-tests.md` | Criteria-driven validation preparation |
@@ -99,7 +102,7 @@ The 11 prompt files are intended to be execution-complete as a set. If followed 
 
 For substantial app-mode changes that edit files, record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
 
-`.codex/state/current-intent.md` is only the current prompt-derived intent handoff from step `00` to later steps; it is not durable pre-filled intent.
+`.codex/state/current-intent.md`, `intent/product-intent.md`, and `intent/feedback-intent.md` are current-cycle handoff artifacts from step `00`; they are not durable pre-filled intent. `intent/gaps.md` is next-cycle input from step `09`. Step `10` clears consumed product/feedback intent and old gaps while preserving newly detected gaps.
 
 ## Agent and Skill Use
 
@@ -120,21 +123,22 @@ Use skills only when their `SKILL.md` frontmatter description matches the curren
 
 | Step | Reads from | May update | Must achieve | Must not do |
 | --- | --- | --- | --- | --- |
-| `00` Create Intent | User prompt, selected `.devmode/*` entry point, `.codex/project-context.md` | `.codex/state/current-intent.md` | Current-turn intent exists before repo reconciliation | Start coding or edit project-owned requirements |
-| `01` Read Intent | `.codex/state/current-intent.md`, selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, relevant user-referenced artifacts | None | Scope, constraints, ambiguity, and context are clear | Start coding or plan from memory |
-| `02` Create Plan | current-turn intent, project context, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work | Hide ambiguity or compress constraints |
+| `00` Create Intent | User prompt, selected `.devmode/*` entry point, `.codex/project-context.md` | `.codex/state/current-intent.md`, `intent/product-intent.md` or `intent/feedback-intent.md` | Current-turn intent and selected intake channel exist before repo reconciliation | Start coding or leave prompt intent only in chat |
+| `01` Read Intent | `.codex/state/current-intent.md`, `intent/product-intent.md`, `intent/feedback-intent.md`, `intent/gaps.md`, selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, relevant user-referenced artifacts | None | Scope, constraints, ambiguity, context, feedback, and gaps are clear | Start coding or plan from memory |
+| `02` Create Plan | current-turn intent, product intent, feedback intent, gaps, project context, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work that progresses all non-empty intake channels | Hide ambiguity or compress constraints |
 | `03` Update Design | `plan/*`, `.codex/project-context.md`, `design/*` | `.codex/project-context.md` when needed, `design/*` | Design baseline for downstream work | Let code define behavior first |
 | `04` Update Tests | `design/*`, correctness criteria, traceability | `tests/*` | Proving strategy and validation assets before code | Write tests from implementation convenience |
 | `05` Implement Code | `plan/*`, `design/*`, `tests/*`, stack notes | `src/*` | Approved behavior implemented | Invent new requirements in code |
 | `06` Run Validation | Changed artifacts, test plan, validation methods | No permanent logs yet | Real pass, fail, or partial evidence | Claim success without proof |
 | `07` Fix Failures | Validation findings and implicated artifacts | The correct failing layer | Root cause fixed or explicitly deferred | Patch around upstream defects |
 | `08` Update Logs | Final diff and final validation result | `dev_log/*` | Permanent factual execution record | Log intended work as completed |
-| `09` Detect Gaps | `dev_log/*`, validation outcomes | project gap artifact defined by `.codex/project-context.md` | Evidence-backed next-loop gaps captured | Rewrite user intent or requirements |
-| `10` Iteration Review | Outputs from all prior steps | Usually none beyond final workflow artifacts | Explicit closure status and next-loop readiness | Start new scope silently |
+| `09` Detect Gaps | `dev_log/*`, validation outcomes, old gaps as consumed input | `intent/gaps.md` | New evidence-backed next-loop gaps captured | Carry old gaps forward without fresh evidence |
+| `10` Iteration Review | Outputs from all prior steps, current intake files, gap record | `intent/product-intent.md`, `intent/feedback-intent.md`, `intent/gaps.md` as closeout cleanup | Explicit closure status and clean next-loop readiness | Start new scope silently or leave stale intake |
 
 ## Guardrails
 
-- Do not modify project-owned intent or requirements artifacts unless explicitly asked; only update the configured gap artifact for evidence-backed gaps.
+- In app mode, `intent/product-intent.md` and `intent/feedback-intent.md` are current-cycle intake files populated by step `00` and cleared by step `10`.
+- Only update `intent/gaps.md` for evidence-backed gaps at step `09`; clear old consumed gap content at step `10` unless still evidenced.
 - Do not use implementation behavior as the de facto design source.
 - Do not invent tests without design linkage.
 - Do not treat "looks correct" as validation.
