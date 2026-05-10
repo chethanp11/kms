@@ -1,70 +1,70 @@
 {
   "schema": "appflow-run-state-v1",
-  "objective": "Create src scaffold for KMS based on design",
-  "created_at": "2026-05-10T15:37:29+00:00",
-  "updated_at": "2026-05-10T15:39:57+00:00",
+  "objective": "Create foundational src components based on KMS design",
+  "created_at": "2026-05-10T15:58:05+00:00",
+  "updated_at": "2026-05-10T15:59:46+00:00",
   "status": "active",
   "steps": {
     "00-create-intent": {
       "status": "completed",
-      "evidence": ".codex/state/current-intent.md captures prompt-derived scaffold intent",
-      "updated_at": "2026-05-10T15:39:43+00:00"
+      "evidence": "Created current intent and product-intent for foundational src components",
+      "updated_at": "2026-05-10T15:58:05+00:00"
     },
     "01-read-intent": {
       "status": "completed",
-      "evidence": "Read app mode, project context, tech stack, design architecture service/entity/API sections, and existing unit tests",
-      "updated_at": "2026-05-10T15:39:43+00:00"
+      "evidence": "Read mode, current design component/runtime/entity sections, existing src scaffold, and unit tests",
+      "updated_at": "2026-05-10T15:58:05+00:00"
     },
     "02-create-plan": {
       "status": "completed",
-      "evidence": "Planned minimal standard-library scaffold under src plus targeted unit tests",
-      "updated_at": "2026-05-10T15:39:43+00:00"
+      "evidence": "Planned component metadata, registry, ports, stores, and tests as minimal base layer",
+      "updated_at": "2026-05-10T15:58:05+00:00"
     },
     "03-update-design": {
       "status": "skipped",
-      "evidence": "No design behavior change required; implementation follows existing design",
-      "updated_at": "2026-05-10T15:39:43+00:00"
+      "evidence": "No design artifact change required; foundational components implement existing component, entity, storage, and governance design",
+      "updated_at": "2026-05-10T15:59:27+00:00"
     },
     "04-update-tests": {
       "status": "completed",
-      "evidence": "Added tests/unit/test_scaffold_boundaries.py",
-      "updated_at": "2026-05-10T15:39:44+00:00"
+      "evidence": "Added tests/unit/test_foundational_components.py for registry, ports, stores, and authority boundaries",
+      "updated_at": "2026-05-10T15:59:27+00:00"
     },
     "05-implement-code": {
       "status": "completed",
-      "evidence": "Added src package modules for contracts, execution, governance, orchestrator, app, context, agents, and observability",
-      "updated_at": "2026-05-10T15:39:44+00:00"
+      "evidence": "Added src/components, src/ports, and src/storage foundational modules and exported base registry from src",
+      "updated_at": "2026-05-10T15:59:27+00:00"
     },
     "06-run-validation": {
       "status": "completed",
-      "evidence": "Unit tests, py_compile, diff check, and Codex contract validation passed",
-      "updated_at": "2026-05-10T15:39:44+00:00"
+      "evidence": "Unit tests, src py_compile, diff check, and Codex contract validation passed",
+      "updated_at": "2026-05-10T15:59:45+00:00"
     },
     "07-fix-failures": {
       "status": "skipped",
-      "evidence": "No validation failures occurred after scaffold implementation",
-      "updated_at": "2026-05-10T15:39:44+00:00"
+      "evidence": "No validation failures occurred",
+      "updated_at": "2026-05-10T15:59:45+00:00"
     },
     "08-update-logs": {
       "status": "completed",
-      "evidence": "Updated dev_log/code-update-log.md, dev_log/test-update-log.md, and dev_log/validation-results.md for DEV-014",
-      "updated_at": "2026-05-10T15:39:57+00:00"
+      "evidence": "Updated dev_log entries for DEV-015 code, test, and validation evidence",
+      "updated_at": "2026-05-10T15:59:46+00:00"
     },
     "09-detect-gaps": {
       "status": "completed",
-      "evidence": "No evidence-backed gaps detected for this scaffold iteration; future service implementation remains normal next scope",
-      "updated_at": "2026-05-10T15:39:57+00:00"
+      "evidence": "No new evidence-backed gaps detected; intent/gaps.md reset to empty next-cycle record",
+      "updated_at": "2026-05-10T15:59:46+00:00"
     },
     "10-iteration-review": {
       "status": "completed",
-      "evidence": "Scaffold implemented, tested, and logged; no unresolved blockers",
-      "updated_at": "2026-05-10T15:39:57+00:00"
+      "evidence": "Iteration complete; consumed product/feedback intent cleared and empty next-cycle gaps preserved",
+      "updated_at": "2026-05-10T15:59:46+00:00"
     }
   },
   "validation": {
     "commands": [
       "python3 -m unittest discover -s tests/unit -p 'test_*.py'",
-      "python3 -m py_compile src/__init__.py\nsrc/agents/__init__.py\nsrc/app/__init__.py\nsrc/context/__init__.py\nsrc/contracts/__init__.py\nsrc/execution/__init__.py\nsrc/governance/__init__.py\nsrc/observability/__init__.py\nsrc/orchestrator/__init__.py",
+      "python3 -m py_compile src/__init__.py\nsrc/agents/__init__.py\nsrc/app/__init__.py\nsrc/components/__init__.py\nsrc/context/__init__.py\nsrc/contracts/__init__.py\nsrc/execution/__init__.py\nsrc/governance/__init__.py\nsrc/observability/__init__.py\nsrc/orchestrator/__init__.py\nsrc/ports/__init__.py\nsrc/storage/__init__.py",
       "git diff --check",
       "python3 .codex/tools/validate_codex_contract.py"
     ],

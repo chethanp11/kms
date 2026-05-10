@@ -30,13 +30,14 @@ Read and use:
 ## Allowed Writes
 
 - relevant implementation files under `src/*`
-- app scaffolding when `src/` is empty on a first implementation pass
+- app scaffolding only when `src/` is empty or the plan/design explicitly states that initial scaffolding is still incomplete
 
 ## Required Outputs
 
 Produce implementation changes that:
 
 - satisfy the planned `DEV-*` work
+- stay within existing scaffold/component families unless the plan and design explicitly justify a new one
 - match approved design and correctness behavior
 - are ready for explicit validation in step `06`
 
@@ -45,16 +46,18 @@ Produce implementation changes that:
 1. Implement only approved in-scope `DEV-*` work.
 2. Keep implementation aligned to current plan, current design, and planned tests.
 3. If `src/` is empty for a new project or first pass, scaffold it from design before broadening behavior.
-4. Handle happy paths, edge cases, and failure paths required by design and tests.
-5. Keep modules coherent. Minimize unnecessary duplication, hidden coupling, and scope creep.
-6. If implementation reveals a design gap, missing acceptance rule, or test-design hole, update the correct upstream artifact before continuing blindly.
-7. Leave explicit proof to step `06` and permanent logs to step `08`.
+4. Once initial scaffolding exists, do not add new component families, top-level modules, or architectural layers unless the current plan and design state why they are absolutely necessary. Prefer extending existing contracts, ports, stores, services, or tests.
+5. Handle happy paths, edge cases, and failure paths required by design and tests.
+6. Keep modules coherent. Minimize unnecessary duplication, hidden coupling, and scope creep.
+7. If implementation reveals a design gap, missing acceptance rule, or test-design hole, update the correct upstream artifact before continuing blindly.
+8. Leave explicit proof to step `06` and permanent logs to step `08`.
 
 ## Guardrails
 
 - Do not invent behavior not represented in intent, plan, context, design, or correctness artifacts.
 - Do not bypass tests or correctness criteria because the code path looks straightforward.
 - Do not expand scope without reflecting it in upstream artifacts first.
+- Do not continue adding scaffold-only components after the initial scaffold is present unless necessary and planned.
 - Do not treat local implementation convenience as architecture.
 - Do not record fake completion before validation has run.
 

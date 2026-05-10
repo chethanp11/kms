@@ -210,6 +210,13 @@ def validate_required_mentions() -> None:
     for phrase in ["intent", "plan", "validation", "implementation", "evidence"]:
         if phrase not in appflow:
             fail(f".devmode/app.md missing lifecycle concept: {phrase}")
+    for phrase in [
+        "Step `02` must update `plan/design-update.md`",
+        "Step `03` must update design artifacts when intent changes",
+        "After initial scaffolding exists",
+    ]:
+        if phrase not in appflow:
+            fail(f".devmode/app.md missing app-mode discipline phrase: {phrase}")
     if "appflow_run.py" not in read_text(ROOT / ".codex" / "tools" / "README.md"):
         fail(".codex/tools/README.md does not mention appflow_run.py")
 
@@ -298,6 +305,21 @@ def validate_workflow_semantics() -> None:
             for heading in ["## Objective", "## Required Read Order", "## Allowed Writes", "## Exit Criteria"]:
                 if heading not in text:
                     fail(f"{path.relative_to(ROOT)} missing heading {heading!r}")
+
+    plan_text = read_text(workflow_dir / "02-create-plan.md")
+    for phrase in ["stale plan", "all three plan files", "new component family"]:
+        if phrase not in plan_text:
+            fail(f"02-create-plan.md missing planning discipline phrase: {phrase}")
+
+    design_text = read_text(workflow_dir / "03-update-design.md")
+    for phrase in ["design review", "no design file changes are required"]:
+        if phrase not in design_text:
+            fail(f"03-update-design.md missing design discipline phrase: {phrase}")
+
+    implement_text = read_text(workflow_dir / "05-implement-code.md")
+    for phrase in ["Once initial scaffolding exists", "absolutely necessary"]:
+        if phrase not in implement_text:
+            fail(f"05-implement-code.md missing scaffold discipline phrase: {phrase}")
 
     readme = read_text(workflow_dir / "README.md")
     for filename in expected_files[1:]:

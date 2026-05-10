@@ -101,6 +101,8 @@ Do not let generated code, chat memory, or hidden assumptions outrank explicit r
 - Steps `01` through `08` must progress all three intake channels (`product-intent`, `feedback-intent`, and `gaps`) into the normal plan, design, test, implementation, validation, and log artifacts as applicable.
 - Step `09` writes only newly detected evidence-backed gaps for the next cycle.
 - Step `10` clears consumed `intent/product-intent.md`, `intent/feedback-intent.md`, and old `intent/gaps.md` content after closeout; keep only the new gaps produced by step `09`.
+- Step `02` must update `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md` on every file-changing app-mode cycle before design, tests, code, or logs change. Do not reuse stale plan files from prior cycles.
+- Step `03` must update design artifacts when intent changes behavior, architecture, component boundaries, data contracts, UX, validation gates, or scaffold/component structure. If no design change is required, it must explicitly record why in the plan and AppFlow state.
 - Plans translate current-turn intent into scoped work before implementation.
 - Design and contracts define behavior before code when behavior changes.
 - Validation expectations must be explicit before closeout.
@@ -138,6 +140,7 @@ Use `.codex/tools/validate_codex_contract.py` for framework/control-plane valida
 4. Prefer the smallest file set that completes the task.
 5. Ask before proceeding when ambiguity is blocking and cannot be resolved from repository context.
 6. Do not let implementation behavior become the design source.
+7. After initial scaffolding exists, do not add new top-level `src/` component families or foundational modules unless the current plan and design prove they are necessary. Prefer extending existing components and ports.
 
 ## Validation Rules
 

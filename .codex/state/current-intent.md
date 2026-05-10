@@ -1,9 +1,11 @@
 # Current Intent
 
-Create an initial implementation scaffold under `src/` for KMS based on the current design artifacts.
+Create foundational implementation components in `src/` based on the KMS design. These components should act as stable base primitives for future services, API handlers, stores, projections, governance, and orchestration components.
 
-Scope:
-- restore `src/` as a Python package with bounded contracts, execution, governance, orchestration, API, app, observability, and context modules
-- keep scaffold deterministic and testable with standard-library code
-- preserve KMS authority boundaries: raw sources are inputs, `/wiki` is canonical, Infopedia is read-only, and publication is governed
-- add targeted unit coverage for scaffold contracts and service inventory
+## Scope
+
+- Add reusable component metadata and registry primitives.
+- Add explicit port/protocol contracts for stores, validation, publishing, search, and projection boundaries.
+- Add deterministic in-memory base stores for tests and future components.
+- Preserve KMS authority boundaries: `/wiki` is canonical, metadata/indexes/projections are supporting, Infopedia is read-only, and publication is governed.
+- Validate with targeted standard-library unit tests.

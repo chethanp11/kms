@@ -2,7 +2,7 @@
 
 ## Use This Prompt When
 
-Use this prompt after planning when `REQ-*` work exists or when behavior must be defined before tests and implementation can proceed safely.
+Use this prompt after planning when `REQ-*` work exists, when behavior or structure must be defined before tests and implementation can proceed safely, or when the plan says design review is required.
 
 ## Workflow Position
 
@@ -11,7 +11,7 @@ Use this prompt after planning when `REQ-*` work exists or when behavior must be
 
 ## Objective
 
-Apply approved design changes to the correct design artifacts so tests and implementation follow an explicit, reviewable design instead of implicit assumptions.
+Apply approved design changes to the correct design artifacts so tests and implementation follow an explicit, reviewable design instead of implicit assumptions. If the current intent does not require a design change, verify and record that decision before tests or code proceed.
 
 ## Required Read Order
 
@@ -35,26 +35,29 @@ Create missing canonical design files if they do not yet exist.
 
 ## Required Outputs
 
-Produce design artifacts that:
+Produce design artifacts or an explicit no-change design decision that:
 
 - reflect approved `REQ-*` scope
 - align with current intent and high-level context
 - are specific enough for test updates and implementation
 - make correctness expectations, boundaries, and gates explicit
+- document whether new scaffold/components are allowed, disallowed, or deferred for this cycle
 
 ## Procedure
 
-1. Apply each `REQ-*` item to the correct design artifact instead of blending concerns.
-2. Update `.codex/project-context.md` before or alongside detailed design when the high-level behavior, operating model, or workflow summary changes.
-3. Keep the four canonical design files complementary:
+1. Check the plan for required design work before touching tests or code.
+2. Apply each `REQ-*` item to the correct design artifact instead of blending concerns.
+3. Update `.codex/project-context.md` before or alongside detailed design when the high-level behavior, operating model, or workflow summary changes.
+4. Keep the four canonical design files complementary:
    - `system-design` for system behavior
    - `architecture` for structure and major components
    - `ux-flows` for user and operator journeys
    - `acceptance-criteria` for correctness and gates
-4. Preserve distinctions from intent and plan. Do not simplify away approval gates, failure behavior, edge cases, or security-relevant constraints.
-5. Resolve drift at the design layer instead of normalizing it later in code.
-6. If a design ambiguity remains, record it explicitly so tests and implementation do not guess.
-7. Keep design docs human-readable. Use `REQ-*`, `DEV-*`, and `TEST-*` only as comments when needed, not as primary numbering.
+5. Preserve distinctions from intent and plan. Do not simplify away approval gates, failure behavior, edge cases, or security-relevant constraints.
+6. Resolve drift at the design layer instead of normalizing it later in code.
+7. If a design ambiguity remains, record it explicitly so tests and implementation do not guess.
+8. If no design file changes are required, ensure `plan/design-update.md` says `none` with a reason tied to current intent.
+9. Keep design docs human-readable. Use `REQ-*`, `DEV-*`, and `TEST-*` only as comments when needed, not as primary numbering.
 
 ## Guardrails
 
@@ -62,6 +65,7 @@ Produce design artifacts that:
 - Do not invent behavior absent from intent or plan.
 - Do not leave acceptance or approval behavior implied.
 - Do not allow design files to contradict `.codex/project-context.md`.
+- Do not skip design review merely because implementation seems obvious.
 
 ## Exit Criteria
 
