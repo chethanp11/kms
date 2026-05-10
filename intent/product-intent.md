@@ -662,25 +662,7 @@ The architecture requires concrete components that future implementation can map
 
 ### Component matrix
 
-| Component | Responsibility | Inputs | Outputs | Authority | Read/write | Layer |
-|---|---|---|---|---|---|---|
-| KMI application | Govern maintenance, review, contradiction handling, approval, and publication | source path, run status, validation output, contradictions, proposals, metadata state | run initiation, review actions, approval decisions, governed publication requests | supporting control surface, not truth store | read operational state and write workflow decisions and approval actions | Knowledge Maintenance Layer |
-| Infopedia application | Render and navigate finalized knowledge in a browse-first experience | finalized `/wiki` content, indexing metadata, page structure, search metadata | read-only page views, navigation paths, search results, linked page traversal | supporting projection layer, not authoritative | read-only with respect to finalized knowledge | Knowledge Navigation Layer |
-| API service | Provide the application-facing service boundary for KMI and Infopedia | UI requests, authentication context, run commands, browse requests | workflow responses, status, page data, search results, metadata lookups | supporting | read/write to operational metadata and workflow state, read to knowledge and index sources as needed | Metadata and Runtime Services Layer |
-| Run orchestration service | Coordinate the lifecycle of a maintenance run from input to publication decision | source path, existing wiki content, policy rules, orchestration directives | run state transitions, task dispatch, step completion status, failure handling signals | supporting | writes operational run state, reads source and wiki content | Knowledge Maintenance Layer |
-| Source discovery and parsing service | Discover source artifacts and normalize them into processable representations | raw source folder contents, source path configuration | discovered files, parsed text, normalized source records, extraction artifacts | supporting | reads raw source, may write transient artifacts to support storage | Knowledge Maintenance Layer |
-| Source analysis service | Analyze normalized source material against current knowledge and rules | parsed source content, current `/wiki` pages, rules and validation context | proposed knowledge deltas, contradiction signals, confidence indicators, refresh recommendations | supporting | reads sources and knowledge, writes proposals and analysis outputs to operational storage | Knowledge Maintenance Layer |
-| Wiki drafting / refresh service | Produce or update finalized markdown candidates for publication | approved proposals, structured page model, source trace, refresh directives | candidate markdown files, page refresh artifacts, publication-ready outputs | supporting writer, not the truth store itself | writes to wiki publication pipeline, reads existing wiki content and proposals | Knowledge Maintenance Layer |
-| Policy validation service | Enforce structural, freshness, traceability, and governance rules | proposals, source trace, page structure, policy rules | validation pass/fail, rule violations, review requirements | supporting | reads proposals and rules, writes validation outcomes | Metadata and Runtime Services Layer |
-| Contradiction handling service | Detect, classify, and retain unresolved conflicts in a visible state | source conflicts, overlap with existing knowledge, policy constraints | contradiction records, resolution candidates, unresolved issue states | supporting | reads sources and wiki content, writes contradiction records | Metadata and Runtime Services Layer |
-| Approval and finalization service | Apply Knowledge Manager decisions and publish approved knowledge | approval actions, reviewed proposals, validated publication candidates | finalized markdown in `/wiki`, finalized publication records, revision markers | supporting write path into the canonical knowledge layer | writes finalized markdown and publication metadata | Knowledge Maintenance Layer and Finalized Knowledge Layer boundary |
-| Search and index service | Build and serve searchable structures for KMI and Infopedia | finalized wiki content, page metadata, operational records | search indexes, browse indexes, retrieval metadata | supporting | reads `/wiki` and metadata, writes index structures | Metadata and Runtime Services Layer |
-| Infopedia projection / refresh service | Transform finalized wiki content into a browse-ready projection | finalized markdown pages, page relationships, search metadata | refreshed browse views, navigation structures, presentation metadata | supporting | reads `/wiki`, writes derived navigation or cache state | Knowledge Navigation Layer and Metadata and Runtime Services Layer boundary |
-| Local raw source folder | Store immutable upstream source inputs | external exports, documents, notes, extracts | readable source files for maintenance processing | supporting input, not authoritative | read-only to KMS workflows | Raw Source Input Layer |
-| Local or mounted wiki folder | Persist finalized markdown knowledge | approved publication outputs | authoritative finalized pages | authoritative | write by publication services only, read by consumers and AI systems | Finalized Knowledge Layer |
-| Metadata database | Persist operational run state, approvals, contradictions, revisions, and QA records | workflow events and service outputs | queryable operational state and history | supporting, not authoritative for knowledge truth | read/write | Metadata and Runtime Services Layer |
-| Optional search index | Support search and browse experiences over finalized knowledge and operational metadata | finalized wiki content and metadata | searchable structures and query responses | supporting | write derived index, read finalized content and metadata | Metadata and Runtime Services Layer |
-| Optional artifact storage for extracted text or run outputs | Retain transient or derived artifacts from maintenance and analysis | parsed text, analysis outputs, generated candidates | recoverable artifacts for audit, troubleshooting, or rerun support | supporting | read/write as operational artifact storage | Metadata and Runtime Services Layer |
+| Component | Responsibility | Inputs | Outputs | Authority | Read/write | Layer | |---|---|---|---|---|---|---| | KMI application | Govern maintenance, review, contradiction handling, approval, and publication | source path, run status, validation output, contradictions, proposals, metadata state | run initiation, review actions, approval decisions, governed publication requests | supporting control surface, not truth store | read operational state and write workflow decisions and approval actions | Knowledge Maintenance Layer | | Infopedia application | Render and navigate finalized knowledge in a browse-first experience | finalized `/wiki` content, indexing metadata, page structure, search metadata | read-only page views, navigation paths, search results, linked page traversal | supporting projection layer, not authoritative | read-only with respect to finalized knowledge | Knowledge Navigation Layer | | API service | Provide the application-facing service boundary for KMI and Infopedia | UI requests, authentication context, run commands, browse requests | workflow responses, status, page data, search results, metadata lookups | supporting | read/write to operational metadata and workflow state, read to knowledge and index sources as needed | Metadata and Runtime Services Layer | | Run orchestration service | Coordinate the lifecycle of a maintenance run from input to publication decision | source path, existing wiki content, policy rules, orchestration directives | run state transitions, task dispatch, step completion status, failure handling signals | supporting | writes operational run state, reads source and wiki content | Knowledge Maintenance Layer | | Source discovery and parsing service | Discover source artifacts and normalize them into processable representations | raw source folder contents, source path configuration | discovered files, parsed text, normalized source records, extraction artifacts | supporting | reads raw source, may write transient artifacts to support storage | Knowledge Maintenance Layer | | Source analysis service | Analyze normalized source material against current knowledge and rules | parsed source content, current `/wiki` pages, rules and validation context | proposed knowledge deltas, contradiction signals, confidence indicators, refresh recommendations | supporting | reads sources and knowledge, writes proposals and analysis outputs to operational storage | Knowledge Maintenance Layer | | Wiki drafting / refresh service | Produce or update finalized markdown candidates for publication | approved proposals, structured page model, source trace, refresh directives | candidate markdown files, page refresh artifacts, publication-ready outputs | supporting writer, not the truth store itself | writes to wiki publication pipeline, reads existing wiki content and proposals | Knowledge Maintenance Layer | | Policy validation service | Enforce structural, freshness, traceability, and governance rules | proposals, source trace, page structure, policy rules | validation pass/fail, rule violations, review requirements | supporting | reads proposals and rules, writes validation outcomes | Metadata and Runtime Services Layer | | Contradiction handling service | Detect, classify, and retain unresolved conflicts in a visible state | source conflicts, overlap with existing knowledge, policy constraints | contradiction records, resolution candidates, unresolved issue states | supporting | reads sources and wiki content, writes contradiction records | Metadata and Runtime Services Layer | | Approval and finalization service | Apply Knowledge Manager decisions and publish approved knowledge | approval actions, reviewed proposals, validated publication candidates | finalized markdown in `/wiki`, finalized publication records, revision markers | supporting write path into the canonical knowledge layer | writes finalized markdown and publication metadata | Knowledge Maintenance Layer and Finalized Knowledge Layer boundary | | Search and index service | Build and serve searchable structures for KMI and Infopedia | finalized wiki content, page metadata, operational records | search indexes, browse indexes, retrieval metadata | supporting | reads `/wiki` and metadata, writes index structures | Metadata and Runtime Services Layer | | Infopedia projection / refresh service | Transform finalized wiki content into a browse-ready projection | finalized markdown pages, page relationships, search metadata | refreshed browse views, navigation structures, presentation metadata | supporting | reads `/wiki`, writes derived navigation or cache state | Knowledge Navigation Layer and Metadata and Runtime Services Layer boundary | | Local raw source folder | Store immutable upstream source inputs | external exports, documents, notes, extracts | readable source files for maintenance processing | supporting input, not authoritative | read-only to KMS workflows | Raw Source Input Layer | | Local or mounted wiki folder | Persist finalized markdown knowledge | approved publication outputs | authoritative finalized pages | authoritative | write by publication services only, read by consumers and AI systems | Finalized Knowledge Layer | | Metadata database | Persist operational run state, approvals, contradictions, revisions, and QA records | workflow events and service outputs | queryable operational state and history | supporting, not authoritative for knowledge truth | read/write | Metadata and Runtime Services Layer | | Optional search index | Support search and browse experiences over finalized knowledge and operational metadata | finalized wiki content and metadata | searchable structures and query responses | supporting | write derived index, read finalized content and metadata | Metadata and Runtime Services Layer | | Optional artifact storage for extracted text or run outputs | Retain transient or derived artifacts from maintenance and analysis | parsed text, analysis outputs, generated candidates | recoverable artifacts for audit, troubleshooting, or rerun support | supporting | read/write as operational artifact storage | Metadata and Runtime Services Layer |
 
 ### Frontend components
 
@@ -1078,44 +1060,32 @@ The recovery model is governed by one priority: prevent partial truth publicatio
                            +-----------+-----------+
                                        |
                  +---------------------+---------------------+
-                 |                                           |
+                 | |
                  v                                           v
 +-------------------------------+               +-------------------------------+
-|  Backend Maintenance Services  |               | Metadata / Runtime Services   |
-|-------------------------------|               |-------------------------------|
-| - run orchestration            |               | - run records                 |
-| - source discovery/parsing     |               | - approvals                   |
-| - source analysis              |               | - contradictions              |
-| - policy validation            |               | - revisions                   |
-| - contradiction handling       |               | - QA reports                  |
-| - wiki drafting/finalization   |               | - search metadata             |
-| - search/index services        |               | - health/observability        |
+|  Backend Maintenance Services  | | Metadata / Runtime Services   | |-------------------------------| |-------------------------------| | - run orchestration            | | - run records                 | | - source discovery/parsing     | | - approvals                   | | - source analysis              | | - contradictions              | | - policy validation            | | - revisions                   | | - contradiction handling       | | - QA reports                  | | - wiki drafting/finalization   | | - search metadata             | | - search/index services        | | - health/observability        |
 +---------------+---------------+               +---------------+---------------+
-                |                                               |
+                | |
                 | reads raw source                               | reads/writes operational state
                 v                                               v
        +----------------------+                       +-----------------------+
-       | Raw Source Folder    |                       |   Metadata Database   |
-       | (immutable input)    |                       | (supporting store)    |
+       | Raw Source Folder    | |   Metadata Database   | | (immutable input)    | | (supporting store)    |
        +----------+-----------+                       +-----------+-----------+
-                  |                                               |
+                  | |
                   | approved publication writes                  |
                   v                                               |
-       +----------------------+                                   |
-       |       /wiki          |<----------------------------------+
+       +----------------------+                                   | |       /wiki          |<----------------------------------+
        | (finalized knowledge) |
        +----------+-----------+
                   |
                   v
        +----------------------+
-       |      Infopedia       |
-       | (read-only browse)   |
+       |      Infopedia       | | (read-only browse)   |
        +----------+-----------+
                   |
                   v
        +----------------------+
-       | Downstream AI Systems|
-       | (consumers only)     |
+       | Downstream AI Systems| | (consumers only)     |
        +----------------------+
 ```
 
@@ -1394,20 +1364,7 @@ Every finalized wiki page must carry required frontmatter so KMI, Infopedia, val
 
 ### Required fields
 
-| Field | Meaning | Mandatory | Primary use |
-|---|---|---:|---|
-| `title` | Canonical human-readable page title | Yes | Rendering, navigation, search, links |
-| `slug` | Deterministic page identifier | Yes | File naming, uniqueness, links |
-| `type` | Canonical page type | Yes | Validation, routing, templates |
-| `domain` | Owning domain or domain reference | Yes | Taxonomy, navigation, AI context |
-| `status` | Lifecycle state such as `finalized` or `review_required` | Yes | Governance, surfacing, filtering |
-| `source_refs` | Traceable source references | Yes | Auditability, maintenance, AI grounding |
-| `last_updated` | Last governed refresh timestamp | Yes | Freshness, review prompts |
-| `confidence` | Current confidence level in the page's truth quality | Yes | Escalation, surfacing, trust |
-| `review_required` | Whether KMI should route this page for attention | Yes | Maintenance queues, governance |
-| `related` | Related page references | Yes | Navigation, AI expansion, linking |
-| `tags` | Controlled classification tags | Yes | Search, indexing, retrieval |
-| `owners` | Stewards accountable for the page | Yes | Accountability, governance follow-up |
+| Field | Meaning | Mandatory | Primary use | |---|---|---:|---| | `title` | Canonical human-readable page title | Yes | Rendering, navigation, search, links | | `slug` | Deterministic page identifier | Yes | File naming, uniqueness, links | | `type` | Canonical page type | Yes | Validation, routing, templates | | `domain` | Owning domain or domain reference | Yes | Taxonomy, navigation, AI context | | `status` | Lifecycle state such as `finalized` or `review_required` | Yes | Governance, surfacing, filtering | | `source_refs` | Traceable source references | Yes | Auditability, maintenance, AI grounding | | `last_updated` | Last governed refresh timestamp | Yes | Freshness, review prompts | | `confidence` | Current confidence level in the page's truth quality | Yes | Escalation, surfacing, trust | | `review_required` | Whether KMI should route this page for attention | Yes | Maintenance queues, governance | | `related` | Related page references | Yes | Navigation, AI expansion, linking | | `tags` | Controlled classification tags | Yes | Search, indexing, retrieval | | `owners` | Stewards accountable for the page | Yes | Accountability, governance follow-up |
 
 ### Field semantics
 
@@ -2191,19 +2148,7 @@ Source files are immutable inputs. KMS may read, parse, and summarize them, but 
 
 KMS should expect a controlled variety of source artifact classes already landed in the local source path.
 
-| Source class | Typical examples | Likely extracted signals | Likely wiki impact |
-|---|---|---|---|
-| Document exports | PDF, DOCX, exported wiki pages | definitions, decisions, process descriptions | domain, concept, decision, process pages |
-| Reports | monthly performance reports, governance readouts | metric definitions, anomalies, trend statements | metric pages, decision pages |
-| Dashboard exports | CSV/PDF exports from BI tools | metric values, filters, segment assumptions | metric pages, validation-rule pages |
-| Database extracts | CSV extracts, parquet-like exports, query result files | data asset semantics, grain, join keys, freshness | data-asset pages, validation-rule pages |
-| Spreadsheets | XLSX, tabular workbooks, remediation trackers | calculations, reconciliations, action items | metric pages, data-asset pages, open-question pages |
-| CSVs | fact extracts, dictionary files, source listings | row-level summaries, column semantics, counts | data-asset pages, metric pages |
-| Markdown / text notes | run notes, analyst notes, working summaries | interpretation, candidate concepts, unresolved questions | source-note pages, open-question pages |
-| Presentation files | PPTX exports, slide decks | decision rationale, executive framing, process summaries | decision pages, process pages, concept pages |
-| JSON exports | structured APIs, configuration dumps | structured entities, metric metadata, system relationships | entity pages, data-asset pages, validation-rule pages |
-| HTML exports | exported dashboards, published docs, page captures | formatted narrative, embedded tables, linked references | concept pages, metric pages, source-note pages |
-| Meeting notes / structured documents | minutes, review notes, steering docs | decisions, contradictions, ownership, follow-up items | decision pages, open-question pages |
+| Source class | Typical examples | Likely extracted signals | Likely wiki impact | |---|---|---|---| | Document exports | PDF, DOCX, exported wiki pages | definitions, decisions, process descriptions | domain, concept, decision, process pages | | Reports | monthly performance reports, governance readouts | metric definitions, anomalies, trend statements | metric pages, decision pages | | Dashboard exports | CSV/PDF exports from BI tools | metric values, filters, segment assumptions | metric pages, validation-rule pages | | Database extracts | CSV extracts, parquet-like exports, query result files | data asset semantics, grain, join keys, freshness | data-asset pages, validation-rule pages | | Spreadsheets | XLSX, tabular workbooks, remediation trackers | calculations, reconciliations, action items | metric pages, data-asset pages, open-question pages | | CSVs | fact extracts, dictionary files, source listings | row-level summaries, column semantics, counts | data-asset pages, metric pages | | Markdown / text notes | run notes, analyst notes, working summaries | interpretation, candidate concepts, unresolved questions | source-note pages, open-question pages | | Presentation files | PPTX exports, slide decks | decision rationale, executive framing, process summaries | decision pages, process pages, concept pages | | JSON exports | structured APIs, configuration dumps | structured entities, metric metadata, system relationships | entity pages, data-asset pages, validation-rule pages | | HTML exports | exported dashboards, published docs, page captures | formatted narrative, embedded tables, linked references | concept pages, metric pages, source-note pages | | Meeting notes / structured documents | minutes, review notes, steering docs | decisions, contradictions, ownership, follow-up items | decision pages, open-question pages |
 
 These are source classes, not parser commitments. The design identifies what kinds of knowledge signals KMS must be able to recognize, not every implementation library that may later be used to read them.
 
@@ -2266,18 +2211,7 @@ The successful validation of the input path creates a new run context. The run c
 
 The intake pipeline is a controlled sequence of stages that transform source files into structured maintenance outputs.
 
-| Stage | Purpose | Inputs | Outputs | Failure behavior |
-|---|---|---|---|---|
-| 1. Path validation | Confirm the path exists and is usable | source_root_path | validation result, run eligibility | fail run if inaccessible or invalid |
-| 2. Source discovery | Recursively enumerate files and folders | validated path | discovered file list, path map | fail or partially continue based on severity |
-| 3. Source registration | Create operational records for each source artifact | discovered files | source registry entries | record partial failures, preserve audit trail |
-| 4. File type detection and classification | Identify supported and unsupported inputs | registered files | file class, support status, parser route | mark unsupported, continue where safe |
-| 5. Deduplication / identity resolution | Detect repeats and stable identity | file metadata, checksum, path | uniqueness decisions, duplicate flags | prevent silent double-processing |
-| 6. Parsing and normalization | Convert files into processable content | classified files | normalized text, structure, diagnostics | record parse failures explicitly |
-| 7. Structured extraction | Detect candidate knowledge signals | normalized content | extracted signal objects | continue per file or mark run degraded |
-| 8. Source note generation | Produce governed intermediate source artifacts | extracted signals | source-note drafts or outputs | preserve notes even if downstream handoff blocks |
-| 9. Source-to-wiki impact preparation | Determine likely wiki impact candidates | source notes, signals, existing wiki references | impact manifest | block downstream if core evidence is missing |
-| 10. Run summary and handoff | Package the run for later maintenance stages | all prior artifacts | intake summary, handoff manifest | fail closed if summary cannot be persisted |
+| Stage | Purpose | Inputs | Outputs | Failure behavior | |---|---|---|---|---| | 1. Path validation | Confirm the path exists and is usable | source_root_path | validation result, run eligibility | fail run if inaccessible or invalid | | 2. Source discovery | Recursively enumerate files and folders | validated path | discovered file list, path map | fail or partially continue based on severity | | 3. Source registration | Create operational records for each source artifact | discovered files | source registry entries | record partial failures, preserve audit trail | | 4. File type detection and classification | Identify supported and unsupported inputs | registered files | file class, support status, parser route | mark unsupported, continue where safe | | 5. Deduplication / identity resolution | Detect repeats and stable identity | file metadata, checksum, path | uniqueness decisions, duplicate flags | prevent silent double-processing | | 6. Parsing and normalization | Convert files into processable content | classified files | normalized text, structure, diagnostics | record parse failures explicitly | | 7. Structured extraction | Detect candidate knowledge signals | normalized content | extracted signal objects | continue per file or mark run degraded | | 8. Source note generation | Produce governed intermediate source artifacts | extracted signals | source-note drafts or outputs | preserve notes even if downstream handoff blocks | | 9. Source-to-wiki impact preparation | Determine likely wiki impact candidates | source notes, signals, existing wiki references | impact manifest | block downstream if core evidence is missing | | 10. Run summary and handoff | Package the run for later maintenance stages | all prior artifacts | intake summary, handoff manifest | fail closed if summary cannot be persisted |
 
 ### Numbered workflow
 
@@ -2359,12 +2293,7 @@ KMS must avoid duplicate or unstable processing. File identity should be based o
 
 ### Decision table
 
-| Condition | Detection basis | Expected action | Audit requirement |
-|---|---|---|---|
-| Unchanged | same path + same checksum | skip or reuse prior normalized output when safe | record reuse decision |
-| Changed | same path + different checksum | reprocess deterministically | record before/after identity |
-| Duplicate | different path + same checksum | flag duplicate, retain both source records | preserve both path references |
-| Unsupported | file class not recognized | register, mark unsupported, exclude from parse route | preserve unsupported list |
+| Condition | Detection basis | Expected action | Audit requirement | |---|---|---|---| | Unchanged | same path + same checksum | skip or reuse prior normalized output when safe | record reuse decision | | Changed | same path + different checksum | reprocess deterministically | record before/after identity | | Duplicate | different path + same checksum | flag duplicate, retain both source records | preserve both path references | | Unsupported | file class not recognized | register, mark unsupported, exclude from parse route | preserve unsupported list |
 
 Idempotency applies both at run level and at file-processing level. Rerunning the same path must be safe. Deleted source files should not automatically delete finalized wiki knowledge; removal or retirement of truth requires later governed logic.
 
@@ -2374,13 +2303,7 @@ Parsing converts supported file types into normalized internal representations s
 
 Parsing is not final knowledge synthesis. It is an intermediate maintenance step.
 
-| Input type | Normalized output | Key metadata | Caveats |
-|---|---|---|---|
-| PDF / DOCX / HTML | text + structure map | page count, headings, embedded links | formatting loss, OCR risk |
-| CSV / spreadsheet | table-like rows/columns | row count, column names, cell types | schema ambiguity, hidden formulas |
-| Markdown / text | text + section map | heading hierarchy, link targets | free-form structure can be noisy |
-| JSON | object tree + flattened fields | keys, nesting depth, array hints | version drift, inconsistent schemas |
-| PPTX / slide exports | slide text + speaker notes | slide count, visual section hints | narrative compression, image loss |
+| Input type | Normalized output | Key metadata | Caveats | |---|---|---|---| | PDF / DOCX / HTML | text + structure map | page count, headings, embedded links | formatting loss, OCR risk | | CSV / spreadsheet | table-like rows/columns | row count, column names, cell types | schema ambiguity, hidden formulas | | Markdown / text | text + section map | heading hierarchy, link targets | free-form structure can be noisy | | JSON | object tree + flattened fields | keys, nesting depth, array hints | version drift, inconsistent schemas | | PPTX / slide exports | slide text + speaker notes | slide count, visual section hints | narrative compression, image loss |
 
 Parser failures must be preserved as explicit run outcomes. Normalized content is intermediate maintenance input, not a truth declaration.
 
@@ -2513,20 +2436,7 @@ Refresh must be governed, traceable, and non-destructive by default. New input d
 
 The intake run should move through explicit states so the system can be observed and resumed safely.
 
-| State | Meaning | Entry condition | Exit condition |
-|---|---|---|---|
-| created | run context exists | path provided and accepted for validation | validation begins |
-| validating_path | path is being checked | run created | path validated or rejected |
-| discovering_sources | scanning for files | valid path | files discovered or discovery fails |
-| registering_sources | recording discovered files | file list available | registry written |
-| parsing | files are being normalized | registered sources exist | parse outputs or parse failure |
-| extracting | signals are being detected | normalized content exists | extracted signals written |
-| generating_source_notes | source-note artifacts are produced | extraction complete | source-note outputs written |
-| preparing_impact | wiki impact candidates are assembled | source notes exist | impact manifest written |
-| completed | run finished successfully | all required artifacts persisted | run closed |
-| completed_with_warnings | run succeeded with non-fatal issues | partial support, unsupported files, or low confidence | run closed |
-| failed | run could not complete | fatal stage failure | rerun or repair path |
-| blocked | downstream handoff is intentionally held | unresolved contradiction or policy stop | human resolution |
+| State | Meaning | Entry condition | Exit condition | |---|---|---|---| | created | run context exists | path provided and accepted for validation | validation begins | | validating_path | path is being checked | run created | path validated or rejected | | discovering_sources | scanning for files | valid path | files discovered or discovery fails | | registering_sources | recording discovered files | file list available | registry written | | parsing | files are being normalized | registered sources exist | parse outputs or parse failure | | extracting | signals are being detected | normalized content exists | extracted signals written | | generating_source_notes | source-note artifacts are produced | extraction complete | source-note outputs written | | preparing_impact | wiki impact candidates are assembled | source notes exist | impact manifest written | | completed | run finished successfully | all required artifacts persisted | run closed | | completed_with_warnings | run succeeded with non-fatal issues | partial support, unsupported files, or low confidence | run closed | | failed | run could not complete | fatal stage failure | rerun or repair path | | blocked | downstream handoff is intentionally held | unresolved contradiction or policy stop | human resolution |
 
 ### Mermaid state diagram
 
@@ -2555,16 +2465,7 @@ stateDiagram-v2
 
 The intake pipeline must produce durable artifacts that support auditability, reviewability, debugging, and rerun support.
 
-| Artifact | Produced by stage | Purpose | Downstream consumer |
-|---|---|---|---|
-| Source registry | registration | record what was found and how it was classified | KMI, orchestration, audit |
-| Parse report | parsing | show normalization outcomes and diagnostics | KMI, troubleshooting |
-| Unsupported files list | classification | preserve excluded inputs | Knowledge Manager, audit |
-| Extracted signal records | extraction | provide machine-usable signals | source-note generation, impact prep |
-| Source-note drafts / outputs | source-note generation | bridge source to knowledge maintenance | maintenance workflow, KMI |
-| Impact preparation manifest | impact preparation | identify likely wiki impacts | downstream wiki refresh logic |
-| Intake summary | handoff | summarize run outcome and coverage | KMI, metadata DB, audit |
-| Warning / error report | any failed or degraded stage | preserve issues and recovery hints | Knowledge Manager, support tooling |
+| Artifact | Produced by stage | Purpose | Downstream consumer | |---|---|---|---| | Source registry | registration | record what was found and how it was classified | KMI, orchestration, audit | | Parse report | parsing | show normalization outcomes and diagnostics | KMI, troubleshooting | | Unsupported files list | classification | preserve excluded inputs | Knowledge Manager, audit | | Extracted signal records | extraction | provide machine-usable signals | source-note generation, impact prep | | Source-note drafts / outputs | source-note generation | bridge source to knowledge maintenance | maintenance workflow, KMI | | Impact preparation manifest | impact preparation | identify likely wiki impacts | downstream wiki refresh logic | | Intake summary | handoff | summarize run outcome and coverage | KMI, metadata DB, audit | | Warning / error report | any failed or degraded stage | preserve issues and recovery hints | Knowledge Manager, support tooling |
 
 These artifacts are required because KMS must be deterministic, reviewable, and rerunnable.
 
@@ -2572,25 +2473,11 @@ These artifacts are required because KMS must be deterministic, reviewable, and 
 
 Failure handling must be explicit. KMS should fail closed where needed and preserve audit evidence in all cases.
 
-| Failure type | Scope | Expected behavior | Downstream effect |
-|---|---|---|---|
-| Invalid path | run-level | fail explicitly before discovery | no artifacts beyond validation record |
-| Inaccessible path | run-level | fail explicitly and record reason | no downstream handoff |
-| Empty folder | run-level or warning-level | complete with warning or block based on policy | no meaningful intake outputs |
-| Unsupported file types | file-level | register and skip parsing safely | source notes may omit unsupported content |
-| Corrupt file | file-level | preserve error record and continue where safe | partial extraction only if safe |
-| Parser failure | file-level | preserve diagnostics and mark file failed | affected file excluded from downstream handoff |
-| Partial extraction failure | file-level or run-level | continue where safe; block if core signals missing | degraded impact manifest |
-| Inconsistent metadata | run-level or file-level | flag for review and block if policy-critical | run may become blocked |
-| Downstream handoff failure | run-level | preserve intake outputs, block later maintenance stages | no publication impact from intake alone |
+| Failure type | Scope | Expected behavior | Downstream effect | |---|---|---|---| | Invalid path | run-level | fail explicitly before discovery | no artifacts beyond validation record | | Inaccessible path | run-level | fail explicitly and record reason | no downstream handoff | | Empty folder | run-level or warning-level | complete with warning or block based on policy | no meaningful intake outputs | | Unsupported file types | file-level | register and skip parsing safely | source notes may omit unsupported content | | Corrupt file | file-level | preserve error record and continue where safe | partial extraction only if safe | | Parser failure | file-level | preserve diagnostics and mark file failed | affected file excluded from downstream handoff | | Partial extraction failure | file-level or run-level | continue where safe; block if core signals missing | degraded impact manifest | | Inconsistent metadata | run-level or file-level | flag for review and block if policy-critical | run may become blocked | | Downstream handoff failure | run-level | preserve intake outputs, block later maintenance stages | no publication impact from intake alone |
 
 ### Decision table
 
-| Condition | Expected action | Audit requirement |
-|---|---|---|
-| Safe to continue | continue with warnings | record warning and scope |
-| Fatal to the run | fail run | preserve error detail and state |
-| Unsafe for downstream handoff | block handoff | keep intake artifacts visible and unresolved |
+| Condition | Expected action | Audit requirement | |---|---|---| | Safe to continue | continue with warnings | record warning and scope | | Fatal to the run | fail run | preserve error detail and state | | Unsafe for downstream handoff | block handoff | keep intake artifacts visible and unresolved |
 
 Intake failures must never corrupt finalized wiki knowledge.
 
@@ -2621,10 +2508,10 @@ KMI Intake Entry
       |
       v
 Validation -> Discovery -> Registration -> Parsing -> Extraction
-      |                                           |
+      | |
       |                                           v
       |                                   Source Notes
-      |                                           |
+      | |
       +-------------------------> Impact Preparation
                                               |
                                               v
@@ -2841,17 +2728,7 @@ KMS defines a canonical agent set. These agents are intentionally specialized an
 
 ## 6.4 Agent Responsibility Matrix
 
-| Agent | Main responsibility | Reads from | Writes to | Can finalize? | Escalation trigger |
-|---|---|---|---|---|---|
-| Orchestrator Agent | Workflow sequencing and gate enforcement | run state, stage outputs, policy outcomes | workflow state, handoff directives | no | blocked gate, missing artifact |
-| Source Intake Agent | Intake discovery and registration | local source path, file system metadata | source registry, intake artifacts | no | invalid path, inaccessible path |
-| Source Analyst Agent | Signal extraction | parsed content, source notes | extracted signals, analysis outputs | no | low confidence, conflicting signals |
-| Wiki Impact Analyst | Map source to wiki impacts | extracted signals, current wiki inventory | impact map, staged candidates | no | duplicate canonical risk |
-| Wiki Curator | Prepare staged wiki revisions | impact map, existing page content | staged page revisions | no | schema mismatch, missing trace |
-| Policy QA Agent | Validate against rules and schema | staged revisions, rules, metadata | QA report, validation status | no | rule failure, invalid structure |
-| Contradiction Reviewer | Resolve or escalate contradictions | contradiction report, source notes | contradiction artifacts, review notes | no | unresolved ambiguity |
-| Publisher | Publish approved markdown | approved revisions, QA pass | `/wiki`, publish summary | yes | failed gate, missing approval |
-| Lint Agent | Post-publish structural linting | finalized pages, link graph | lint report | no | broken link, invalid frontmatter |
+| Agent | Main responsibility | Reads from | Writes to | Can finalize? | Escalation trigger | |---|---|---|---|---|---| | Orchestrator Agent | Workflow sequencing and gate enforcement | run state, stage outputs, policy outcomes | workflow state, handoff directives | no | blocked gate, missing artifact | | Source Intake Agent | Intake discovery and registration | local source path, file system metadata | source registry, intake artifacts | no | invalid path, inaccessible path | | Source Analyst Agent | Signal extraction | parsed content, source notes | extracted signals, analysis outputs | no | low confidence, conflicting signals | | Wiki Impact Analyst | Map source to wiki impacts | extracted signals, current wiki inventory | impact map, staged candidates | no | duplicate canonical risk | | Wiki Curator | Prepare staged wiki revisions | impact map, existing page content | staged page revisions | no | schema mismatch, missing trace | | Policy QA Agent | Validate against rules and schema | staged revisions, rules, metadata | QA report, validation status | no | rule failure, invalid structure | | Contradiction Reviewer | Resolve or escalate contradictions | contradiction report, source notes | contradiction artifacts, review notes | no | unresolved ambiguity | | Publisher | Publish approved markdown | approved revisions, QA pass | `/wiki`, publish summary | yes | failed gate, missing approval | | Lint Agent | Post-publish structural linting | finalized pages, link graph | lint report | no | broken link, invalid frontmatter |
 
 ## 6.5 Orchestrator Role and Workflow Control
 
@@ -2918,15 +2795,7 @@ Skills make procedural logic reusable while keeping the orchestration model dete
 
 KMS should define a minimum reusable skill set aligned to the agent model.
 
-| Skill | Purpose | When used | Required inputs | Outputs | Hard rules |
-|---|---|---|---|---|---|
-| source-intake | validate, discover, register source files | start of intake run | source path, run metadata | registry, classification, intake summary | never mutate source files |
-| source-summarization | summarize normalized source content | after parsing | normalized text, file metadata | source summaries, candidate signals | output must remain source-backed |
-| wiki-impact-analysis | map signals to wiki changes | after extraction | extracted signals, wiki inventory | impact map, page candidates | no direct publication |
-| wiki-refresh | stage or refresh wiki candidates | after impact analysis | impact map, source trace, current pages | staged revisions, refresh set | preserve canonical truth boundaries |
-| contradiction-resolution | surface and triage conflicts | when ambiguity exists | contradiction report, source notes | resolution memo, open questions | do not silently override conflicts |
-| vault-lint | validate structure, links, and schema | after staging or publish | markdown, taxonomy, links | lint report, broken-link list | cannot fix truth by rewriting it |
-| infopedia-index-refresh | refresh navigation and search projections | after publish | finalized wiki content, metadata | index updates, browse projection refresh | read-only relative to truth |
+| Skill | Purpose | When used | Required inputs | Outputs | Hard rules | |---|---|---|---|---|---| | source-intake | validate, discover, register source files | start of intake run | source path, run metadata | registry, classification, intake summary | never mutate source files | | source-summarization | summarize normalized source content | after parsing | normalized text, file metadata | source summaries, candidate signals | output must remain source-backed | | wiki-impact-analysis | map signals to wiki changes | after extraction | extracted signals, wiki inventory | impact map, page candidates | no direct publication | | wiki-refresh | stage or refresh wiki candidates | after impact analysis | impact map, source trace, current pages | staged revisions, refresh set | preserve canonical truth boundaries | | contradiction-resolution | surface and triage conflicts | when ambiguity exists | contradiction report, source notes | resolution memo, open questions | do not silently override conflicts | | vault-lint | validate structure, links, and schema | after staging or publish | markdown, taxonomy, links | lint report, broken-link list | cannot fix truth by rewriting it | | infopedia-index-refresh | refresh navigation and search projections | after publish | finalized wiki content, metadata | index updates, browse projection refresh | read-only relative to truth |
 
 ### Compact skill inventory
 
@@ -2959,17 +2828,7 @@ KMS should separate governance from procedural implementation.
 
 Agents must produce structured intermediate artifacts. These artifacts are mandatory because they support auditability, recoverability, human review, and deterministic handoff.
 
-| Artifact | Produced by | Consumed by | Purpose |
-|---|---|---|---|
-| source registry | Source Intake Agent | Orchestrator, Source Analyst | record discovered files and identity |
-| source-note outputs | Source Analyst / Wiki Curator | Wiki Impact Analyst, KMI | bridge raw material to governed maintenance |
-| impact map | Wiki Impact Analyst | Wiki Curator, KMI | identify likely page changes |
-| staged page revisions | Wiki Curator | Policy QA Agent, Publisher | prepare candidate markdown |
-| QA report | Policy QA Agent | Orchestrator, KMI | validate against rules and schema |
-| contradiction report | Contradiction Reviewer | Orchestrator, KMI | surface conflicts and open questions |
-| approval summary | KMI / Orchestrator | Publisher | record final human decision |
-| publish summary | Publisher | KMI, metadata services | record publication outcome |
-| lint report | Lint Agent | Orchestrator, KMI | identify post-publish defects |
+| Artifact | Produced by | Consumed by | Purpose | |---|---|---|---| | source registry | Source Intake Agent | Orchestrator, Source Analyst | record discovered files and identity | | source-note outputs | Source Analyst / Wiki Curator | Wiki Impact Analyst, KMI | bridge raw material to governed maintenance | | impact map | Wiki Impact Analyst | Wiki Curator, KMI | identify likely page changes | | staged page revisions | Wiki Curator | Policy QA Agent, Publisher | prepare candidate markdown | | QA report | Policy QA Agent | Orchestrator, KMI | validate against rules and schema | | contradiction report | Contradiction Reviewer | Orchestrator, KMI | surface conflicts and open questions | | approval summary | KMI / Orchestrator | Publisher | record final human decision | | publish summary | Publisher | KMI, metadata services | record publication outcome | | lint report | Lint Agent | Orchestrator, KMI | identify post-publish defects |
 
 ## 6.10 Deterministic vs LLM-Driven Responsibilities
 
@@ -3099,16 +2958,7 @@ Self-managed does not mean ungoverned. Automation is conditional, and human revi
 
 Agent failures must be isolated. A failure in one agent should not corrupt unrelated artifacts, and partial outputs must remain visible for recovery where safe.
 
-| Failure condition | Likely agent | Expected behavior | Run impact | Recovery path |
-|---|---|---|---|---|
-| invalid source path | Source Intake Agent | fail fast and emit validation error | run blocked | correct path and rerun |
-| parse failure on one file | Source Intake Agent / Source Analyst Agent | preserve file-level error and continue where safe | run degraded or partial | fix file or parser and rerun |
-| low-confidence extraction | Source Analyst Agent | mark signals provisional and escalate if necessary | review required | Knowledge Manager review |
-| duplicate canonical page risk | Wiki Impact Analyst | stop candidate merge and flag collision | blocked | resolve naming or merge policy |
-| schema validation failure | Policy QA Agent | block publish and emit remediation | publish blocked | fix staged content and rerun QA |
-| unresolved contradiction | Contradiction Reviewer | retain open-question artifact and halt publish | blocked | human resolution or policy decision |
-| publication write failure | Publisher | preserve prior truth, fail closed, record error | publish failed | retry after storage issue resolved |
-| lint failure after publish | Lint Agent | report defect, do not rewrite truth automatically | post-publish warning or blocked follow-up | remediation workflow |
+| Failure condition | Likely agent | Expected behavior | Run impact | Recovery path | |---|---|---|---|---| | invalid source path | Source Intake Agent | fail fast and emit validation error | run blocked | correct path and rerun | | parse failure on one file | Source Intake Agent / Source Analyst Agent | preserve file-level error and continue where safe | run degraded or partial | fix file or parser and rerun | | low-confidence extraction | Source Analyst Agent | mark signals provisional and escalate if necessary | review required | Knowledge Manager review | | duplicate canonical page risk | Wiki Impact Analyst | stop candidate merge and flag collision | blocked | resolve naming or merge policy | | schema validation failure | Policy QA Agent | block publish and emit remediation | publish blocked | fix staged content and rerun QA | | unresolved contradiction | Contradiction Reviewer | retain open-question artifact and halt publish | blocked | human resolution or policy decision | | publication write failure | Publisher | preserve prior truth, fail closed, record error | publish failed | retry after storage issue resolved | | lint failure after publish | Lint Agent | report defect, do not rewrite truth automatically | post-publish warning or blocked follow-up | remediation workflow |
 
 ## 6.15 Agent and Skill File Structure
 
@@ -3239,10 +3089,10 @@ Source Intake -> Source Analyst -> Wiki Impact Analyst -> Wiki Curator
                                                Policy QA Agent
                                                         |
                                          +--------------+--------------+
-                                         |                             |
+                                         | |
                                          v                             v
                                 Contradiction Reviewer           Publisher
-                                         |                             |
+                                         | |
                                          +--------------+--------------+
                                                         v
                                                    Lint Agent
@@ -3309,16 +3159,7 @@ No content reaches `/wiki` without passing governance checks. Any path that atte
 
 Governance rules are grouped by enforcement intent so each control can be evaluated deterministically at runtime.
 
-| Rule Category | Purpose | Enforced By | Failure Impact |
-|---|---|---|---|
-| Schema Rules | Ensure pages, metadata, and structured fields conform to required shapes | Schema validator, lint agent | Block publish |
-| Content Rules | Enforce required sections, terminology, formatting, and allowed patterns | Policy QA Agent, lint agent | Block publish or escalate review |
-| Source Trace Rules | Require each claim to map to source evidence or approved provenance | Policy QA Agent, orchestrator | Block publish |
-| Relationship Rules | Validate links, parent-child structure, taxonomy placement, and reference integrity | Lint agent, orchestrator | Block publish or log warning |
-| Conflict Rules | Detect contradictions, ambiguity, and competing canonical claims | Contradiction Reviewer, Policy QA Agent | Block publish or escalate review |
-| Freshness Rules | Enforce recency thresholds and refresh requirements for time-sensitive knowledge | Policy QA Agent, orchestrator | Escalate review or block publish |
-| Duplication Rules | Prevent duplicate canonical pages, duplicate metrics, or overlapping authoritative definitions | Policy QA Agent, orchestrator | Block publish |
-| Approval Rules | Require human approval when policy or risk thresholds are crossed | KMI, approval workflow | Block publish until approved |
+| Rule Category | Purpose | Enforced By | Failure Impact | |---|---|---|---| | Schema Rules | Ensure pages, metadata, and structured fields conform to required shapes | Schema validator, lint agent | Block publish | | Content Rules | Enforce required sections, terminology, formatting, and allowed patterns | Policy QA Agent, lint agent | Block publish or escalate review | | Source Trace Rules | Require each claim to map to source evidence or approved provenance | Policy QA Agent, orchestrator | Block publish | | Relationship Rules | Validate links, parent-child structure, taxonomy placement, and reference integrity | Lint agent, orchestrator | Block publish or log warning | | Conflict Rules | Detect contradictions, ambiguity, and competing canonical claims | Contradiction Reviewer, Policy QA Agent | Block publish or escalate review | | Freshness Rules | Enforce recency thresholds and refresh requirements for time-sensitive knowledge | Policy QA Agent, orchestrator | Escalate review or block publish | | Duplication Rules | Prevent duplicate canonical pages, duplicate metrics, or overlapping authoritative definitions | Policy QA Agent, orchestrator | Block publish | | Approval Rules | Require human approval when policy or risk thresholds are crossed | KMI, approval workflow | Block publish until approved |
 
 Rule categories are cumulative. A page must satisfy every applicable category before it can be finalized.
 
@@ -3414,15 +3255,7 @@ Explicit review triggers:
 - missing source trace
 - override request after failed validation
 
-| Trigger | Why Review Is Required | Allowed Outcomes |
-|---|---|---|
-| Low confidence | The system cannot justify finality with sufficient certainty | Approve, request revision, reject |
-| Unresolved contradiction | Competing claims cannot be flattened into one truth | Approve with open question, request revision, reject |
-| New canonical metric | A new authoritative metric changes downstream behavior and terminology | Approve, request revision, reject |
-| New canonical data-asset | A new authoritative data asset changes lineage and ownership assumptions | Approve, request revision, reject |
-| Major rewrite of existing page | Broad semantic change risks breaking established meaning | Approve, request revision, reject |
-| Missing source trace | Claims cannot be proven against source evidence | Approve with remediation, request revision, reject |
-| Override request after failed validation | A user is asking to bypass a blocking rule | Approve override, deny override, require escalation |
+| Trigger | Why Review Is Required | Allowed Outcomes | |---|---|---| | Low confidence | The system cannot justify finality with sufficient certainty | Approve, request revision, reject | | Unresolved contradiction | Competing claims cannot be flattened into one truth | Approve with open question, request revision, reject | | New canonical metric | A new authoritative metric changes downstream behavior and terminology | Approve, request revision, reject | | New canonical data-asset | A new authoritative data asset changes lineage and ownership assumptions | Approve, request revision, reject | | Major rewrite of existing page | Broad semantic change risks breaking established meaning | Approve, request revision, reject | | Missing source trace | Claims cannot be proven against source evidence | Approve with remediation, request revision, reject | | Override request after failed validation | A user is asking to bypass a blocking rule | Approve override, deny override, require escalation |
 
 Approval is an explicit state transition. It does not imply that rules are disabled; it means the Knowledge Manager has accepted the risk and the system has recorded that decision.
 
@@ -3468,13 +3301,7 @@ Required governance artifacts:
 - publish summary
 - lineage trace from source to finalized wiki page
 
-| Artifact | Purpose | Retention / Usage |
-|---|---|---|
-| Rule evaluation log | Records which rules were evaluated, their inputs, and outcomes | Retained for audit and debugging of policy enforcement |
-| Approval decision log | Records human approvals, denials, overrides, reviewer identity, and timestamps | Used for governance traceability and compliance review |
-| Contradiction report | Captures conflict details, severity, implicated sources, and disposition | Used to drive open-question workflow and follow-up work |
-| Publish summary | Records what changed, what passed, what failed, and what was published | Used as the transaction record for finalized publication |
-| Lineage trace from source to finalized wiki page | Connects each finalized page to the source evidence that justified it | Used to prove provenance and support later audits |
+| Artifact | Purpose | Retention / Usage | |---|---|---| | Rule evaluation log | Records which rules were evaluated, their inputs, and outcomes | Retained for audit and debugging of policy enforcement | | Approval decision log | Records human approvals, denials, overrides, reviewer identity, and timestamps | Used for governance traceability and compliance review | | Contradiction report | Captures conflict details, severity, implicated sources, and disposition | Used to drive open-question workflow and follow-up work | | Publish summary | Records what changed, what passed, what failed, and what was published | Used as the transaction record for finalized publication | | Lineage trace from source to finalized wiki page | Connects each finalized page to the source evidence that justified it | Used to prove provenance and support later audits |
 
 Governance logs are not optional diagnostics. They are mandatory control artifacts and must be generated whenever validation, approval, or publish decisions occur.
 
@@ -3482,13 +3309,7 @@ Governance logs are not optional diagnostics. They are mandatory control artifac
 
 Enforcement is distributed across bounded components, but responsibility is explicit. No component may claim authority outside its assigned control surface.
 
-| Component | Enforcement Responsibility | Cannot Override |
-|---|---|---|
-| Policy QA Agent | Evaluates rule conditions, source trace completeness, and policy compliance | Human approval requirements and rule definitions |
-| Contradiction Reviewer | Classifies conflicts, creates open-question pages, and routes unresolved issues | Rule severity or publish gate outcomes |
-| Orchestrator Agent | Sequences validation stages and blocks publish when a gate fails | Mandatory gates, approval policy, or contradiction status |
-| Publisher | Writes only validated content to `/wiki` and records publish metadata | Failed validation, missing approval, or blocked rules |
-| Lint Agent | Performs post-publish lint and maintenance checks | Final publish authorization or governance policy |
+| Component | Enforcement Responsibility | Cannot Override | |---|---|---| | Policy QA Agent | Evaluates rule conditions, source trace completeness, and policy compliance | Human approval requirements and rule definitions | | Contradiction Reviewer | Classifies conflicts, creates open-question pages, and routes unresolved issues | Rule severity or publish gate outcomes | | Orchestrator Agent | Sequences validation stages and blocks publish when a gate fails | Mandatory gates, approval policy, or contradiction status | | Publisher | Writes only validated content to `/wiki` and records publish metadata | Failed validation, missing approval, or blocked rules | | Lint Agent | Performs post-publish lint and maintenance checks | Final publish authorization or governance policy |
 
 The enforcement model is intentionally layered. Each component can stop progress within its responsibility, but none can bypass a higher-order governance rule.
 
@@ -3496,15 +3317,7 @@ The enforcement model is intentionally layered. Each component can stop progress
 
 Failure handling must be deterministic. Each failure type maps to an explicit system response and downstream effect.
 
-| Failure Type | Severity | System Response | Downstream Effect |
-|---|---|---|---|
-| Schema failure | Error | Block publish and return validation diagnostics | Draft remains unpublished |
-| Missing required sections | Error | Block publish and mark page incomplete | Requires remediation before retry |
-| Missing source trace | Error | Block publish or escalate to review if policy allows override review | No finalized page until trace is added or approved |
-| Broken links | Warning or error based on scope | Log issue, block if link is required for canonical navigation | Publish may proceed only if policy marks it non-blocking |
-| Duplicate canonical page risk | Error | Block publish and route for deduplication decision | Prevents competing truth sources |
-| Contradiction blocking publish | Error | Block publish and create or update open-question page | Knowledge remains unfinalized until resolved |
-| Approval rejection | Error | Block publish and record decision | Change is not published and requires revision or abandonment |
+| Failure Type | Severity | System Response | Downstream Effect | |---|---|---|---| | Schema failure | Error | Block publish and return validation diagnostics | Draft remains unpublished | | Missing required sections | Error | Block publish and mark page incomplete | Requires remediation before retry | | Missing source trace | Error | Block publish or escalate to review if policy allows override review | No finalized page until trace is added or approved | | Broken links | Warning or error based on scope | Log issue, block if link is required for canonical navigation | Publish may proceed only if policy marks it non-blocking | | Duplicate canonical page risk | Error | Block publish and route for deduplication decision | Prevents competing truth sources | | Contradiction blocking publish | Error | Block publish and create or update open-question page | Knowledge remains unfinalized until resolved | | Approval rejection | Error | Block publish and record decision | Change is not published and requires revision or abandonment |
 
 Failure responses must not silently downgrade severity. If a rule is configured as `error`, the system must behave as if publication is blocked.
 
@@ -3663,18 +3476,7 @@ The application should make finalized knowledge easy to find, easy to read, and 
 
 KMI should be organized around maintenance workflows and review stages rather than around generic document management.
 
-| Screen | Primary Purpose | Main User Actions | Key Data Shown | Outputs or Decisions |
-|---|---|---|---|---|
-| Dashboard | Summarize current maintenance state | Open runs, inspect queues, jump to issues | Recent runs, pending reviews, contradictions, health issues | Triage decisions and next-action selection |
-| New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection |
-| Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions |
-| Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation |
-| Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes |
-| Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision |
-| Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open |
-| Approvals / Finalization | Final gate before publish | Review blockers, approve or reject finalization | Validation summary, eligible items, blockers | Finalize or block publish |
-| Maintenance Health / Lint | Track ongoing quality issues | Open stale items, fix links, assign refresh | Broken links, stale pages, duplicates, open questions | Maintenance action or remediation task |
-| Rules / Policy Visibility | Make governance visible to users | Inspect rules and applicability | Rule inventory, severity, scope, failures | Policy-aware maintenance decisions |
+| Screen | Primary Purpose | Main User Actions | Key Data Shown | Outputs or Decisions | |---|---|---|---|---| | Dashboard | Summarize current maintenance state | Open runs, inspect queues, jump to issues | Recent runs, pending reviews, contradictions, health issues | Triage decisions and next-action selection | | New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection | | Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions | | Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation | | Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes | | Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision | | Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open | | Approvals / Finalization | Final gate before publish | Review blockers, approve or reject finalization | Validation summary, eligible items, blockers | Finalize or block publish | | Maintenance Health / Lint | Track ongoing quality issues | Open stale items, fix links, assign refresh | Broken links, stale pages, duplicates, open questions | Maintenance action or remediation task | | Rules / Policy Visibility | Make governance visible to users | Inspect rules and applicability | Rule inventory, severity, scope, failures | Policy-aware maintenance decisions |
 
 Each screen supports a bounded decision. KMI should not blur review, approval, and finalization into a single opaque action.
 
@@ -3693,16 +3495,7 @@ Dashboard content:
 - freshness issues
 - latest finalized updates
 
-| Dashboard Widget | Purpose | Primary Action |
-|---|---|---|
-| Recent runs | Show latest maintenance executions | Open run detail |
-| Run statuses | Show blocked, in progress, complete, failed states | Resume investigation |
-| Pending reviews | Surface items waiting on human review | Open diff or approval screen |
-| Contradictions | Surface open conflicts and their severity | Open contradiction review |
-| Pages pending approval | Show finalization queue | Approve, reject, defer |
-| Lint / health summary | Summarize structural issues | Open maintenance health |
-| Freshness issues | Highlight stale or overdue content | Queue refresh work |
-| Latest finalized updates | Show what changed in `/wiki` | Inspect publish summary |
+| Dashboard Widget | Purpose | Primary Action | |---|---|---| | Recent runs | Show latest maintenance executions | Open run detail | | Run statuses | Show blocked, in progress, complete, failed states | Resume investigation | | Pending reviews | Surface items waiting on human review | Open diff or approval screen | | Contradictions | Surface open conflicts and their severity | Open contradiction review | | Pages pending approval | Show finalization queue | Approve, reject, defer | | Lint / health summary | Summarize structural issues | Open maintenance health | | Freshness issues | Highlight stale or overdue content | Queue refresh work | | Latest finalized updates | Show what changed in `/wiki` | Inspect publish summary |
 
 The dashboard should be filterable by run, page family, severity, and status so the Knowledge Manager can focus on unresolved governance work.
 
@@ -3754,15 +3547,7 @@ Run detail behavior:
 - show warnings and failures
 - show artifact links
 
-| Stage | Status Values | User Meaning |
-|---|---|---|
-| Intake | queued, running, complete, failed | Source discovery and run creation state |
-| Parse | queued, running, complete, failed | Source files are being parsed and classified |
-| Normalize | queued, running, complete, failed | Raw input is being standardized into structured artifacts |
-| Validate | queued, running, complete, failed, blocked | Rules and gates are being applied |
-| Review | waiting, in_review, approved, rejected, escalated | Human decision is required or in progress |
-| Finalize | queued, running, complete, failed, blocked | Final wiki write is being prepared or executed |
-| Lint | queued, running, complete, failed | Post-publish checks and maintenance are executing |
+| Stage | Status Values | User Meaning | |---|---|---| | Intake | queued, running, complete, failed | Source discovery and run creation state | | Parse | queued, running, complete, failed | Source files are being parsed and classified | | Normalize | queued, running, complete, failed | Raw input is being standardized into structured artifacts | | Validate | queued, running, complete, failed, blocked | Rules and gates are being applied | | Review | waiting, in_review, approved, rejected, escalated | Human decision is required or in progress | | Finalize | queued, running, complete, failed, blocked | Final wiki write is being prepared or executed | | Lint | queued, running, complete, failed | Post-publish checks and maintenance are executing |
 
 The run timeline should show the current stage prominently and preserve the ordered stage history so the user can reason about failures without opening backend logs.
 
@@ -3783,15 +3568,7 @@ Core elements:
 
 Review should always show the relationship between source evidence, generated knowledge, and target wiki pages. The review model must make it clear whether a change is a small correction, a semantic rewrite, or a new canonical entry.
 
-| Review Element | Why It Exists | User Decision Supported |
-|---|---|---|
-| Impacted pages | Show what knowledge will change | Confirm scope and avoid accidental collateral edits |
-| Action type | Explain the system’s intended operation | Approve, reject, or defer by change class |
-| Confidence indicators | Expose uncertainty before publish | Decide whether human review is required |
-| Source trace indicators | Show provenance coverage | Decide whether evidence is sufficient |
-| Inline rule violations | Make policy failures visible in context | Fix, reject, or escalate |
-| Before/after markdown diff | Show exact content delta | Review semantic change before finalization |
-| Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
+| Review Element | Why It Exists | User Decision Supported | |---|---|---| | Impacted pages | Show what knowledge will change | Confirm scope and avoid accidental collateral edits | | Action type | Explain the system’s intended operation | Approve, reject, or defer by change class | | Confidence indicators | Expose uncertainty before publish | Decide whether human review is required | | Source trace indicators | Show provenance coverage | Decide whether evidence is sufficient | | Inline rule violations | Make policy failures visible in context | Fix, reject, or escalate | | Before/after markdown diff | Show exact content delta | Review semantic change before finalization | | Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
 
 The review screen must not rely on a generic diff alone. It needs structured overlays for trace, confidence, and rule status so the Knowledge Manager can make a governed decision quickly.
 
@@ -3850,15 +3627,7 @@ Primary findings:
 - unresolved open questions
 - pages needing refresh
 
-| Health Finding | Severity | Suggested Action |
-|---|---|---|
-| Stale pages | Warning or error based on freshness policy | Queue refresh and review source drift |
-| Orphan pages | Warning | Re-link or remove from taxonomy |
-| Broken links | Warning or error based on importance | Repair references or mark as intentionally deprecated |
-| Missing source trace | Error | Add trace or block publish on refresh |
-| Duplicate canonical pages | Error | Deduplicate and choose one authoritative page |
-| Unresolved open questions | Warning or error based on impact | Escalate, resolve, or retain as managed conflict |
-| Pages needing refresh | Warning | Trigger maintenance run or targeted update |
+| Health Finding | Severity | Suggested Action | |---|---|---| | Stale pages | Warning or error based on freshness policy | Queue refresh and review source drift | | Orphan pages | Warning | Re-link or remove from taxonomy | | Broken links | Warning or error based on importance | Repair references or mark as intentionally deprecated | | Missing source trace | Error | Add trace or block publish on refresh | | Duplicate canonical pages | Error | Deduplicate and choose one authoritative page | | Unresolved open questions | Warning or error based on impact | Escalate, resolve, or retain as managed conflict | | Pages needing refresh | Warning | Trigger maintenance run or targeted update |
 
 The health view should support triage, filtering, and assignment. It is a maintenance queue, not a passive report.
 
@@ -3887,14 +3656,7 @@ KMI authority is explicit and operational, but it remains bounded by the governa
 
 Infopedia should organize finalized knowledge into a simple read path that helps users discover what exists and where to read it.
 
-| Area | Purpose | Main User Actions | Key Data Shown |
-|---|---|---|---|
-| Tree Navigation | Provide hierarchical entry into finalized knowledge | Expand nodes, click pages, browse families | Domains, page families, page titles |
-| Search Results | Help users locate pages quickly | Search, refine, open results | Titles, snippets, freshness, status |
-| Page View | Render finalized markdown for reading | Read, scroll, follow links | Full page content, metadata, status |
-| Related Pages / Backlinks | Show connected knowledge | Traverse related content | Parent/child links, backlinks, siblings |
-| Filters / Facets | Narrow browse and search results | Filter by type, domain, freshness, status | Facet counts, matching pages |
-| Freshness / Status Indicators | Show whether content is current | Inspect page state, decide trust level | Freshness, review state, update age |
+| Area | Purpose | Main User Actions | Key Data Shown | |---|---|---|---| | Tree Navigation | Provide hierarchical entry into finalized knowledge | Expand nodes, click pages, browse families | Domains, page families, page titles | | Search Results | Help users locate pages quickly | Search, refine, open results | Titles, snippets, freshness, status | | Page View | Render finalized markdown for reading | Read, scroll, follow links | Full page content, metadata, status | | Related Pages / Backlinks | Show connected knowledge | Traverse related content | Parent/child links, backlinks, siblings | | Filters / Facets | Narrow browse and search results | Filter by type, domain, freshness, status | Facet counts, matching pages | | Freshness / Status Indicators | Show whether content is current | Inspect page state, decide trust level | Freshness, review state, update age |
 
 Infopedia should keep the navigation model simple enough that users can answer “what knowledge exists?” and “what is the authoritative page?” without seeing workflow controls.
 
@@ -3940,14 +3702,7 @@ Supported browse behavior:
 - related links and backlinks
 - display of source trace summary, confidence, and freshness
 
-| Page View Element | Purpose | Derived From |
-|---|---|---|
-| Markdown body | Render authoritative knowledge for reading | Finalized `/wiki` content |
-| Source trace summary | Explain provenance at a glance | Metadata and governance records |
-| Confidence indicator | Show strength of the underlying knowledge | Validation and review results |
-| Freshness indicator | Show update age or review recency | Run history and page metadata |
-| Related links | Enable lateral navigation | Wiki links and metadata graph |
-| Backlinks | Show where the page is referenced | Link index or metadata graph |
+| Page View Element | Purpose | Derived From | |---|---|---| | Markdown body | Render authoritative knowledge for reading | Finalized `/wiki` content | | Source trace summary | Explain provenance at a glance | Metadata and governance records | | Confidence indicator | Show strength of the underlying knowledge | Validation and review results | | Freshness indicator | Show update age or review recency | Run history and page metadata | | Related links | Enable lateral navigation | Wiki links and metadata graph | | Backlinks | Show where the page is referenced | Link index or metadata graph |
 
 Page view should optimize readability without changing truth. The rendering layer may shape presentation, but it must not reinterpret the content or invent governance status.
 
@@ -3955,16 +3710,7 @@ Page view should optimize readability without changing truth. The rendering laye
 
 The boundary between KMI and Infopedia is structural, not cosmetic.
 
-| Aspect | KMI | Infopedia |
-|---|---|---|
-| Primary purpose | Maintenance, review, approval, finalization | Browse, search, read |
-| User role | Knowledge Manager | Knowledge Consumer |
-| Authority | Governed write path | Read-only presentation path |
-| Workflow awareness | High | Low |
-| Action surface | Run, review, approve, reject, finalize | Open, search, filter, traverse |
-| Source visibility | Raw and structured source evidence | Finalized knowledge and metadata summaries |
-| Conflict handling | Explicit contradiction management | Read-only display of finalized state and status |
-| Finalization capability | Yes, through governed workflow | No |
+| Aspect | KMI | Infopedia | |---|---|---| | Primary purpose | Maintenance, review, approval, finalization | Browse, search, read | | User role | Knowledge Manager | Knowledge Consumer | | Authority | Governed write path | Read-only presentation path | | Workflow awareness | High | Low | | Action surface | Run, review, approve, reject, finalize | Open, search, filter, traverse | | Source visibility | Raw and structured source evidence | Finalized knowledge and metadata summaries | | Conflict handling | Explicit contradiction management | Read-only display of finalized state and status | | Finalization capability | Yes, through governed workflow | No |
 
 The same finalized `/wiki` knowledge may appear in both contexts, but authority differs. KMI is action-oriented and workflow-aware. Infopedia is consumption-oriented and read-only.
 
@@ -4047,23 +3793,17 @@ flowchart TD
 
 ```text
               +-----------------------+
-              |          KMI          |
-              | maintenance, review   |
-              | approval, finalize    |
+              |          KMI          | | maintenance, review   | | approval, finalize    |
               +-----------+-----------+
-                          |
-                          | governed write path
+                          | | governed write path
                           v
                     +------------+
-                    |   /wiki    |
-                    | finalized  |
-                    | knowledge  |
+                    |   /wiki    | | finalized  | | knowledge  |
                     +------------+
                           ^
                           | read-only surface
               +-----------+-----------+
-              |       Infopedia       |
-              | browse, search, read   |
+              |       Infopedia       | | browse, search, read   |
               +-----------------------+
 ```
 
@@ -4116,13 +3856,7 @@ Filesystem for content truth, metadata DB for lifecycle control.
 
 KMS storage must preserve explicit authority boundaries. Supporting stores may accelerate workflow, but they must not replace finalized wiki content as truth.
 
-| Storage Layer | Stores | Written By | Read By | Authority |
-|---|---|---|---|---|
-| Raw source filesystem | Immutable upstream source files and folders | External source owners, intake process | Source discovery, parsing, analysis | Supporting input only |
-| Wiki filesystem (`/wiki`) | Finalized markdown knowledge and authoritative pages | Publisher service | KMI, Infopedia, downstream consumers | Canonical knowledge truth |
-| Metadata database | Runs, revisions, approvals, contradictions, QA, lint, projections metadata | Runtime services, orchestrator, approval workflow | KMI, services, Infopedia projection | Operational authority only |
-| Optional artifact storage | Extracted intermediates, parse outputs, review bundles, diffs | Parsing, normalization, draft services | KMI, validation, debugging | Supporting artifact store |
-| Optional search/index store | Search documents, navigation indexes, operational search projections | Search/index service, projection service | KMI search, Infopedia search | Supporting projection store |
+| Storage Layer | Stores | Written By | Read By | Authority | |---|---|---|---|---| | Raw source filesystem | Immutable upstream source files and folders | External source owners, intake process | Source discovery, parsing, analysis | Supporting input only | | Wiki filesystem (`/wiki`) | Finalized markdown knowledge and authoritative pages | Publisher service | KMI, Infopedia, downstream consumers | Canonical knowledge truth | | Metadata database | Runs, revisions, approvals, contradictions, QA, lint, projections metadata | Runtime services, orchestrator, approval workflow | KMI, services, Infopedia projection | Operational authority only | | Optional artifact storage | Extracted intermediates, parse outputs, review bundles, diffs | Parsing, normalization, draft services | KMI, validation, debugging | Supporting artifact store | | Optional search/index store | Search documents, navigation indexes, operational search projections | Search/index service, projection service | KMI search, Infopedia search | Supporting projection store |
 
 Only `/wiki` is a finalized knowledge store. All other layers support lifecycle control, indexing, or review.
 
@@ -4130,20 +3864,7 @@ Only `/wiki` is a finalized knowledge store. All other layers support lifecycle 
 
 The metadata model should be minimal, explicit, and sufficient to support governed maintenance and read-only navigation.
 
-| Entity | Purpose | Key Identity | Relationship to `/wiki` or Runs | Type |
-|---|---|---|---|---|
-| Run | Represents one maintenance execution | `run_id` | Owns source intake, validations, and output revisions | Operational |
-| SourceFile | Represents a discovered file in the raw source set | `source_file_id` | Belongs to a run and may map to source documents | Structural |
-| SourceDocument | Represents parsed source content | `source_document_id` | Informs revision proposals and traceability | Structural |
-| WikiPage | Represents a canonical wiki page | `page_id` or slug | Maps to a finalized `/wiki` page | Structural |
-| WikiPageRevision | Represents a staged or finalized change to a page | `revision_id` | Connected to a wiki page and run | Operational |
-| ImpactRecord | Captures what pages or sections are affected by a source set | `impact_id` | Derived from run analysis and revision planning | Projection |
-| ContradictionRecord | Captures detected conflict conditions | `contradiction_id` | Attaches to page, revision, or run context | Operational |
-| QAReport | Captures validation outcomes and rule results | `qa_report_id` | Attaches to a run or revision | Operational |
-| ApprovalRecord | Captures human review decision | `approval_id` | Gates revision finalization | Operational |
-| LintFinding | Captures post-publish or maintenance issues | `lint_finding_id` | Attaches to page, revision, or run | Operational |
-| InfopediaNode | Represents navigation projection for browse UI | `node_id` or derived path | Derived from finalized wiki pages | Projection |
-| SearchDocument | Represents indexed retrieval payload | `search_doc_id` or content hash | Derived from `/wiki` and metadata | Projection |
+| Entity | Purpose | Key Identity | Relationship to `/wiki` or Runs | Type | |---|---|---|---|---| | Run | Represents one maintenance execution | `run_id` | Owns source intake, validations, and output revisions | Operational | | SourceFile | Represents a discovered file in the raw source set | `source_file_id` | Belongs to a run and may map to source documents | Structural | | SourceDocument | Represents parsed source content | `source_document_id` | Informs revision proposals and traceability | Structural | | WikiPage | Represents a canonical wiki page | `page_id` or slug | Maps to a finalized `/wiki` page | Structural | | WikiPageRevision | Represents a staged or finalized change to a page | `revision_id` | Connected to a wiki page and run | Operational | | ImpactRecord | Captures what pages or sections are affected by a source set | `impact_id` | Derived from run analysis and revision planning | Projection | | ContradictionRecord | Captures detected conflict conditions | `contradiction_id` | Attaches to page, revision, or run context | Operational | | QAReport | Captures validation outcomes and rule results | `qa_report_id` | Attaches to a run or revision | Operational | | ApprovalRecord | Captures human review decision | `approval_id` | Gates revision finalization | Operational | | LintFinding | Captures post-publish or maintenance issues | `lint_finding_id` | Attaches to page, revision, or run | Operational | | InfopediaNode | Represents navigation projection for browse UI | `node_id` or derived path | Derived from finalized wiki pages | Projection | | SearchDocument | Represents indexed retrieval payload | `search_doc_id` or content hash | Derived from `/wiki` and metadata | Projection |
 
 These entities are not all equivalent. Some are source-of-record operational facts, some are structural links, and some are derived projections for UX and retrieval.
 
@@ -4151,31 +3872,22 @@ These entities are not all equivalent. Some are source-of-record operational fac
 
 The relational model should preserve the lifecycle from intake to finalization while keeping projections derived from canonical content.
 
-| Relationship | Meaning |
-|---|---|
-| Run has many SourceFiles | One maintenance run can ingest multiple inputs |
-| SourceFiles may yield SourceDocuments | A file may parse into one or more structured documents |
-| SourceDocuments inform ImpactRecords | Parsed evidence drives impact analysis |
-| WikiPages have many WikiPageRevisions | A page accumulates staged and finalized edits |
-| QAReports attach to revisions or runs | Validation is run-level or revision-level |
-| ContradictionRecords may attach to pages or runs | Conflicts are tracked in operational context |
-| ApprovalRecords gate finalization | A revision cannot finalize without approval where required |
-| InfopediaNodes are derived from finalized wiki pages | Navigation is projection data, not truth |
+| Relationship | Meaning | |---|---| | Run has many SourceFiles | One maintenance run can ingest multiple inputs | | SourceFiles may yield SourceDocuments | A file may parse into one or more structured documents | | SourceDocuments inform ImpactRecords | Parsed evidence drives impact analysis | | WikiPages have many WikiPageRevisions | A page accumulates staged and finalized edits | | QAReports attach to revisions or runs | Validation is run-level or revision-level | | ContradictionRecords may attach to pages or runs | Conflicts are tracked in operational context | | ApprovalRecords gate finalization | A revision cannot finalize without approval where required | | InfopediaNodes are derived from finalized wiki pages | Navigation is projection data, not truth |
 
 ```mermaid
 erDiagram
-  RUN ||--o{ SOURCE_FILE : has
-  SOURCE_FILE ||--o{ SOURCE_DOCUMENT : yields
-  RUN ||--o{ IMPACT_RECORD : produces
-  RUN ||--o{ QA_REPORT : generates
-  RUN ||--o{ CONTRADICTION_RECORD : detects
-  RUN ||--o{ APPROVAL_RECORD : requires
-  WIKI_PAGE ||--o{ WIKI_PAGE_REVISION : has
-  WIKI_PAGE_REVISION ||--o{ QA_REPORT : validated_by
-  WIKI_PAGE_REVISION ||--o{ CONTRADICTION_RECORD : references
-  WIKI_PAGE_REVISION ||--o{ APPROVAL_RECORD : gated_by
-  WIKI_PAGE ||--o{ INFOPEDIA_NODE : projects_to
-  WIKI_PAGE ||--o{ SEARCH_DOCUMENT : indexes_to
+  RUN | |--o{ SOURCE_FILE : has
+  SOURCE_FILE | |--o{ SOURCE_DOCUMENT : yields
+  RUN | |--o{ IMPACT_RECORD : produces
+  RUN | |--o{ QA_REPORT : generates
+  RUN | |--o{ CONTRADICTION_RECORD : detects
+  RUN | |--o{ APPROVAL_RECORD : requires
+  WIKI_PAGE | |--o{ WIKI_PAGE_REVISION : has
+  WIKI_PAGE_REVISION | |--o{ QA_REPORT : validated_by
+  WIKI_PAGE_REVISION | |--o{ CONTRADICTION_RECORD : references
+  WIKI_PAGE_REVISION | |--o{ APPROVAL_RECORD : gated_by
+  WIKI_PAGE | |--o{ INFOPEDIA_NODE : projects_to
+  WIKI_PAGE | |--o{ SEARCH_DOCUMENT : indexes_to
 ```
 
 The graph is intentionally directional. Projections follow finalized content; they do not define it.
@@ -4184,14 +3896,7 @@ The graph is intentionally directional. Projections follow finalized content; th
 
 The system should keep entity schemas pragmatic and implementation-ready without over-normalizing early.
 
-| Entity | High-Level Fields |
-|---|---|
-| Run | `run_id`, `status`, `source_path`, `domain_hint`, `run_notes`, `created_at`, `started_at`, `completed_at`, `created_by`, `summary_counts`, `blocked_reason` |
-| SourceFile | `source_file_id`, `run_id`, `path`, `file_type`, `discovered_at`, `parse_status`, `document_count`, `hash`, `error_summary` |
-| WikiPage | `page_id`, `slug`, `title`, `page_type`, `path`, `status`, `freshness_status`, `confidence_status`, `current_revision_id`, `updated_at` |
-| WikiPageRevision | `revision_id`, `page_id`, `run_id`, `status`, `change_type`, `section_changes`, `source_trace_ids`, `diff_summary`, `created_at`, `finalized_at` |
-| ContradictionRecord | `contradiction_id`, `run_id`, `page_id`, `revision_id`, `severity`, `status`, `conflicting_claims`, `source_refs`, `open_question_page_id`, `created_at` |
-| ApprovalRecord | `approval_id`, `revision_id`, `decision`, `reviewer_id`, `reviewed_at`, `reason`, `override_requested`, `policy_version` |
+| Entity | High-Level Fields | |---|---| | Run | `run_id`, `status`, `source_path`, `domain_hint`, `run_notes`, `created_at`, `started_at`, `completed_at`, `created_by`, `summary_counts`, `blocked_reason` | | SourceFile | `source_file_id`, `run_id`, `path`, `file_type`, `discovered_at`, `parse_status`, `document_count`, `hash`, `error_summary` | | WikiPage | `page_id`, `slug`, `title`, `page_type`, `path`, `status`, `freshness_status`, `confidence_status`, `current_revision_id`, `updated_at` | | WikiPageRevision | `revision_id`, `page_id`, `run_id`, `status`, `change_type`, `section_changes`, `source_trace_ids`, `diff_summary`, `created_at`, `finalized_at` | | ContradictionRecord | `contradiction_id`, `run_id`, `page_id`, `revision_id`, `severity`, `status`, `conflicting_claims`, `source_refs`, `open_question_page_id`, `created_at` | | ApprovalRecord | `approval_id`, `revision_id`, `decision`, `reviewer_id`, `reviewed_at`, `reason`, `override_requested`, `policy_version` |
 
 Field sets should support traceability, staged review, and audit-friendly querying. The same identifiers should be reused consistently across services and API responses.
 
@@ -4199,21 +3904,7 @@ Field sets should support traceability, staged review, and audit-friendly queryi
 
 Run and revision states must align with the workflow behavior exposed in KMI.
 
-| Run State | Meaning |
-|---|---|
-| created | Run record exists, orchestration has not started |
-| in_progress | Services are actively discovering, parsing, validating, or drafting |
-| completed | Run finished successfully and produced its expected artifacts |
-| blocked | Governance or validation stopped progression before finalization |
-| failed | Runtime execution failed due to error or unrecoverable service problem |
-
-| Revision State | Meaning |
-|---|---|
-| staged | Revision exists as a candidate change |
-| review_required | Human review is required before progression |
-| approved | Revision passed required approval checks |
-| rejected | Revision was not accepted for finalization |
-| finalized | Revision has been published into `/wiki` |
+| Run State | Meaning | |---|---| | created | Run record exists, orchestration has not started | | in_progress | Services are actively discovering, parsing, validating, or drafting | | completed | Run finished successfully and produced its expected artifacts | | blocked | Governance or validation stopped progression before finalization | | failed | Runtime execution failed due to error or unrecoverable service problem | | Revision State | Meaning | |---|---| | staged | Revision exists as a candidate change | | review_required | Human review is required before progression | | approved | Revision passed required approval checks | | rejected | Revision was not accepted for finalization | | finalized | Revision has been published into `/wiki` |
 
 Run states support KMI orchestration visibility. Revision states support diff review, approval, and publish control.
 
@@ -4221,21 +3912,7 @@ Run states support KMI orchestration visibility. Revision states support diff re
 
 KMS requires bounded backend services so workflow logic remains explicit and testable.
 
-| Service | Responsibility | Main Inputs | Main Outputs | Side Effects / Writes |
-|---|---|---|---|---|
-| Run Orchestration Service | Coordinates end-to-end run progression | Source path, run config, policy state | Run status transitions, stage dispatch | Writes run state and stage history |
-| Source Discovery Service | Enumerates source files and supported inputs | Raw source path | Source file inventory | Writes source file records |
-| Parsing/Normalization Service | Parses raw files into structured documents | Source files | Parsed documents, parse errors | Writes source documents and parse artifacts |
-| Source Analysis Service | Detects impacts, candidates, and structural changes | Source documents | Impact records, candidate revisions | Writes impact records |
-| Source Note Service | Captures notes, annotations, and supporting commentary | Source files, source documents, user notes | Source notes, annotations | Writes source note records |
-| Wiki Draft Service | Builds staged wiki page revisions | Impact records, source documents, page templates | Draft revisions, diffs | Writes staged revisions and draft artifacts |
-| Policy Validation Service | Evaluates rules, source trace, and publish eligibility | Revisions, rules, metadata | Validation results, block/escalate decisions | Writes QA reports and validation events |
-| Contradiction Service | Detects and manages conflicts | Source documents, revisions, page metadata | Contradiction records, open questions | Writes contradiction records |
-| Approval Service | Records human decisions and gate outcomes | Approval requests, revision context | Approval records, decision status | Writes approval records |
-| Publisher Service | Writes finalized content into `/wiki` | Approved revisions, publish payloads | Published pages, publish summary | Writes `/wiki` and publish audit records |
-| Lint Service | Checks freshness, links, structure, and quality | Finalized pages, metadata | Lint findings | Writes lint findings |
-| Search/Index Service | Builds operational and browse indexes | Wiki pages, metadata, revisions | Search documents, index updates | Writes search/index projections |
-| Infopedia Projection Service | Builds browse projection for tree and related pages | Finalized wiki pages, metadata | Infopedia nodes, navigation edges | Writes projection records |
+| Service | Responsibility | Main Inputs | Main Outputs | Side Effects / Writes | |---|---|---|---|---| | Run Orchestration Service | Coordinates end-to-end run progression | Source path, run config, policy state | Run status transitions, stage dispatch | Writes run state and stage history | | Source Discovery Service | Enumerates source files and supported inputs | Raw source path | Source file inventory | Writes source file records | | Parsing/Normalization Service | Parses raw files into structured documents | Source files | Parsed documents, parse errors | Writes source documents and parse artifacts | | Source Analysis Service | Detects impacts, candidates, and structural changes | Source documents | Impact records, candidate revisions | Writes impact records | | Source Note Service | Captures notes, annotations, and supporting commentary | Source files, source documents, user notes | Source notes, annotations | Writes source note records | | Wiki Draft Service | Builds staged wiki page revisions | Impact records, source documents, page templates | Draft revisions, diffs | Writes staged revisions and draft artifacts | | Policy Validation Service | Evaluates rules, source trace, and publish eligibility | Revisions, rules, metadata | Validation results, block/escalate decisions | Writes QA reports and validation events | | Contradiction Service | Detects and manages conflicts | Source documents, revisions, page metadata | Contradiction records, open questions | Writes contradiction records | | Approval Service | Records human decisions and gate outcomes | Approval requests, revision context | Approval records, decision status | Writes approval records | | Publisher Service | Writes finalized content into `/wiki` | Approved revisions, publish payloads | Published pages, publish summary | Writes `/wiki` and publish audit records | | Lint Service | Checks freshness, links, structure, and quality | Finalized pages, metadata | Lint findings | Writes lint findings | | Search/Index Service | Builds operational and browse indexes | Wiki pages, metadata, revisions | Search documents, index updates | Writes search/index projections | | Infopedia Projection Service | Builds browse projection for tree and related pages | Finalized wiki pages, metadata | Infopedia nodes, navigation edges | Writes projection records |
 
 These services are separable for testing and deployment, but they must share a consistent metadata contract.
 
@@ -4263,18 +3940,7 @@ APIs are service contracts, not direct database exposure. The API layer must pre
 
 Representative endpoints should expose workflow state and read surfaces without leaking persistence structure.
 
-| Method | Path | Purpose | Primary Consumer |
-|---|---|---|---|
-| `POST` | `/api/runs` | Create a new governed maintenance run | KMI |
-| `GET` | `/api/runs/{run_id}` | Fetch run status and summary | KMI |
-| `GET` | `/api/runs/{run_id}/artifacts` | List run artifacts and outputs | KMI |
-| `GET` | `/api/reviews/{revision_id}/diff` | Fetch review diff and validation context | KMI |
-| `POST` | `/api/approvals/{revision_id}` | Submit approval or rejection decision | KMI |
-| `GET` | `/api/wiki/pages/{slug}` | Read finalized wiki page content | KMI, Infopedia |
-| `GET` | `/api/infopedia/tree` | Fetch navigation tree projection | Infopedia |
-| `GET` | `/api/infopedia/search` | Search finalized knowledge | Infopedia |
-| `GET` | `/api/contradictions/{id}` | Read contradiction detail | KMI |
-| `GET` | `/api/health/findings` | Read lint and maintenance issues | KMI |
+| Method | Path | Purpose | Primary Consumer | |---|---|---|---| | `POST` | `/api/runs` | Create a new governed maintenance run | KMI | | `GET` | `/api/runs/{run_id}` | Fetch run status and summary | KMI | | `GET` | `/api/runs/{run_id}/artifacts` | List run artifacts and outputs | KMI | | `GET` | `/api/reviews/{revision_id}/diff` | Fetch review diff and validation context | KMI | | `POST` | `/api/approvals/{revision_id}` | Submit approval or rejection decision | KMI | | `GET` | `/api/wiki/pages/{slug}` | Read finalized wiki page content | KMI, Infopedia | | `GET` | `/api/infopedia/tree` | Fetch navigation tree projection | Infopedia | | `GET` | `/api/infopedia/search` | Search finalized knowledge | Infopedia | | `GET` | `/api/contradictions/{id}` | Read contradiction detail | KMI | | `GET` | `/api/health/findings` | Read lint and maintenance issues | KMI |
 
 The endpoint set should be stable enough to support route-based UI development and service-level integration tests.
 
@@ -4400,14 +4066,7 @@ No supporting store may replace `/wiki` as knowledge truth. The database is allo
 
 Runtime services should fail in ways that preserve knowledge integrity and auditability.
 
-| Failure Point | Expected Behavior | Consistency Requirement |
-|---|---|---|
-| Metadata persistence failure | Stop or retry workflow update; do not mark completion incorrectly | `/wiki` publication must not be considered complete without metadata acknowledgment |
-| Wiki write failure | Prevent publish completion and surface error | Canonical content must not partially finalize without recorded failure state |
-| Partial run data failure | Retain existing records and mark incomplete state | Audit trail must preserve what happened before failure |
-| Projection/index failure | Leave canonical content unchanged and mark projection stale | Search and navigation may degrade, truth must not change |
-| Retry of run or stage | Reuse idempotent identifiers where possible | Re-execution must not duplicate finalized records |
-| Approval persistence failure | Block finalization until decision is stored | No silent approval or publish without decision record |
+| Failure Point | Expected Behavior | Consistency Requirement | |---|---|---| | Metadata persistence failure | Stop or retry workflow update; do not mark completion incorrectly | `/wiki` publication must not be considered complete without metadata acknowledgment | | Wiki write failure | Prevent publish completion and surface error | Canonical content must not partially finalize without recorded failure state | | Partial run data failure | Retain existing records and mark incomplete state | Audit trail must preserve what happened before failure | | Projection/index failure | Leave canonical content unchanged and mark projection stale | Search and navigation may degrade, truth must not change | | Retry of run or stage | Reuse idempotent identifiers where possible | Re-execution must not duplicate finalized records | | Approval persistence failure | Block finalization until decision is stored | No silent approval or publish without decision record |
 
 Engineering rule: if a supporting store is unavailable, the system may degrade, but it must not corrupt `/wiki` or invent successful completion.
 
@@ -4417,27 +4076,19 @@ Engineering rule: if a supporting store is unavailable, the system may degrade, 
 
 ```text
                  +----------------------+
-                 | Raw Source Filesystem |
-                 | upstream input only   |
+                 | Raw Source Filesystem | | upstream input only   |
                  +----------+-----------+
                             |
                             v
  +-------------------+  +--------------------+  +----------------------+
- | Metadata Database  |  | Runtime Services   |  | Optional Artifacts   |
- | runs, approvals,   |<->| orchestration,    |<->| parse outputs, diffs |
- | contradictions,    |   | validation, draft  |  | review bundles       |
- | projections meta   |   +---------+---------+  +----------------------+
- +---------+---------+            |
-           |                      v
+ | Metadata Database  | | Runtime Services   | | Optional Artifacts   | | runs, approvals,   |<->| orchestration,    |<->| parse outputs, diffs | | contradictions,    | | validation, draft  | | review bundles       | | projections meta   |   +---------+---------+  +----------------------+
+ +---------+---------+            | |                      v
            |              +------------------+
-           |              | Wiki Filesystem  |
-           |              | /wiki canonical  |
-           |              +--------+---------+
-           |                       |
+           | | Wiki Filesystem  | |              | /wiki canonical  | |              +--------+---------+
+           | |
            v                       v
  +----------------------+   +----------------------+
- | Search / Index Store |   | Infopedia Projection |
- | derived projections  |   | derived navigation   |
+ | Search / Index Store | | Infopedia Projection | | derived projections  | | derived navigation   |
  +----------------------+   +----------------------+
 ```
 
@@ -4445,18 +4096,18 @@ Engineering rule: if a supporting store is unavailable, the system may degrade, 
 
 ```mermaid
 erDiagram
-  RUN ||--o{ SOURCE_FILE : has
-  RUN ||--o{ IMPACT_RECORD : creates
-  RUN ||--o{ QA_REPORT : produces
-  RUN ||--o{ CONTRADICTION_RECORD : records
-  RUN ||--o{ APPROVAL_RECORD : gates
-  SOURCE_FILE ||--o{ SOURCE_DOCUMENT : parses_to
-  WIKI_PAGE ||--o{ WIKI_PAGE_REVISION : has
-  WIKI_PAGE_REVISION ||--o{ QA_REPORT : validated_by
-  WIKI_PAGE_REVISION ||--o{ CONTRADICTION_RECORD : references
-  WIKI_PAGE_REVISION ||--o{ APPROVAL_RECORD : requires
-  WIKI_PAGE ||--o{ INFOPEDIA_NODE : projects_to
-  WIKI_PAGE ||--o{ SEARCH_DOCUMENT : indexes_to
+  RUN | |--o{ SOURCE_FILE : has
+  RUN | |--o{ IMPACT_RECORD : creates
+  RUN | |--o{ QA_REPORT : produces
+  RUN | |--o{ CONTRADICTION_RECORD : records
+  RUN | |--o{ APPROVAL_RECORD : gates
+  SOURCE_FILE | |--o{ SOURCE_DOCUMENT : parses_to
+  WIKI_PAGE | |--o{ WIKI_PAGE_REVISION : has
+  WIKI_PAGE_REVISION | |--o{ QA_REPORT : validated_by
+  WIKI_PAGE_REVISION | |--o{ CONTRADICTION_RECORD : references
+  WIKI_PAGE_REVISION | |--o{ APPROVAL_RECORD : requires
+  WIKI_PAGE | |--o{ INFOPEDIA_NODE : projects_to
+  WIKI_PAGE | |--o{ SEARCH_DOCUMENT : indexes_to
 ```
 
 ### Runtime service interaction
@@ -4631,18 +4282,7 @@ The top-level layout should make it difficult to confuse source input, generated
 
 The implementation plan should be phased so each layer becomes usable before the next one is added.
 
-| Phase | Goal | Key Outputs | Dependencies |
-|---|---|---|---|
-| 1. Repository scaffold and shared conventions | Establish structure, naming, config, and test harness | Folder layout, shared packages, linting, baseline CI, conventions | None |
-| 2. Metadata DB and core domain models | Create authoritative operational data model | Migrations, ORM models, entity repositories, seed data | Phase 1 |
-| 3. Raw source discovery + ingestion pipeline | Discover, classify, and register source files | Source registry service, parsers, discovery jobs, source artifacts | Phase 2 |
-| 4. Wiki schema/templates + wiki services | Generate structured wiki pages from governed drafts | Templates, wiki draft service, revision records, page writers | Phase 2, Phase 3 |
-| 5. Governance/rules engine | Enforce validation, review, and publish gates | Rules loader, validation service, approval gates, QA reports | Phase 2, Phase 4 |
-| 6. Run orchestration and agent/skill integration | Sequence runs and bounded automation | Orchestrator jobs, agent execution contracts, skill invocation boundaries | Phase 3, Phase 5 |
-| 7. KMI screens and review workflows | Deliver maintenance UI for governed review | Dashboard, run detail, diff review, approval screens, contradiction screens | Phase 5, Phase 6 |
-| 8. Infopedia navigation and page rendering | Deliver read-only browse and search experience | Tree view, page view, search UI, status indicators | Phase 4, Phase 6 |
-| 9. Search/index projection | Build derived retrieval and navigation projections | Indexer, search documents, Infopedia nodes, refresh jobs | Phase 4, Phase 5 |
-| 10. Hardening, testing, and local deployment polish | Stabilize reliability and developer experience | Test suites, fixtures, health checks, dev startup scripts, observability | All prior phases |
+| Phase | Goal | Key Outputs | Dependencies | |---|---|---|---| | 1. Repository scaffold and shared conventions | Establish structure, naming, config, and test harness | Folder layout, shared packages, linting, baseline CI, conventions | None | | 2. Metadata DB and core domain models | Create authoritative operational data model | Migrations, ORM models, entity repositories, seed data | Phase 1 | | 3. Raw source discovery + ingestion pipeline | Discover, classify, and register source files | Source registry service, parsers, discovery jobs, source artifacts | Phase 2 | | 4. Wiki schema/templates + wiki services | Generate structured wiki pages from governed drafts | Templates, wiki draft service, revision records, page writers | Phase 2, Phase 3 | | 5. Governance/rules engine | Enforce validation, review, and publish gates | Rules loader, validation service, approval gates, QA reports | Phase 2, Phase 4 | | 6. Run orchestration and agent/skill integration | Sequence runs and bounded automation | Orchestrator jobs, agent execution contracts, skill invocation boundaries | Phase 3, Phase 5 | | 7. KMI screens and review workflows | Deliver maintenance UI for governed review | Dashboard, run detail, diff review, approval screens, contradiction screens | Phase 5, Phase 6 | | 8. Infopedia navigation and page rendering | Deliver read-only browse and search experience | Tree view, page view, search UI, status indicators | Phase 4, Phase 6 | | 9. Search/index projection | Build derived retrieval and navigation projections | Indexer, search documents, Infopedia nodes, refresh jobs | Phase 4, Phase 5 | | 10. Hardening, testing, and local deployment polish | Stabilize reliability and developer experience | Test suites, fixtures, health checks, dev startup scripts, observability | All prior phases |
 
 ## 10.4 Phase-by-Phase Deliverables
 
@@ -4784,14 +4424,7 @@ React frontends should run against the Python backend service, and the backend s
 
 Testing should validate domain behavior, governed workflows, and UI integration at different depths.
 
-| Test Layer | What It Validates | Example Targets |
-|---|---|---|
-| Unit tests | Small service, validator, parser, and rule behavior | Python source parser, rule evaluator, status transitions |
-| Integration tests | Runs, publish flow, and approval flow across services | Python orchestrator, metadata DB, publisher, validation service |
-| End-to-end tests | Complete KMI and Infopedia workflows | Run initiation, diff review, approval, page browse |
-| Golden tests | Deterministic markdown output and templates | Wiki page generation, diff formatting, navigation rendering |
-| Regression tests | Rule behavior and policy outcomes over time | Blocked publish cases, contradiction handling, approval triggers |
-| Fixture-based tests | Realistic source folders and wiki outputs | Sample runs, canonical pages, lint failures, contradictions |
+| Test Layer | What It Validates | Example Targets | |---|---|---| | Unit tests | Small service, validator, parser, and rule behavior | Python source parser, rule evaluator, status transitions | | Integration tests | Runs, publish flow, and approval flow across services | Python orchestrator, metadata DB, publisher, validation service | | End-to-end tests | Complete KMI and Infopedia workflows | Run initiation, diff review, approval, page browse | | Golden tests | Deterministic markdown output and templates | Wiki page generation, diff formatting, navigation rendering | | Regression tests | Rule behavior and policy outcomes over time | Blocked publish cases, contradiction handling, approval triggers | | Fixture-based tests | Realistic source folders and wiki outputs | Sample runs, canonical pages, lint failures, contradictions |
 
 Tests must be deterministic. If output varies by runtime order or uncontrolled external state, the implementation is not yet ready for stable use.
 
@@ -4832,15 +4465,7 @@ This section does not define enterprise infrastructure, but the design must be d
 
 Operational readiness should make the system inspectable during runs, publish attempts, and failures.
 
-| Operational Signal | Why It Matters | Surface |
-|---|---|---|
-| Run status visibility | Shows whether maintenance is moving or blocked | KMI dashboard, run detail |
-| Structured logs | Supports debugging and audit reconstruction | API, worker, and orchestration logs |
-| Failure visibility | Prevents silent loss of runs or publish attempts | KMI, approval, and health screens |
-| Artifact inspection | Enables review of diffs and source evidence | KMI run and diff views |
-| Publish auditability | Proves what reached `/wiki` and why | Publish summary, approval record |
-| Health checks | Validates API, worker, DB, and wiki access | Ops endpoints, startup checks |
-| Metrics around runs, failures, validations, approvals | Supports reliability and workflow monitoring | Metrics backend and dashboards |
+| Operational Signal | Why It Matters | Surface | |---|---|---| | Run status visibility | Shows whether maintenance is moving or blocked | KMI dashboard, run detail | | Structured logs | Supports debugging and audit reconstruction | API, worker, and orchestration logs | | Failure visibility | Prevents silent loss of runs or publish attempts | KMI, approval, and health screens | | Artifact inspection | Enables review of diffs and source evidence | KMI run and diff views | | Publish auditability | Proves what reached `/wiki` and why | Publish summary, approval record | | Health checks | Validates API, worker, DB, and wiki access | Ops endpoints, startup checks | | Metrics around runs, failures, validations, approvals | Supports reliability and workflow monitoring | Metrics backend and dashboards |
 
 Operational readiness is not optional. If the system cannot explain what it is doing, it is not yet fit for governed knowledge publication.
 
@@ -4863,14 +4488,7 @@ This sequence preserves correctness. It avoids building user-visible surfaces be
 
 ## 10.12 Risks and Delivery Considerations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| UI before service stability | Mocked screens diverge from real workflow and state | Build API and domain services first, then bind UI to stable contracts |
-| Weak schema discipline | Inconsistent entities and hard-to-query metadata | Centralize models, migrations, and status enums in shared domain code |
-| Over-automating before governance is solid | Unauthorized or low-confidence publication paths | Implement validation and approval gates before agent depth |
-| Mixing metadata truth with wiki truth | Database becomes an alternate source of knowledge | Keep `/wiki` canonical and treat metadata as operational support only |
-| Insufficient fixture coverage | Happy-path tests miss critical failure modes | Build realistic source, contradiction, and approval fixtures early |
-| Non-deterministic test outputs | Regression tests become unreliable | Stabilize templates, ordering, and timestamps in test fixtures |
+| Risk | Impact | Mitigation | |---|---|---| | UI before service stability | Mocked screens diverge from real workflow and state | Build API and domain services first, then bind UI to stable contracts | | Weak schema discipline | Inconsistent entities and hard-to-query metadata | Centralize models, migrations, and status enums in shared domain code | | Over-automating before governance is solid | Unauthorized or low-confidence publication paths | Implement validation and approval gates before agent depth | | Mixing metadata truth with wiki truth | Database becomes an alternate source of knowledge | Keep `/wiki` canonical and treat metadata as operational support only | | Insufficient fixture coverage | Happy-path tests miss critical failure modes | Build realistic source, contradiction, and approval fixtures early | | Non-deterministic test outputs | Regression tests become unreliable | Stabilize templates, ordering, and timestamps in test fixtures |
 
 The main delivery risk is sequencing drift. If implementation order is not controlled, the system will accumulate duplicate truth sources, bypass paths, and weakly governed UI behavior.
 

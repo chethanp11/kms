@@ -20,7 +20,7 @@ Read and use:
 1. The changed artifacts from steps `03`, `04`, and `05`
 2. `tests/test-plan.md`
 3. Relevant validation assets and commands for the repo
-4. Any acceptance criteria or design constraints needed to interpret results
+4. Any correctness criteria or design constraints needed to interpret results
 
 ## Allowed Writes
 

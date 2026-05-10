@@ -33,7 +33,7 @@ Read and use:
 Produce implementation changes that:
 
 - satisfy the planned `DEV-*` work
-- match approved design and acceptance behavior
+- match approved design and correctness behavior
 - are ready for explicit validation in step `06`
 
 ## Procedure
@@ -48,8 +48,8 @@ Produce implementation changes that:
 
 ## Guardrails
 
-- Do not invent behavior not represented in intent, plan, context, design, or acceptance artifacts.
-- Do not bypass tests or acceptance criteria because the code path looks straightforward.
+- Do not invent behavior not represented in intent, plan, context, design, or correctness artifacts.
+- Do not bypass tests or correctness criteria because the code path looks straightforward.
 - Do not expand scope without reflecting it in upstream artifacts first.
 - Do not treat local implementation convenience as architecture.
 - Do not record fake completion before validation has run.

@@ -1,43 +1,35 @@
-# Release Closeout Skill
+---
+name: release-closeout
+description: Close out an application iteration by checking scope completion, validation evidence, open risks, log readiness, and the next starting point. Use when an iteration reaches completion criteria or before stakeholder/release handoff.
+---
+
+# Release Closeout
 
 ## Purpose
 Capture final iteration status, release readiness, and the next starting point.
 
-## When to use
-- When an iteration reaches completion criteria.
-- When preparing to transition the work to a release branch or stakeholder review.
-- When a copied project needs a credible handoff instead of an optimistic summary.
-
 ## Read
-- `intent/product-intent.md`
-- `intent/feedback-intent.md`
-- `dev_log/backlog.md`
-- `dev_log/iteration-log.md`
-- `dev_log/change-log.md`
-- `dev_log/deviations-log.md`
-- `dev_log/validation-log.md`
-- `dev_log/version-status.md`
-- `tests/smoke-checklist.md`
-- `src/README.md`
-- `src/docs/README.md`
-- `src/docs/purpose.md`
-- `src/docs/functionalities.md`
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
+- `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
+- `design/*` and `tests/*` summaries
+- Relevant `src/` files
+- `dev_log/design-update-log.md`, `dev_log/code-update-log.md`, `dev_log/test-update-log.md`, and `dev_log/validation-results.md`
 
 ## Do
-1. Confirm all scope items are complete and validated.
-2. Review open defects, feedback, and backlog items.
-3. Identify what should be written back into `intent/product-intent.md` or `intent/feedback-intent.md`.
-4. Document remaining risks, release notes, and next steps.
-5. Close the iteration with a status update.
-6. Record any `src/README.md` or `src/docs/` updates needed for the next iteration.
+1. Confirm scoped plan items are complete, deferred, or explicitly blocked.
+2. Verify validation evidence exists for completed work.
+3. Review unresolved defects, feedback, gaps, and risks.
+4. Identify what should be carried into the next iteration.
+5. Record factual closeout information only in allowed `dev_log/*` files when asked to update logs.
 
 ## Outputs
-- A release closeout summary.
-- Updated `dev_log/release-notes.md` and `version-status.md`.
-- A clear handoff for the next iteration.
+- Release or iteration closeout summary.
+- Open risks and next-step list.
+- Log update recommendations or completed updates in the four canonical `dev_log/*` files.
 
-## Rules and cautions
-- Do not sign off on release readiness without validation evidence.
-- Do not hide unresolved issues; capture them as backlog or risk items.
-- Do not close out without making the needed intent updates clear.
-- Do not change scope during closeout except by formal backlog update.
+## Rules
+- Do not sign off without validation evidence.
+- Do not hide unresolved issues.
+- Do not create non-canonical `dev_log/*` files unless the repo contract changes first.
+- Do not change scope during closeout except by formal follow-up planning.

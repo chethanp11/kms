@@ -9,10 +9,7 @@ This is the human-edited record of manual observations that should influence fut
 - Codex must not modify it unless explicitly asked.
 
 ## Feedback entries
-| Intent Section | Date | Area | Observation | Why it matters | Suggested direction | Priority |
-| --- | --- | --- | --- | --- | --- | --- |
-| `INT-FB-001` | `[YYYY-MM-DD]` | `[UX / behavior / accuracy / workflow / other]` | `[what was observed]` | `[impact]` | `[what should likely change]` | `[high / medium / low]` |
-| `INT-FB-002` | `[YYYY-MM-DD]` | `[UX / behavior / accuracy / workflow / other]` | `[unexpected output or gap]` | `[impact]` | `[what should likely change]` | `[high / medium / low]` |
+| Intent Section | Date | Area | Observation | Why it matters | Suggested direction | Priority | | --- | --- | --- | --- | --- | --- | --- | | `INT-FB-001` | `[YYYY-MM-DD]` | `[UX / behavior / accuracy / workflow / other]` | `[what was observed]` | `[impact]` | `[what should likely change]` | `[high / medium / low]` | | `INT-FB-002` | `[YYYY-MM-DD]` | `[UX / behavior / accuracy / workflow / other]` | `[unexpected output or gap]` | `[impact]` | `[what should likely change]` | `[high / medium / low]` |
 
 ## Common feedback types
 - Manual testing observations

@@ -1,25 +1,42 @@
 # Design Update Plan
 
-This file is generated from `dev_workflow/plan-update.md`. Do not edit directly.
+This file is generated from the active agentic workflow. Do not edit directly outside the workflow.
 
 ## Purpose
-Capture the design changes that should be made next after comparing the latest intent with the current design, code, tests, and logs.
+Capture design and workflow-support changes required by the current iteration.
 
 ## Current intent signal
-- Reconcile the repo-wide contract and support docs so every top-level instruction file describes KMS, not the retired ABA/AutoAIdev variants.
+- Convert `.codex/` into a reusable, project-agnostic AppFlow factory that can be copied into new application repositories. Only root `AGENTS.md`, `.codex/project-context.md`, and `.codex/tech-stack.md` should require project-specific changes.
 
 ## Required changes
-1. Normalize `AGENTS.md`, `.codex/project-context.md`, and `README.md` so they all describe the same KMS operating model and file layout.
-2. Remove or retire legacy conflicting support docs that describe AutoAIdev or ABA rather than KMS.
-3. Bring the `src/` scaffold description in `.codex/project-context.md` into sync with the current placeholder package layout.
+1. `DEV-007`: Establish a complete repo-level Codex operating contract in `AGENTS.md`.
+2. `DEV-007`: Add purposeful `.codex` support structures for agents, workflows, orchestration, memory, context, rules, prompts, tools, and state.
+3. `DEV-007`: Add human-facing index folders for workflows, governance, observability, and knowledge only where they point to active execution artifacts.
+4. `DEV-007`: Update `.codex/project-context.md`, `.codex/appflow.md`, `.codex/dev_workflow/README.md`, and `README.md` so repository navigation reflects the Codex-native structure.
+5. `DEV-008`: Add `.codex/AGENTS.md` as the portable AppFlow factory contract.
+6. `DEV-008`: Remove project-specific KMS coupling from reusable `.codex` files outside `.codex/project-context.md` and `.codex/tech-stack.md`.
+7. `DEV-008`: Reframe root `AGENTS.md` as the KMS project contract that extends the reusable `.codex` factory.
+8. `DEV-009`: Add copy/drop bootstrap guidance so a copied `.codex` folder can initialize missing project-specific AppFlow artifacts without overwriting existing files.
+9. `DEV-010`: Translate durable guidance from `kms.md` into root `AGENTS.md` for KMS-specific repository contracts and `.codex/AGENTS.md` for reusable AppFlow factory rules.
+10. `DEV-011`: Make AppFlow automatic for every development prompt, move the canonical 11-step workflow from root `dev_workflow/` into `.codex/dev_workflow/`, remove unnecessary top-level index folders, and document that only `src/` is production runtime.
+11. `DEV-012`: Add lifecycle evidence enforcement, deeper semantic contract validation, factual memory entries, and minimal concrete runtime/test coverage for review gaps.
+12. `DEV-013`: Add `00-create-intent` before `01-read-intent`, keep user prompt as the source for current-turn intent, retire the redundant workflow-pattern directory, and align AppFlow traceability around `REQ-*`, `DEV-*`, and `TEST-*`.
 
 ## Existing drift or deviation
-1. Legacy docs in the repository root still contain retired framework names and conflict with the KMS contract.
-2. The `src/` scaffold exists as placeholder packages but the compact context summary does not yet describe the actual package layout.
-3. A conflicting override file (`AGENTS.overrideXX.md`) remains in the repository and should not coexist with the KMS contract.
+1. `AGENTS.md` was an override fragment rather than a complete operating contract.
+2. Existing `.codex` support had useful skills and context, but lacked explicit agent roles, orchestration protocols, memory/rules/context maps, prompt templates, and deterministic Codex contract validation.
+3. The repository had no human-facing index for workflow, governance, observability, or knowledge assets.
+4. Initial `.codex` scaffold still contained KMS-specific wording in reusable factory files.
 
 ## Open questions or blockers
-1. None.
+1. None for the scaffold phase.
+2. Runtime framework setup remains intentionally deferred until product implementation requires it.
 
 ## Linked IDs
-1. `DEV-005`
+1. `DEV-007`
+2. `DEV-008`
+3. `DEV-009`
+4. `DEV-010`
+5. `DEV-011`
+6. `DEV-012`
+7. `DEV-013`

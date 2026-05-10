@@ -2,27 +2,29 @@
 
 ## Use This Prompt When
 
-Use this prompt at the start of every task or iteration before planning, design, testing, coding, validation, or logging.
+Use this prompt after step `00-create-intent` to reconcile the current-turn intent brief with existing project intent and repository constraints before planning, design, testing, coding, validation, or logging.
 
 ## Workflow Position
 
-- Input step: external request plus current repo state
-- Output step: a complete intent brief that step `02` can plan from
+- Input step: `.codex/state/current-intent.md` plus current repo state
+- Output step: a reconciled intent brief that step `02` can plan from
 
 ## Objective
 
-Interpret current human intent and repo constraints precisely enough that the rest of the workflow can proceed without guessing.
+Reconcile current-turn intent, existing project intent, and repo constraints precisely enough that the rest of the workflow can proceed without guessing.
 
 ## Required Read Order
 
 Read these in order:
 
-1. `AGENTS.md`
-2. `.codex/project-context.md`
-3. `intent/product-intent.md`
-4. `intent/feedback-intent.md`
-5. `intent/gaps.md` when present
-6. Any user-referenced local artifacts that materially affect scope
+1. `.codex/state/current-intent.md`
+2. `.codex/AGENTS.md`
+3. `AGENTS.md`
+4. `.codex/project-context.md`
+5. `intent/product-intent.md`
+6. `intent/feedback-intent.md`
+7. `intent/gaps.md` when present
+8. Any user-referenced local artifacts that materially affect scope
 
 ## Allowed Writes
 
@@ -64,6 +66,6 @@ Produce an intent brief that states:
 
 ## Exit Criteria
 
-- Current intent is understood well enough to plan without guessing.
+- Current-turn intent and existing project intent are reconciled well enough to plan without guessing.
 - Scope boundaries, constraints, and unresolved ambiguities are explicit.
 - Any required contract or high-level context updates have already been applied.

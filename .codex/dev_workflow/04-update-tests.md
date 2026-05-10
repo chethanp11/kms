@@ -2,16 +2,16 @@
 
 ## Use This Prompt When
 
-Use this prompt after design updates and before implementation whenever acceptance criteria, workflows, contracts, or system behavior changed.
+Use this prompt after design updates and before implementation whenever correctness criteria, workflows, contracts, or system behavior changed.
 
 ## Workflow Position
 
 - Input step: current design baseline
-- Output step: acceptance-driven proof strategy and test assets
+- Output step: criteria-driven proof strategy and test assets
 
 ## Objective
 
-Create or revise the validation layer from design and acceptance criteria before code changes are implemented.
+Create or revise the validation layer from design and correctness criteria before code changes are implemented.
 
 ## Required Read Order
 
@@ -40,13 +40,13 @@ Create missing test planning or traceability files if they are required by the r
 Produce test and validation artifacts that:
 
 - prove intended behavior before code changes begin
-- map back to `ACC-*`, `UXF-*`, `ARCH-*`, and `REQ-*` where applicable
+- map back to ``UXF-*`, `ARCH-*`, and `REQ-*` where applicable
 - state how the changed behavior will be validated in step `06`
 
 ## Procedure
 
 1. Derive tests from design intent, not from implementation convenience.
-2. Update `tests/design-traceability.md` so requirements, acceptance criteria, flows, constraints, and tests remain linked.
+2. Update `tests/design-traceability.md` so requirements, correctness criteria, flows, constraints, and tests remain linked.
 3. Update `tests/test-plan.md` so each meaningful validation item has a `TEST-*` record with layer, purpose, linked IDs, and proving location.
 4. Add or revise actual test suites, checklists, fixtures, or validation assets appropriate to the repo.
 5. Cover:
@@ -69,5 +69,5 @@ Produce test and validation artifacts that:
 ## Exit Criteria
 
 - The validation layer is ready before implementation starts.
-- Each changed acceptance area has a proving path or an explicit limitation.
+- Each changed correctness area has a proving path or an explicit limitation.
 - Step `05` knows exactly what behavior must satisfy which tests.

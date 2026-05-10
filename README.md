@@ -159,9 +159,9 @@ This repository contains the product contract, design, implementation, and valid
 - [`src/`](./src/) holds implementation code
 - [`tests/`](./tests/) holds validation assets and test plans
 - [`dev_log/`](./dev_log/) holds the permanent execution record
-- [`dev_workflow/`](./dev_workflow/) holds the workflow prompts and runbooks
-- [`skills/`](./skills/) holds reusable scoped procedures
-- [`.codex/`](./.codex/) holds local working context and command references
+- [`.codex/dev_workflow/`](./.codex/dev_workflow/) holds the AppFlow workflow prompts and runbooks
+- [`.codex/skills/`](./.codex/skills/) holds reusable scoped procedures
+- [`.codex/`](./.codex/) holds Codex-native context, agents, workflows, orchestration, rules, memory, prompts, tools, and stack guidance
 
 ## Getting Started
 
@@ -171,8 +171,13 @@ If you are new to KMS, start here:
 2. Review the high-level product context in [`.codex/project-context.md`](./.codex/project-context.md).
 3. Read the detailed design files in [`design/system-design.md`](./design/system-design.md), [`design/architecture.md`](./design/architecture.md), [`design/ux-flows.md`](./design/ux-flows.md), and [`design/acceptance-criteria.md`](./design/acceptance-criteria.md).
 4. Review the current plan files in [`plan/design-update.md`](./plan/design-update.md), [`plan/code-update.md`](./plan/code-update.md), and [`plan/test-update.md`](./plan/test-update.md) if you are changing behavior.
-5. Use the workflow prompts in [`dev_workflow/`](./dev_workflow/) when updating the product.
-6. Use `plan/*` and `design/*` as the source of truth when implementing code.
+5. AppFlow automatically routes development prompts through [`.codex/dev_workflow/`](./.codex/dev_workflow/).
+6. Use [`.codex/context/`](./.codex/context/) for compact repository maps before broad work.
+7. Use `plan/*` and `design/*` as the source of truth when implementing code.
+
+## Deployment Boundary
+
+Only `src/` is intended for production runtime deployment. The surrounding intent, plan, design, test, log, and `.codex` artifacts are engineering control-plane assets.
 
 ## Notes For Contributors
 

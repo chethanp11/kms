@@ -24,16 +24,7 @@ No content reaches `/wiki` without passing governance checks. Any path that atte
 
 Governance rules are grouped by enforcement intent so each control can be evaluated deterministically at runtime.
 
-| Rule Category | Purpose | Enforced By | Failure Impact |
-|---|---|---|---|
-| Schema Rules | Ensure pages, metadata, and structured fields conform to required shapes | Schema validator, lint agent | Block publish |
-| Content Rules | Enforce required sections, terminology, formatting, and allowed patterns | Policy QA Agent, lint agent | Block publish or escalate review |
-| Source Trace Rules | Require each claim to map to source evidence or approved provenance | Policy QA Agent, orchestrator | Block publish |
-| Relationship Rules | Validate links, parent-child structure, taxonomy placement, and reference integrity | Lint agent, orchestrator | Block publish or log warning |
-| Conflict Rules | Detect contradictions, ambiguity, and competing canonical claims | Contradiction Reviewer, Policy QA Agent | Block publish or escalate review |
-| Freshness Rules | Enforce recency thresholds and refresh requirements for time-sensitive knowledge | Policy QA Agent, orchestrator | Escalate review or block publish |
-| Duplication Rules | Prevent duplicate canonical pages, duplicate metrics, or overlapping authoritative definitions | Policy QA Agent, orchestrator | Block publish |
-| Approval Rules | Require human approval when policy or risk thresholds are crossed | KMI, approval workflow | Block publish until approved |
+| Rule Category | Purpose | Enforced By | Failure Impact | |---|---|---|---| | Schema Rules | Ensure pages, metadata, and structured fields conform to required shapes | Schema validator, lint agent | Block publish | | Content Rules | Enforce required sections, terminology, formatting, and allowed patterns | Policy QA Agent, lint agent | Block publish or escalate review | | Source Trace Rules | Require each claim to map to source evidence or approved provenance | Policy QA Agent, orchestrator | Block publish | | Relationship Rules | Validate links, parent-child structure, taxonomy placement, and reference integrity | Lint agent, orchestrator | Block publish or log warning | | Conflict Rules | Detect contradictions, ambiguity, and competing canonical claims | Contradiction Reviewer, Policy QA Agent | Block publish or escalate review | | Freshness Rules | Enforce recency thresholds and refresh requirements for time-sensitive knowledge | Policy QA Agent, orchestrator | Escalate review or block publish | | Duplication Rules | Prevent duplicate canonical pages, duplicate metrics, or overlapping authoritative definitions | Policy QA Agent, orchestrator | Block publish | | Approval Rules | Require human approval when policy or risk thresholds are crossed | KMI, approval workflow | Block publish until approved |
 
 Rule categories are cumulative. A page must satisfy every applicable category before it can be finalized.
 
@@ -129,15 +120,7 @@ Explicit review triggers:
 - missing source trace
 - override request after failed validation
 
-| Trigger | Why Review Is Required | Allowed Outcomes |
-|---|---|---|
-| Low confidence | The system cannot justify finality with sufficient certainty | Approve, request revision, reject |
-| Unresolved contradiction | Competing claims cannot be flattened into one truth | Approve with open question, request revision, reject |
-| New canonical metric | A new authoritative metric changes downstream behavior and terminology | Approve, request revision, reject |
-| New canonical data-asset | A new authoritative data asset changes lineage and ownership assumptions | Approve, request revision, reject |
-| Major rewrite of existing page | Broad semantic change risks breaking established meaning | Approve, request revision, reject |
-| Missing source trace | Claims cannot be proven against source evidence | Approve with remediation, request revision, reject |
-| Override request after failed validation | A user is asking to bypass a blocking rule | Approve override, deny override, require escalation |
+| Trigger | Why Review Is Required | Allowed Outcomes | |---|---|---| | Low confidence | The system cannot justify finality with sufficient certainty | Approve, request revision, reject | | Unresolved contradiction | Competing claims cannot be flattened into one truth | Approve with open question, request revision, reject | | New canonical metric | A new authoritative metric changes downstream behavior and terminology | Approve, request revision, reject | | New canonical data-asset | A new authoritative data asset changes lineage and ownership assumptions | Approve, request revision, reject | | Major rewrite of existing page | Broad semantic change risks breaking established meaning | Approve, request revision, reject | | Missing source trace | Claims cannot be proven against source evidence | Approve with remediation, request revision, reject | | Override request after failed validation | A user is asking to bypass a blocking rule | Approve override, deny override, require escalation |
 
 Approval is an explicit state transition. It does not imply that rules are disabled; it means the Knowledge Manager has accepted the risk and the system has recorded that decision.
 
@@ -183,13 +166,7 @@ Required governance artifacts:
 - publish summary
 - lineage trace from source to finalized wiki page
 
-| Artifact | Purpose | Retention / Usage |
-|---|---|---|
-| Rule evaluation log | Records which rules were evaluated, their inputs, and outcomes | Retained for audit and debugging of policy enforcement |
-| Approval decision log | Records human approvals, denials, overrides, reviewer identity, and timestamps | Used for governance traceability and compliance review |
-| Contradiction report | Captures conflict details, severity, implicated sources, and disposition | Used to drive open-question workflow and follow-up work |
-| Publish summary | Records what changed, what passed, what failed, and what was published | Used as the transaction record for finalized publication |
-| Lineage trace from source to finalized wiki page | Connects each finalized page to the source evidence that justified it | Used to prove provenance and support later audits |
+| Artifact | Purpose | Retention / Usage | |---|---|---| | Rule evaluation log | Records which rules were evaluated, their inputs, and outcomes | Retained for audit and debugging of policy enforcement | | Approval decision log | Records human approvals, denials, overrides, reviewer identity, and timestamps | Used for governance traceability and compliance review | | Contradiction report | Captures conflict details, severity, implicated sources, and disposition | Used to drive open-question workflow and follow-up work | | Publish summary | Records what changed, what passed, what failed, and what was published | Used as the transaction record for finalized publication | | Lineage trace from source to finalized wiki page | Connects each finalized page to the source evidence that justified it | Used to prove provenance and support later audits |
 
 Governance logs are not optional diagnostics. They are mandatory control artifacts and must be generated whenever validation, approval, or publish decisions occur.
 
@@ -197,13 +174,7 @@ Governance logs are not optional diagnostics. They are mandatory control artifac
 
 Enforcement is distributed across bounded components, but responsibility is explicit. No component may claim authority outside its assigned control surface.
 
-| Component | Enforcement Responsibility | Cannot Override |
-|---|---|---|
-| Policy QA Agent | Evaluates rule conditions, source trace completeness, and policy compliance | Human approval requirements and rule definitions |
-| Contradiction Reviewer | Classifies conflicts, creates open-question pages, and routes unresolved issues | Rule severity or publish gate outcomes |
-| Orchestrator Agent | Sequences validation stages and blocks publish when a gate fails | Mandatory gates, approval policy, or contradiction status |
-| Publisher | Writes only validated content to `/wiki` and records publish metadata | Failed validation, missing approval, or blocked rules |
-| Lint Agent | Performs post-publish lint and maintenance checks | Final publish authorization or governance policy |
+| Component | Enforcement Responsibility | Cannot Override | |---|---|---| | Policy QA Agent | Evaluates rule conditions, source trace completeness, and policy compliance | Human approval requirements and rule definitions | | Contradiction Reviewer | Classifies conflicts, creates open-question pages, and routes unresolved issues | Rule severity or publish gate outcomes | | Orchestrator Agent | Sequences validation stages and blocks publish when a gate fails | Mandatory gates, approval policy, or contradiction status | | Publisher | Writes only validated content to `/wiki` and records publish metadata | Failed validation, missing approval, or blocked rules | | Lint Agent | Performs post-publish lint and maintenance checks | Final publish authorization or governance policy |
 
 The enforcement model is intentionally layered. Each component can stop progress within its responsibility, but none can bypass a higher-order governance rule.
 
@@ -211,15 +182,7 @@ The enforcement model is intentionally layered. Each component can stop progress
 
 Failure handling must be deterministic. Each failure type maps to an explicit system response and downstream effect.
 
-| Failure Type | Severity | System Response | Downstream Effect |
-|---|---|---|---|
-| Schema failure | Error | Block publish and return validation diagnostics | Draft remains unpublished |
-| Missing required sections | Error | Block publish and mark page incomplete | Requires remediation before retry |
-| Missing source trace | Error | Block publish or escalate to review if policy allows override review | No finalized page until trace is added or approved |
-| Broken links | Warning or error based on scope | Log issue, block if link is required for canonical navigation | Publish may proceed only if policy marks it non-blocking |
-| Duplicate canonical page risk | Error | Block publish and route for deduplication decision | Prevents competing truth sources |
-| Contradiction blocking publish | Error | Block publish and create or update open-question page | Knowledge remains unfinalized until resolved |
-| Approval rejection | Error | Block publish and record decision | Change is not published and requires revision or abandonment |
+| Failure Type | Severity | System Response | Downstream Effect | |---|---|---|---| | Schema failure | Error | Block publish and return validation diagnostics | Draft remains unpublished | | Missing required sections | Error | Block publish and mark page incomplete | Requires remediation before retry | | Missing source trace | Error | Block publish or escalate to review if policy allows override review | No finalized page until trace is added or approved | | Broken links | Warning or error based on scope | Log issue, block if link is required for canonical navigation | Publish may proceed only if policy marks it non-blocking | | Duplicate canonical page risk | Error | Block publish and route for deduplication decision | Prevents competing truth sources | | Contradiction blocking publish | Error | Block publish and create or update open-question page | Knowledge remains unfinalized until resolved | | Approval rejection | Error | Block publish and record decision | Change is not published and requires revision or abandonment |
 
 Failure responses must not silently downgrade severity. If a rule is configured as `error`, the system must behave as if publication is blocked.
 

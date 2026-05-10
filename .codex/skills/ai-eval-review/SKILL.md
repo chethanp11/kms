@@ -1,39 +1,36 @@
-# AI Eval Review Skill
+---
+name: ai-eval-review
+description: Review AI evaluation evidence for application behavior, including hallucination risk, retrieval/tool assumptions, prompt boundaries, and whether validation proof supports the claimed behavior. Use after evals, when AI behavior boundaries are questioned, or when automated checks pass but confidence is low.
+---
+
+# AI Eval Review
 
 ## Purpose
-Review evaluation evidence and determine whether it is strong enough to support the claimed behavior.
-
-## When to use
-- After running evaluation scenarios.
-- When a hallucination or retrieval gap is suspected.
-- When AI behavior boundaries need verification.
-- When automated checks pass but confidence is still low.
+Decide whether evaluation evidence is strong enough to support the claimed AI behavior.
 
 ## Read
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
 - `intent/product-intent.md`
-- `intent/feedback-intent.md`
-- `dev_log/feedback-log.md` when review findings should change future evals
-- `design/system-design.md`
-- `design/architecture.md`
-- `design/ux-flows.md`
-- `design/acceptance-criteria.md`
-- `tests/design-traceability.md`
-- `dev_log/validation-log.md`
-- `src/README.md` and `src/docs/` when eval findings affect user-facing description or functionality
+- `intent/feedback-intent.md` when feedback changes eval expectations
+- `intent/gaps.md` when eval gaps are recorded
+- Relevant `plan/*` files
+- `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md`
+- `tests/design-traceability.md` and `tests/test-plan.md`
+- `dev_log/validation-results.md`
 
 ## Do
-1. Compare eval results to the relevant intent, expected outcomes, and failure categories.
-2. Validate that model behavior stayed within prompt boundaries.
-3. Check whether tool use and retrieval assumptions are correctly exercised.
+1. Compare eval results to the relevant intent, plan scope, and correctness expectations.
+2. Check hallucination risk, grounding, tool-use assumptions, and prompt boundaries.
+3. Confirm the eval exercises the behavior it claims to prove.
 4. Identify hidden gaps that automated scores may not reveal.
-5. Note any design or documentation changes implied by the eval findings.
+5. Recommend design, prompt, test, or validation updates as separate findings.
 
 ## Outputs
-- A review summary showing pass/fail per evaluation scenario.
+- Pass/fail/partial status per evaluation scenario.
 - Notes on hallucination checks, retrieval correctness, and tool usage.
-- Recommendations for design, prompt, or test updates.
+- Follow-up recommendations with issue classification.
 
-## Rules and cautions
-- Do not approve passing evals if the review reveals hidden drift.
-- Do not assume the model is correct when it merely produced a plausible answer.
-- Do not conflate evaluation coverage with complete behavior validation.
+## Rules
+- Do not approve plausible model output without grounding evidence.
+- Do not conflate eval coverage with complete behavior validation.
+- Do not change requirements while reviewing eval evidence.

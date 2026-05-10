@@ -1,37 +1,35 @@
-# Test Repair Skill
+---
+name: test-repair
+description: Repair or improve application tests when failures are caused by stale validation artifacts, changed correctness criteria, missing regression coverage, or environment issues. Use when validation fails, correctness criteria change, or a bug fix needs preserved regression coverage.
+---
+
+# Test Repair
 
 ## Purpose
-Repair or improve tests when failures are caused by stale, incorrect, or insufficient validation artifacts.
-
-## When to use
-- When tests fail for reasons unrelated to actual requirements.
-- When acceptance criteria change.
-- When known gaps are identified during validation.
-- When a regression should be preserved after a bug fix.
+Repair or improve tests while preserving the requirements they are meant to validate.
 
 ## Read
-- `intent/product-intent.md`
-- `intent/feedback-intent.md` when tests are driven by observed behavior gaps
-- `tests/` failing test reports
-- `design/acceptance-criteria.md`
-- `tests/design-traceability.md`
-- `dev_log/validation-log.md`
-- `dev_log/change-log.md`
-- `src/README.md` and `src/docs/` when tests reveal documentation drift
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- Relevant `intent/*` and `plan/*` files
+- Failing test reports or validation output
+- `design/acceptance-criteria.md` and other relevant `design/*` files
+- `tests/design-traceability.md` and `tests/test-plan.md`
+- `dev_log/validation-results.md`
+- Relevant `src/` files only to understand behavior under test
 
 ## Do
-1. Review failing test details and compare them with current intent and design requirements.
-2. Classify each failure as implementation defect, test defect, or environment issue.
-3. Update tests to accurately validate the intended behavior.
-4. Keep regression and evaluation checks aligned with requirements.
-5. Note any documentation updates needed for the copied project README or app docs.
+1. Compare each failure to current intent, plan scope, and correctness criteria.
+2. Classify each failure as implementation defect, test defect, eval gap, environment issue, or backlog enhancement.
+3. Repair tests only when the test is stale, incorrect, or insufficient.
+4. Add regression coverage when fixing a real defect.
+5. Update traceability when test IDs, coverage, or mappings change.
 
 ## Outputs
-- Corrected test cases.
-- A short justification for each repair.
-- Updated traceability entries if test IDs or mappings change.
+- Corrected tests or a clear finding that implementation must change instead.
+- Short justification for each repair.
+- Updated traceability recommendations or edits.
 
-## Rules and cautions
-- Do not fix tests by altering requirements covertly.
-- Do not mark an implementation defect as fixed if the test is invalid.
-- Preserve test intent and clarity when repairing coverage.
+## Rules
+- Do not weaken tests to make them pass.
+- Do not mark an implementation defect fixed by changing tests.
+- Preserve test intent and deterministic validation.

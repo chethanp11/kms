@@ -1,42 +1,36 @@
-# Architecture Review Skill
+---
+name: architecture-review
+description: Review application architecture for alignment with intent, design, interfaces, orchestration, tools, provenance, observability, persistence boundaries, and operational constraints. Use when design decisions or implementation changes affect system structure, integrations, or data flow.
+---
+
+# Architecture Review
 
 ## Purpose
-Ensure the architecture can actually support the intended AI behavior, interfaces, and operational constraints.
-
-## When to use
-- When validating new design decisions.
-- When changes affect system structure, integrations, or data flow.
-- When implementation starts to hide system behavior that should be explicit in design.
+Ensure the architecture can support the intended AI behavior, interfaces, and operational constraints.
 
 ## Read
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md` when feedback changes operating constraints
-- `design/architecture.md`
-- `design/system-design.md`
-- `design/acceptance-criteria.md`
-- `design/ux-flows.md`
-- `dev_log/change-log.md`
-- `dev_log/decision-log.md`
-- `dev_log/deviations-log.md`
-- `src/README.md`
-- `src/docs/README.md`
-- `src/docs/purpose.md`
-- `src/docs/functionalities.md`
+- Relevant `plan/*` files
+- `design/architecture.md`, `design/system-design.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
+- Relevant `src/` modules when implementation exists
+- `tests/design-traceability.md` and `tests/test-plan.md`
+- Relevant `dev_log/*` entries, especially `design-update-log.md`, `code-update-log.md`, and `validation-results.md`
 
 ## Do
-1. Review the relevant intent first, then the architecture diagrams, components, and integration points.
-2. Validate ownership boundaries between orchestration, tools, services, and schemas.
-3. Check that AI tool use, provenance, logging, and failure handling have clear homes.
-4. Check that copied-project documentation in `src/README.md` and `src/docs/` still matches the current architecture and purpose.
-5. Recommend architecture updates or mitigations.
+1. Review intent and plan before architecture details.
+2. Validate ownership boundaries between orchestrator, agents, model routing, tools, memory, schemas, and observability.
+3. Check that AI tool use, provenance, tracing, failure handling, and persistence boundaries have clear homes.
+4. Compare current implementation shape to documented architecture when code exists.
+5. Recommend architecture updates or implementation guardrails.
 
 ## Outputs
-- A summary of architecture findings.
-- A list of required design updates or implementation guardrails.
-- Traceability to requirement IDs and AI behavior expectations.
+- Architecture findings with severity and issue classification.
+- Required design updates or implementation guardrails.
+- Traceability to relevant plan IDs and correctness expectations.
 
-## Rules and cautions
-- Do not approve architecture that ignores AI-specific tool use or grounding assumptions.
+## Rules
+- Do not approve architecture that ignores grounding, provenance, or tool-use assumptions.
 - Do not approve architecture that satisfies current code but not current intent.
-- Do not neglect operational or safety constraints in design.
-- Do not change architecture without updating `design/architecture.md` and relevant traceability.
+- Do not change architecture without updating the relevant design artifact.

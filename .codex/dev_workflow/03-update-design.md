@@ -40,7 +40,7 @@ Produce design artifacts that:
 - reflect approved `REQ-*` scope
 - align with current intent and high-level context
 - are specific enough for test updates and implementation
-- make acceptance expectations, boundaries, and gates explicit
+- make correctness expectations, boundaries, and gates explicit
 
 ## Procedure
 

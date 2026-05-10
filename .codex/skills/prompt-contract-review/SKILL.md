@@ -1,37 +1,33 @@
-# Prompt Contract Review Skill
+---
+name: prompt-contract-review
+description: Review application prompt contracts for structured inputs, output expectations, tool policy, model boundaries, fallback behavior, and safety. Use when prompt-driven behavior is designed, changed, validated, or suspected of exceeding authorized scope.
+---
+
+# Prompt Contract Review
 
 ## Purpose
-Validate the AI prompt contract, including structured inputs, output expectations, tool policy, and fallback behavior.
-
-## When to use
-- When defining or refining prompt-driven behavior.
-- When verifying prompt safety and reliability.
-- When the model appears to be doing work the design never explicitly authorized.
+Validate AI prompt contracts, including inputs, outputs, tool policy, and fallback behavior.
 
 ## Read
-- `intent/product-intent.md`
-- `intent/feedback-intent.md`
-- `design/system-design.md`
-- `design/architecture.md`
-- `design/acceptance-criteria.md`
-- `design/ux-flows.md`
-- `dev_log/change-log.md`
-- `dev_log/validation-log.md`
-- prompt examples and tool definitions
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
+- Relevant `intent/*` and `plan/*` files
+- `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
+- Prompt files, tool definitions, schemas, and model-routing code when present
+- `tests/design-traceability.md`, `tests/test-plan.md`, and `dev_log/validation-results.md`
 
 ## Do
-1. Review the relevant intent, then the prompt contract and behavior expectations.
-2. Check for undefined assumptions or unsafe prompt patterns.
-3. Confirm that tool use rules and fallback behavior are explicit.
-4. Identify opportunities to tighten prompt boundaries or error handling.
-5. Note whether copied-project documentation in `src/README.md` or `src/docs/` needs updates because of prompt changes.
+1. Review the intended behavior and prompt boundary before judging prompt text.
+2. Check structured inputs, output format, fallback paths, and refusal/error behavior.
+3. Confirm tool-use rules are explicit and route through the architecture-approved executor.
+4. Identify unsafe assumptions, vague instructions, or missing validation cases.
+5. Recommend prompt, schema, design, or test updates as separate findings.
 
 ## Outputs
-- A prompt contract review summary.
+- Prompt contract review summary.
 - Recommended prompt updates or guardrails.
-- Suggested validation checks for prompt behavior.
+- Suggested validation checks.
 
-## Rules and cautions
-- Do not accept vague or open-ended prompt expectations.
-- Do not assume the model will behave well without explicit fallback and grounding rules.
-- Do not mix prompt design issues with implementation issues; keep them distinct.
+## Rules
+- Do not accept vague prompt expectations.
+- Do not rely on the model behaving well without explicit boundaries.
+- Keep prompt design issues distinct from implementation defects.

@@ -1,40 +1,33 @@
-# Feedback Triage Skill
+---
+name: feedback-triage
+description: Triage application stakeholder, reviewer, or user feedback into intent, plan, design, implementation, tests, evals, or backlog using the repo's allowed issue classifications. Use when manual feedback affects scope, behavior, quality, or release readiness.
+---
+
+# Feedback Triage
 
 ## Purpose
-Capture manual feedback and route it to the right artifact without flattening everything into a bug.
-
-## When to use
-- When receiving stakeholder, reviewer, or user feedback.
-- When feedback affects scope, behavior, or quality.
-- When manual review uncovers issues that automated checks missed.
+Capture manual feedback and route it to the right artifact without flattening every finding into a bug.
 
 ## Read
+- `.codex/AGENTS.md`, root `AGENTS.md`, and `.codex/project-context.md`
 - `intent/product-intent.md`
 - `intent/feedback-intent.md`
-- `dev_log/feedback-log.md`
-- `dev_log/deviations-log.md`
-- `plan/design-update.md`
-- `plan/code-update.md`
-- `plan/test-update.md`
-- `dev_log/issue-log.md`
-- `dev_log/backlog.md`
-- `src/docs/purpose.md`
-- `src/docs/functionalities.md` when feedback changes app description or behavior
+- `intent/gaps.md` when feedback relates to known gaps
+- Relevant `plan/*`, `design/*`, `tests/*`, `src/`, and `dev_log/*` files
 
 ## Do
-1. Review the human feedback in `intent/feedback-intent.md`, then compare it with `intent/product-intent.md` and any operational feedback already logged.
-2. Confirm the affected area: intent, design, implementation, tests, eval, or backlog.
-3. Classify severity, action target, and whether it blocks the current iteration.
-4. Route feedback to the appropriate artifact or ticket.
-5. If feedback changes application description or functionality, flag the corresponding `src/docs/` update.
+1. Compare the feedback to product intent and current plan scope.
+2. Identify the affected layer: intent, design, implementation, tests, eval, environment, or backlog.
+3. Classify each item using exactly the repo's allowed issue classifications.
+4. Decide whether it blocks the current iteration or should become follow-up work.
+5. Recommend updates to `plan/*`, `design/*`, `tests/*`, or `dev_log/*`; edit only when the user asked for triage plus updates.
 
 ## Outputs
-- Updated `dev_log/feedback-log.md` with structured entries.
-- A list of follow-up actions in `dev_log/backlog.md`.
-- A classification summary for the current iteration.
+- Feedback classification summary.
+- Blocking vs non-blocking follow-up list.
+- Artifact update recommendations with traceability back to `intent/feedback-intent.md`.
 
-## Rules and cautions
-- Do not ignore feedback that is actionable.
-- Do not treat all feedback as implementation bugs; preserve design intent.
-- Do not consume human feedback operationally without preserving the link back to `intent/feedback-intent.md`.
-- Do not escalate without first verifying the impact and scope.
+## Rules
+- Do not ignore actionable feedback.
+- Do not treat design defects, test defects, eval gaps, or environment issues as implementation bugs.
+- Do not edit `intent/*` unless the user explicitly asks.

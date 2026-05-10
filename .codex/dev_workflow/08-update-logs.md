@@ -20,7 +20,7 @@ Read and use:
 1. Final design, test, and code diffs for the iteration
 2. Final validation evidence from steps `06` and `07`
 3. Existing `dev_log/*` entries
-4. Linked `REQ-*`, `DEV-*`, `TEST-*`, `ACC-*`, `ARCH-*`, and feedback IDs when relevant
+4. Linked `REQ-*`, `DEV-*`, `TEST-*`, `ARCH-*`, and feedback IDs when relevant
 
 ## Allowed Writes
 
