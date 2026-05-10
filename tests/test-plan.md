@@ -19,6 +19,7 @@ Define how the current scope will be validated and which test layers are respons
 | `TEST-004` | `regression` | Guard against audit, traceability, and failure-handling regressions after approval, rejection, escalation, or dependency failure. | `REQ-006` | `tests/regression/` | Knowledge Manager or platform engineer |
 | `TEST-005` | `unit` | Validate knowledge-model schema, page typing, folder placement, and required frontmatter/body sections. | `REQ-005` | `tests/unit/test_kms_contracts.py` | Knowledge Manager or platform engineer |
 | `TEST-006` | `static` | Verify the AppFlow 11-step lifecycle, retired ID-prefix absence, retired path removal, and reusable `.codex` consistency. | `REQ-001`, `DEV-013` | `.codex/tools/validate_codex_contract.py` | Platform engineer |
+| `TEST-014` | `unit/static` | Validate current scaffold alignment: no stale tests or exports reference absent component-family modules; existing contracts, execution, governance, app, context, agent, observability, and orchestrator tests pass. | `REQ-014`, `DEV-014` | `tests/unit/test_kms_contracts.py`, `tests/unit/test_maintenance_run.py`, `tests/unit/test_scaffold_boundaries.py`, unit discovery | Platform engineer |
 
 ## Coverage checks
 - Does each requirement have at least one proving artifact?

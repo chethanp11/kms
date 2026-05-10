@@ -10,6 +10,7 @@ Map intent, requirements, design constraints, tests, feedback, and issues into o
 | `intent/product-intent.md`, `intent/feedback-intent.md` | Contradiction handling and bounded automation | `REQ-002`, `REQ-007` | Policy gates, review states, and agent/service handoff controls | `TEST-002`, `TEST-006` | `DEV-*` | Contradiction handling, policy gating, and bounded automation coverage |
 | `intent/product-intent.md`, `intent/feedback-intent.md` | Browse-only navigation | `REQ-004` | Read-only Infopedia projection over finalized wiki content | `TEST-003` | `DEV-*` | Browse-only Infopedia and projection coverage |
 | `intent/product-intent.md`, `intent/feedback-intent.md` | Auditability and failure handling | `REQ-006` | Traceability, explicit failure handling, and preserved operational evidence | `TEST-004` | `DEV-*` | Auditability, failure handling, and manual review coverage |
+| `intent/product-intent.md` | Current scaffold alignment | `REQ-014` | Current `src/` scaffold is limited to existing base modules; no new top-level component families unless future plan/design proves necessity | `TEST-014` | `DEV-014` | Corrects stale plan/test drift and removes references to absent scaffold modules |
 
 ## Guidelines
 - Add a row for every new requirement.

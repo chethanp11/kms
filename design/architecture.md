@@ -3459,3 +3459,33 @@ KMS is now fully specified across vision, architecture, knowledge model, ingesti
 Implementation must preserve governance, determinism, and single-source-of-truth principles. The repository structure, service boundaries, tests, and deployment model should all reinforce `/wiki` as the canonical knowledge substrate.
 
 KMS system design is complete enough to serve as the master source specification for phased implementation and Codex-driven code generation.
+
+## 10.15 Current Scaffold Alignment
+
+The current `src/` scaffold is intentionally limited to the base package plus these implementation families:
+
+- `src/contracts`: core data contracts and validation errors
+- `src/execution`: deterministic source discovery and source-note helpers
+- `src/governance`: policy gate and approval helper scaffold
+- `src/orchestrator`: intake summary/orchestration helper scaffold
+- `src/app`: representative API endpoint inventory
+- `src/context`: KMS authority-boundary constants
+- `src/agents`: bounded agent role names
+- `src/observability`: audit-event helper scaffold
+
+This scaffold is enough for the next implementation pass to extend existing contracts and services. New top-level `src/` component families, registry layers, storage abstractions, or port packages must not be added unless a future AppFlow plan and design update identify a concrete implementation need that cannot be satisfied by the existing scaffold.
+
+Scaffold drift rule: if tests or exports reference modules that are not present in the current scaffold, correct the stale references or tests first instead of adding modules only to satisfy drift.
+
+## 10.16 Scripts Scaffold Alignment
+
+The current scaffold includes a top-level `scripts/` folder as the project-owned home for deterministic developer and operational helper scripts. This folder is separate from `.codex/tools/`, which remains AppFlow control-plane tooling.
+
+Current scripts scaffold expectations:
+
+- `scripts/README.md` documents project script ownership and boundaries.
+- `scripts/validate_scaffold.py` validates the staged KMS application scaffold using only the Python standard library.
+- Scripts may validate structure, run local checks, prepare fixtures, or support maintenance operations.
+- Scripts must not become hidden runtime services, bypass KMI governance, write finalized `/wiki` content directly, or replace application code under `src/`.
+
+The staged application scaffold remains intentionally smaller than the long-term `apps/` and `packages/` target layout. Until a future AppFlow plan/design cycle introduces those larger runtime packages, the current `src/` modules are the approved implementation baseline and `scripts/` provides only supporting project automation.
