@@ -20,7 +20,7 @@ Define how the current scope will be validated and which test layers are respons
 | `TEST-005` | `unit` | Validate knowledge-model schema, page typing, folder placement, and required frontmatter/body sections. | `REQ-005` | `tests/unit/test_kms_contracts.py` | Knowledge Manager or platform engineer |
 | `TEST-006` | `static` | Verify the AppFlow 11-step lifecycle, retired ID-prefix absence, retired path removal, and reusable `.codex` consistency. | `REQ-001`, `DEV-013` | `.codex/tools/validate_codex_contract.py` | Platform engineer |
 | `TEST-014` | `unit/static` | Validate current scaffold alignment: no stale tests or exports reference absent component-family modules; existing contracts, execution, governance, app, context, agent, observability, and orchestrator tests pass. | `REQ-014`, `DEV-014` | `tests/unit/test_kms_contracts.py`, `tests/unit/test_maintenance_run.py`, `tests/unit/test_scaffold_boundaries.py`, unit discovery | Platform engineer |
-| `TEST-016` | `unit/static` | Validate all design component scaffolds exist under `src/components/`, export metadata anchors, and preserve authority boundaries. | `REQ-016`, `DEV-016` | `tests/unit/test_component_scaffolds.py`, `scripts/validate_scaffold.py` | Platform engineer |
+| `TEST-018` | `unit/static` | Validate corrected `src/`-only runtime scaffold files and absence of rejected scaffold roots such as `apps/`, `packages/`, top-level `scripts/`, and `src/components/`. | `REQ-018`, `DEV-018` | `tests/unit/test_src_runtime_scaffold.py`, unit discovery, Python compile | Platform engineer |
 
 ## Coverage checks
 - Does each requirement have at least one proving artifact?

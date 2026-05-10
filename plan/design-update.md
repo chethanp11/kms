@@ -1,25 +1,24 @@
 # Design Update Plan
 
-This file is generated from the active AppFlow cycle. Do not edit directly outside the workflow.
-
 ## Purpose
-Capture design updates or explicit no-change design decisions required by the current iteration.
+Capture design updates or explicit no-change decisions for this cycle.
 
 ## Current intent signal
-- Create `src/` scaffolding for all KMS components listed in the design component matrix.
+- Correct scaffold interpretation: KMS runtime/application code scaffolds must live inside `src/` only, including scripts scaffolding. Remove target-layout folders outside `src/` and delete `src/components` metadata scaffolds.
 
 ## Required changes
-1. `REQ-016`: Update `design/architecture.md` to mark all-component `src/components/*` scaffolding as approved for this cycle and define it as metadata/contract scaffolding only.
-2. `REQ-016`: Clarify that component scaffolds do not grant write authority and must preserve existing KMS authority boundaries.
+1. `REQ-018`: Update `design/architecture.md` to define a detailed `src/`-only runtime scaffold layout for API, worker, domain, shared utilities, storage, services, KMI, Infopedia, config, agents, rules, templates, observability, orchestration, and scripts.
+2. `REQ-018`: Mark top-level `apps/`, `packages/`, `config/`, `agents/`, `rules/`, `templates/`, `wiki/`, `raw/`, `docs/`, and `scripts/` scaffold files as incorrect for current implementation preparation.
+3. `REQ-018`: Keep `src/components/` excluded; future implementation should populate concrete files under the detailed `src/` layout.
 
 ## Existing drift or deviation
-1. Earlier scaffold alignment deferred new component families; the current prompt explicitly asks for all component scaffolds and the design component matrix proves the component set.
-2. `scripts/validate_scaffold.py` currently treats `src/components` as disallowed; it must be updated for this approved cycle.
+1. Previous scaffold created files outside `src/`, contrary to current clarification.
+2. Previous scaffold used `src/components` metadata packages, which the user explicitly rejected.
 
 ## Open questions or blockers
 1. None.
 
 ## Linked IDs
-1. `REQ-016`
-2. `DEV-016`
-3. `TEST-016`
+1. `REQ-018`
+2. `DEV-018`
+3. `TEST-018`

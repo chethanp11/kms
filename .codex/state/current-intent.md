@@ -1,11 +1,10 @@
 # Current Intent
 
-Create scaffolding for all KMS components in `src/` based on the design component matrix and runtime services inventory.
+Delete `src/components` and create blank scaffold files under the design target folders (`apps/`, `packages/`, `config/`, `agents/`, `rules/`, `templates/`, `wiki/`, `raw/`, `docs/`, and `scripts/`) so upcoming prompts can populate them.
 
-## Scope
+## Constraints
 
-- Refresh plan/design/test artifacts for the current cycle.
-- Add `src` component scaffolds for all major design components.
-- Keep scaffolds contract-only and non-runtime-heavy.
-- Preserve authority boundaries: `/wiki` is canonical, projections/search/metadata are supporting, Infopedia is read-only, raw sources are upstream input.
-- Update scaffold validation and tests.
+- Do not keep component metadata scaffolds under `src/components`.
+- Follow `design/architecture.md` target layout.
+- Keep files minimal placeholders only.
+- Preserve existing working scaffold tests or update them to the new scaffold shape.

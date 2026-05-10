@@ -3521,3 +3521,62 @@ Scaffold rules:
 - Only `wiki_store` is authoritative for finalized knowledge storage.
 - `approval_finalization_service` is the governed write-path boundary into `/wiki`; it is not itself the knowledge source of truth.
 - Supporting stores and indexes must remain rebuildable or operational support and must not replace finalized markdown in `/wiki`.
+
+## 10.18 Target Folder Blank Scaffold
+
+For implementation preparation, scaffold means blank or minimal files in the target runtime folders from section 10.2. It does not mean metadata-only component packages under `src/components`.
+
+Approved blank scaffold locations:
+
+- `apps/api/src/kms_api/` for Python API service files
+- `apps/worker/src/kms_worker/` for Python worker files
+- `apps/kmi/src/` for HTML, CSS, and JavaScript KMI files
+- `apps/infopedia/src/` for HTML, CSS, and JavaScript Infopedia files
+- `packages/domain/src/kms_domain/` for shared domain contracts and logic
+- `packages/shared/src/kms_shared/` for shared utilities
+- `packages/config/` and `config/` for configuration placeholders
+- `agents/`, `rules/`, `templates/`, `wiki/`, `raw/`, `docs/`, and `scripts/` for their respective project-owned artifacts
+
+`src/components/` is not part of the approved scaffold. Future prompts should populate these target files in place rather than add component metadata packages.
+
+## 10.19 Corrected `src/`-Only Runtime Scaffold
+
+Current implementation scaffolding must place KMS application code under `src/` only. The target runtime folders from earlier sections are represented inside `src/` until a future design explicitly chooses a multi-root layout.
+
+Approved `src/` scaffold structure:
+
+```text
+src/
+├─ api/                 # API service contracts, route placeholders, schemas
+├─ worker/              # worker entrypoint and job placeholders
+├─ domain/              # domain entities, states, identifiers, errors
+├─ services/            # bounded runtime service placeholders
+├─ storage/             # raw, wiki, metadata, artifact, and index storage adapters
+├─ kmi/                 # KMI HTML/CSS/JavaScript placeholders
+├─ infopedia/           # Infopedia HTML/CSS/JavaScript placeholders
+├─ config/              # runtime settings/config placeholders
+├─ agents/              # product agent code placeholders
+├─ rules/               # policy/rule code and examples
+├─ templates/           # markdown/template placeholders
+├─ observability/       # audit, logging, and health placeholders
+├─ orchestrator/        # orchestration and state-machine placeholders
+├─ execution/           # deterministic execution helpers
+├─ governance/          # validation and approval gate helpers
+└─ scripts/             # application-owned script entrypoints/helpers
+```
+
+Rejected scaffold locations for current implementation preparation:
+
+- top-level `apps/`
+- top-level `packages/`
+- top-level `config/`
+- top-level `agents/`
+- top-level `rules/`
+- top-level `templates/`
+- top-level `wiki/`
+- top-level `raw/`
+- top-level `docs/`
+- top-level `scripts/`
+- `src/components/` metadata scaffold packages
+
+Future prompts should populate files in the approved `src/` folders. New runtime roots outside `src/` require an explicit design change.
