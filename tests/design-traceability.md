@@ -11,6 +11,7 @@ Map intent, requirements, design constraints, tests, feedback, and issues into o
 | `intent/product-intent.md`, `intent/feedback-intent.md` | Browse-only navigation | `REQ-004` | Read-only Infopedia projection over finalized wiki content | `TEST-003` | `DEV-*` | Browse-only Infopedia and projection coverage |
 | `intent/product-intent.md`, `intent/feedback-intent.md` | Auditability and failure handling | `REQ-006` | Traceability, explicit failure handling, and preserved operational evidence | `TEST-004` | `DEV-*` | Auditability, failure handling, and manual review coverage |
 | `intent/product-intent.md` | Current scaffold alignment | `REQ-014` | Current `src/` scaffold is limited to existing base modules; no new top-level component families unless future plan/design proves necessity | `TEST-014` | `DEV-014` | Corrects stale plan/test drift and removes references to absent scaffold modules |
+| `intent/product-intent.md` | All component scaffolding | `REQ-016` | Every section 3.3 component has a metadata-only scaffold under `src/components/`; scaffolds preserve authority boundaries and do not implement full runtime behavior | `TEST-016` | `DEV-016` | Current prompt/design explicitly approves `src/components` as the all-component scaffold home |
 
 ## Guidelines
 - Add a row for every new requirement.

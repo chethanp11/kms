@@ -13,6 +13,27 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
+COMPONENT_SCAFFOLD_DIRS = [
+    "src/components/kmi_application",
+    "src/components/infopedia_application",
+    "src/components/api_service",
+    "src/components/run_orchestration_service",
+    "src/components/source_discovery_parsing_service",
+    "src/components/source_analysis_service",
+    "src/components/wiki_drafting_refresh_service",
+    "src/components/policy_validation_service",
+    "src/components/contradiction_handling_service",
+    "src/components/approval_finalization_service",
+    "src/components/search_index_service",
+    "src/components/infopedia_projection_refresh_service",
+    "src/components/raw_source_store",
+    "src/components/wiki_store",
+    "src/components/metadata_database",
+    "src/components/search_index",
+    "src/components/artifact_storage",
+]
+
 REQUIRED_DIRS = [
     "src",
     "src/agents",
@@ -23,6 +44,8 @@ REQUIRED_DIRS = [
     "src/governance",
     "src/observability",
     "src/orchestrator",
+    "src/components",
+    *COMPONENT_SCAFFOLD_DIRS,
     "scripts",
     "tests/unit",
     "design",
@@ -41,6 +64,8 @@ REQUIRED_FILES = [
     "src/governance/__init__.py",
     "src/observability/__init__.py",
     "src/orchestrator/__init__.py",
+    "src/components/__init__.py",
+    *(f"{component}/__init__.py" for component in COMPONENT_SCAFFOLD_DIRS),
     "scripts/README.md",
     "scripts/__init__.py",
     "scripts/validate_scaffold.py",
@@ -56,7 +81,6 @@ REQUIRED_FILES = [
 ]
 
 DISALLOWED_SRC_FAMILIES = [
-    "src/components",
     "src/ports",
     "src/storage",
 ]

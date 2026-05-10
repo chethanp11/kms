@@ -3489,3 +3489,35 @@ Current scripts scaffold expectations:
 - Scripts must not become hidden runtime services, bypass KMI governance, write finalized `/wiki` content directly, or replace application code under `src/`.
 
 The staged application scaffold remains intentionally smaller than the long-term `apps/` and `packages/` target layout. Until a future AppFlow plan/design cycle introduces those larger runtime packages, the current `src/` modules are the approved implementation baseline and `scripts/` provides only supporting project automation.
+
+## 10.17 All-Component Source Scaffold
+
+The current AppFlow cycle approves `src/components/` as the scaffold home for every major component listed in section 3.3. These component scaffolds are metadata and contract anchors only; they do not implement full runtime behavior and do not grant write authority.
+
+Required component scaffold packages:
+
+- `kmi_application`
+- `infopedia_application`
+- `api_service`
+- `run_orchestration_service`
+- `source_discovery_parsing_service`
+- `source_analysis_service`
+- `wiki_drafting_refresh_service`
+- `policy_validation_service`
+- `contradiction_handling_service`
+- `approval_finalization_service`
+- `search_index_service`
+- `infopedia_projection_refresh_service`
+- `raw_source_store`
+- `wiki_store`
+- `metadata_database`
+- `search_index`
+- `artifact_storage`
+
+Scaffold rules:
+
+- Each component scaffold must expose its name, layer, authority, responsibility, inputs, outputs, and read/write boundary.
+- Read-only and derived projection scaffolds must not write `/wiki`.
+- Only `wiki_store` is authoritative for finalized knowledge storage.
+- `approval_finalization_service` is the governed write-path boundary into `/wiki`; it is not itself the knowledge source of truth.
+- Supporting stores and indexes must remain rebuildable or operational support and must not replace finalized markdown in `/wiki`.

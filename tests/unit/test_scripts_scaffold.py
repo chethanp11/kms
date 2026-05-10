@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from scripts.validate_scaffold import REQUIRED_DIRS, REQUIRED_FILES, validate_scaffold
+from scripts.validate_scaffold import COMPONENT_SCAFFOLD_DIRS, REQUIRED_DIRS, REQUIRED_FILES, validate_scaffold
 
 
 class ScriptsScaffoldTests(unittest.TestCase):
@@ -14,6 +14,9 @@ class ScriptsScaffoldTests(unittest.TestCase):
         self.assertIn("scripts", REQUIRED_DIRS)
         self.assertIn("scripts/README.md", REQUIRED_FILES)
         self.assertIn("scripts/validate_scaffold.py", REQUIRED_FILES)
+        self.assertIn("src/components", REQUIRED_DIRS)
+        self.assertIn("src/components/kmi_application", COMPONENT_SCAFFOLD_DIRS)
+        self.assertIn("src/components/wiki_store/__init__.py", REQUIRED_FILES)
 
     def test_validate_scaffold_accepts_minimal_required_shape(self) -> None:
         with TemporaryDirectory() as temp_dir:

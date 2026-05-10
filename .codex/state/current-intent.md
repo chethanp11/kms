@@ -1,11 +1,11 @@
 # Current Intent
 
-Review existing KMS scaffolding and compare it with design requirements. Make design changes if required and update the scaffold so it is suitable for this project, including scripts scaffolding.
+Create scaffolding for all KMS components in `src/` based on the design component matrix and runtime services inventory.
 
 ## Scope
 
-- Refresh plan/design/test artifacts for the current scaffold review.
-- Compare current `src/` and scripts layout against `design/architecture.md`.
-- Add or update scaffold artifacts only when justified by design.
-- Include scripts scaffolding because design requires build, validation, and maintenance scripts.
-- Do not add new `src/` component families unless design proves they are necessary.
+- Refresh plan/design/test artifacts for the current cycle.
+- Add `src` component scaffolds for all major design components.
+- Keep scaffolds contract-only and non-runtime-heavy.
+- Preserve authority boundaries: `/wiki` is canonical, projections/search/metadata are supporting, Infopedia is read-only, raw sources are upstream input.
+- Update scaffold validation and tests.
