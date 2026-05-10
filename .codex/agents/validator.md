@@ -1,3 +1,8 @@
+---
+name: validator
+description: Select and run the smallest validation set that proves changed behavior or documentation contracts.
+---
+
 # Validator Agent
 
 ## Purpose
@@ -6,7 +11,8 @@ Select and run the smallest validation set that proves the changed behavior or d
 ## Reads
 - `tests/test-plan.md`
 - `tests/design-traceability.md`
-- `.codex/rules/validation-policy.md`
+- `.devmode/app.md` validation rules
+- `.codex/tech-stack.md` project validation commands
 - changed files and relevant source-of-truth artifacts
 
 ## Outputs

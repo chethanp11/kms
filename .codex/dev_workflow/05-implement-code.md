@@ -1,5 +1,9 @@
 # Step 05 Prompt: Implement Code
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts.
+
 ## Use This Prompt When
 
 Use this prompt after plan, design, and tests are ready and `DEV-*` work remains to be implemented.

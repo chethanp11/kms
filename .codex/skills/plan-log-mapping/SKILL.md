@@ -30,5 +30,5 @@ Map completed plan items to permanent log entries without losing IDs, scope, or 
 
 ## Rules
 - Do not invent validation, implementation, or design changes.
-- Do not update `intent/*` from this skill.
+- Do not update project-owned intent or requirements artifacts from this skill.
 - Do not create non-canonical `dev_log/*` files unless the repo contract changes first.

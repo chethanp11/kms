@@ -11,7 +11,7 @@ Use this prompt after step `01` and before changing detailed design, tests, impl
 
 ## Objective
 
-Translate current intent and current repo state into an explicit iteration plan that downstream steps can execute without guessing.
+Translate prompt-derived current intent and current repo state into an explicit iteration plan that downstream steps can execute without guessing.
 
 ## Required Read Order
 
@@ -70,7 +70,7 @@ The plan set must state:
 
 - Do not change design, tests, code, or logs in this step.
 - Do not hide uncertainty or convert it into fake clarity.
-- Do not create plan items with no linkage to intent, detected gaps, or actual repo drift.
+- Do not create plan items with no linkage to current-turn intent, detected gaps, or actual repo drift.
 - Do not collapse unrelated workstreams into vague combined bullets.
 
 ## Exit Criteria

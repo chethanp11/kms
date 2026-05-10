@@ -4,6 +4,10 @@ This folder defines the canonical AppFlow 11-step workflow. Every development pr
 
 The workflow is artifact-driven, not chat-driven: each step reads specific upstream artifacts, produces specific downstream artifacts, and must respect the repo contract before moving forward.
 
+## Mode Gate
+
+Before using this workflow, read `.devmode/mode.yaml`. Execute these app workflow steps only when `mode: app`. When `mode: framework`, do not run this lifecycle to fix application artifacts; edit workflow/framework files directly only if the prompt asks for framework changes.
+
 ## Automatic Prompt Routing
 
 For ordinary development prompts such as "Improve the UI", "Fix the failing test", or "Add export support", the agent should not wait for the user to invoke workflow files manually.
@@ -14,7 +18,7 @@ Default behavior:
 2. Start at `.codex/dev_workflow/00-create-intent.md`.
 3. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, and `.codex/tech-stack.md`.
 4. Execute steps `00` through `10` as far as the task can safely proceed.
-5. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/rules/`, and `.codex/tools/` as support.
+5. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, and `.codex/tools/` as support when the step needs them.
 6. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
 
 ## Core Operating Model
@@ -35,7 +39,7 @@ flowchart LR
     K --> L[10 Iteration Review]
 ```
 
-The agent is not supposed to improvise outside this chain. It converts the prompt into current-turn intent, reconciles that intent with project artifacts, plans work, updates design and validation expectations, implements approved behavior, proves the result, records what happened, and feeds discovered gaps back into the next loop.
+The agent is not supposed to improvise outside this chain. It converts the prompt into current-turn intent, reconciles that intent with project context and relevant artifacts, plans work, updates design and validation expectations, implements approved behavior, proves the result, records what happened, and feeds evidence-backed gaps into the next loop.
 
 ## Workflow Principles
 
@@ -43,7 +47,7 @@ The agent is not supposed to improvise outside this chain. It converts the promp
 | --- | --- | --- |
 | Prompt to intent | Convert the user prompt into current-turn intent first | Coding directly from chat text |
 | Contract first | Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, and project context before substantial work | Local edits that violate repo policy |
-| Intent first | Reconcile current-turn intent with project intent before planning | Hidden scope drift |
+| Context first | Reconcile current-turn intent with project context before planning | Hidden scope drift |
 | Plan before downstream edits | Translate intent into `plan/*` before changing design, tests, or code | Untracked assumptions |
 | Design before code | If behavior changes, update design/contracts before implementation | Code inventing behavior |
 | Tests before code | Update validation expectations before implementation | Post hoc testing |
@@ -56,20 +60,19 @@ The agent is not supposed to improvise outside this chain. It converts the promp
 | Priority | Artifact layer | Role |
 | --- | --- | --- |
 | 1 | user prompt and current-turn intent | Immediate task input |
-| 2 | `intent/*` | Human intent and feedback |
-| 3 | `plan/*` | Active iteration interpretation of intent |
-| 4 | `.codex/project-context.md` | High-level design and operating model |
-| 5 | `design/*` | Detailed behavior, architecture, flows, and correctness |
-| 6 | `tests/*` | Validation design and coverage plan |
-| 7 | `src/*` | Implementation artifacts |
-| 8 | `dev_log/*` | Evidence and history |
+| 2 | `.codex/project-context.md` and `.codex/tech-stack.md` | Project context, constraints, and stack |
+| 3 | `plan/*` | Active iteration interpretation of prompt-derived intent |
+| 4 | `design/*` | Detailed behavior, architecture, flows, and correctness |
+| 5 | `tests/*` | Validation design and coverage plan |
+| 6 | implementation source | Implementation artifacts |
+| 7 | `dev_log/*` | Evidence and history |
 
 ## Prompt Navigation
 
 | Step | Prompt file | What it controls |
 | --- | --- | --- |
 | `00` | `.codex/dev_workflow/00-create-intent.md` | Convert raw user prompt into current-turn intent |
-| `01` | `.codex/dev_workflow/01-read-intent.md` | Reconcile current-turn intent with project intent and repo context |
+| `01` | `.codex/dev_workflow/01-read-intent.md` | Reconcile current-turn intent with project context and repo constraints |
 | `02` | `.codex/dev_workflow/02-create-plan.md` | Scope reconciliation and traceable work item creation |
 | `03` | `.codex/dev_workflow/03-update-design.md` | High-level and detailed design updates |
 | `04` | `.codex/dev_workflow/04-update-tests.md` | Criteria-driven validation preparation |
@@ -89,30 +92,49 @@ The 11 prompt files are intended to be execution-complete as a set. If followed 
 | `.codex/agents/` | Bounded role contracts |
 | `.codex/skills/` | Reusable specialized procedures |
 | `.codex/orchestration/` | Long-horizon loops, task patterns, HITL checkpoints, and resumable-state guidance |
-| `.codex/context/` | Context engineering templates |
 | `.codex/memory/` | Reviewable structured memory |
-| `.codex/rules/` | Reusable operational rules |
 | `.codex/tools/` | Deterministic helper scripts |
+
+## State and Tool Requirements
+
+For substantial app-mode changes that edit files, record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
+
+`.codex/state/current-intent.md` is only the current prompt-derived intent handoff from step `00` to later steps; it is not durable pre-filled intent.
+
+## Agent and Skill Use
+
+| Need | Use |
+| --- | --- |
+| Scope and sequencing | `.codex/agents/planner.md` |
+| Architecture or boundary review | `.codex/agents/architecture.md` and matching architecture/review skills |
+| Patch execution | `.codex/agents/implementer.md` |
+| Validation selection and evidence | `.codex/agents/validator.md` and matching test/eval skills |
+| Failure isolation | `.codex/agents/debugger.md` |
+| Governance, traceability, or HITL checks | `.codex/agents/governance.md` and matching traceability/review skills |
+| Documentation consistency | `.codex/agents/documentation.md` |
+| Diff quality and closeout | `.codex/agents/reviewer.md` and release/design-audit skills |
+
+Use skills only when their `SKILL.md` frontmatter description matches the current task. Agent role contracts guide workflow responsibilities; they do not grant authority beyond `.devmode/app.md` and the workflow step being executed.
 
 ## Step-by-Step Execution Semantics
 
 | Step | Reads from | May update | Must achieve | Must not do |
 | --- | --- | --- | --- | --- |
-| `00` Create Intent | User prompt, selected `.devmode/*` entry point, `.codex/project-context.md` | `.codex/state/current-intent.md` | Current-turn intent exists before repo reconciliation | Start coding or edit project intent |
-| `01` Read Intent | `.codex/state/current-intent.md`, selected `.devmode/*` entry point, `.codex/project-context.md`, `intent/*` | None | Scope, constraints, ambiguity, and feedback context are clear | Start coding or plan from memory |
-| `02` Create Plan | current intent, `intent/*`, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work | Hide ambiguity or compress constraints |
+| `00` Create Intent | User prompt, selected `.devmode/*` entry point, `.codex/project-context.md` | `.codex/state/current-intent.md` | Current-turn intent exists before repo reconciliation | Start coding or edit project-owned requirements |
+| `01` Read Intent | `.codex/state/current-intent.md`, selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, relevant user-referenced artifacts | None | Scope, constraints, ambiguity, and context are clear | Start coding or plan from memory |
+| `02` Create Plan | current-turn intent, project context, current repo state, active logs | `plan/*` | Explicit `REQ-*`, `DEV-*`, `TEST-*` work | Hide ambiguity or compress constraints |
 | `03` Update Design | `plan/*`, `.codex/project-context.md`, `design/*` | `.codex/project-context.md` when needed, `design/*` | Design baseline for downstream work | Let code define behavior first |
 | `04` Update Tests | `design/*`, correctness criteria, traceability | `tests/*` | Proving strategy and validation assets before code | Write tests from implementation convenience |
 | `05` Implement Code | `plan/*`, `design/*`, `tests/*`, stack notes | `src/*` | Approved behavior implemented | Invent new requirements in code |
 | `06` Run Validation | Changed artifacts, test plan, validation methods | No permanent logs yet | Real pass, fail, or partial evidence | Claim success without proof |
 | `07` Fix Failures | Validation findings and implicated artifacts | The correct failing layer | Root cause fixed or explicitly deferred | Patch around upstream defects |
 | `08` Update Logs | Final diff and final validation result | `dev_log/*` | Permanent factual execution record | Log intended work as completed |
-| `09` Detect Gaps | `dev_log/*`, validation outcomes | `intent/gaps.md` | Evidence-backed next-loop gaps captured | Rewrite human intent or feedback |
+| `09` Detect Gaps | `dev_log/*`, validation outcomes | project gap artifact defined by `.codex/project-context.md` | Evidence-backed next-loop gaps captured | Rewrite user intent or requirements |
 | `10` Iteration Review | Outputs from all prior steps | Usually none beyond final workflow artifacts | Explicit closure status and next-loop readiness | Start new scope silently |
 
 ## Guardrails
 
-- Do not modify human-owned intent files unless explicitly asked, except `intent/gaps.md` in step `09`.
+- Do not modify project-owned intent or requirements artifacts unless explicitly asked; only update the configured gap artifact for evidence-backed gaps.
 - Do not use implementation behavior as the de facto design source.
 - Do not invent tests without design linkage.
 - Do not treat "looks correct" as validation.
@@ -150,7 +172,7 @@ Validation must state the method, result, findings, failure classification if re
 | Correctness criteria or workflows change | Update tests before code |
 | Validation fails | Enter step `07`, classify root cause, fix the correct layer, rerun step `06` |
 | Validation passes | Update logs, detect gaps, review iteration |
-| Evidence reveals unresolved systemic follow-up | Record it in `intent/gaps.md` |
+| Evidence reveals unresolved systemic follow-up | Record it in the project gap artifact defined by `.codex/project-context.md` |
 | Work is out of scope | Defer it or update design first |
 
 ## Workflow Anti-Patterns
@@ -161,9 +183,9 @@ Validation must state the method, result, findings, failure classification if re
 | Using code behavior to decide requirements | Reverses the source-of-truth order |
 | Writing tests only after code exists | Breaks criteria-driven validation discipline |
 | Logging planned work before execution | Corrupts the permanent record |
-| Editing human intent to resolve ambiguity | Rewrites requirements instead of surfacing questions |
+| Editing project-owned requirements to resolve ambiguity | Rewrites requirements instead of surfacing questions |
 | Treating validation as optional for doc changes | Leaves workflow and contract drift unproven |
-| Treating `intent/gaps.md` as personal notes | Breaks the system-generated gap model |
+| Treating the project gap artifact as personal notes | Breaks the evidence-backed gap model |
 | Closing without review | Hides residual risks, deferrals, or blockers |
 
 ## Start and Stop Conditions

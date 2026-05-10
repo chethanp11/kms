@@ -10,13 +10,12 @@ Capture manual feedback and route it to the right artifact without flattening ev
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`
-- `intent/feedback-intent.md`
-- `intent/gaps.md` when feedback relates to known gaps
+- `.codex/state/current-intent.md`
+- Optional project-owned feedback or gap artifacts when `.codex/project-context.md` says they are active
 - Relevant `plan/*`, `design/*`, `tests/*`, `src/`, and `dev_log/*` files
 
 ## Do
-1. Compare the feedback to product intent and current plan scope.
+1. Compare the feedback to current-turn intent, project context, and current plan scope.
 2. Identify the affected layer: intent, design, implementation, tests, eval, environment, or backlog.
 3. Classify each item using exactly the repo's allowed issue classifications.
 4. Decide whether it blocks the current iteration or should become follow-up work.
@@ -25,9 +24,9 @@ Capture manual feedback and route it to the right artifact without flattening ev
 ## Outputs
 - Feedback classification summary.
 - Blocking vs non-blocking follow-up list.
-- Artifact update recommendations with traceability back to `intent/feedback-intent.md`.
+- Artifact update recommendations with traceability back to the current prompt or active feedback artifact.
 
 ## Rules
 - Do not ignore actionable feedback.
 - Do not treat design defects, test defects, eval gaps, or environment issues as implementation bugs.
-- Do not edit `intent/*` unless the user explicitly asks.
+- Do not edit project-owned intent or requirements artifacts unless the user explicitly asks.

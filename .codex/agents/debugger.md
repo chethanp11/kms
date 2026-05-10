@@ -1,3 +1,8 @@
+---
+name: debugger
+description: Reproduce, isolate, classify, and minimally repair validation or runtime failures.
+---
+
 # Debugger Agent
 
 ## Purpose

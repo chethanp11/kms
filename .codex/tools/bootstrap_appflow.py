@@ -49,11 +49,11 @@ Prompt -> intent -> plan -> design/contracts -> validation expectations -> imple
 
 ## Project-Specific Files
 
-Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`.
+Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`. Intent for each app-mode turn comes from the current user prompt, not from pre-filled files.
 
 ## Reusable Support
 
-Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/context/`, `.codex/memory/`, `.codex/rules/`, `.codex/tools/`, `.codex/prompts/`, and `.codex/state/` as reusable AppFlow support infrastructure.
+Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/memory/`, `.codex/tools/`, and `.codex/state/` as reusable AppFlow support infrastructure.
 """,
     ".devmode/framework.md": """# Framework Mode
 
@@ -69,7 +69,7 @@ Describe what this application does, who uses it, and what outcomes it governs.
 
 ## Source of Truth and Precedence
 
-Define the order for prompt intent, human intent, plan, context, design, validation, implementation, and evidence artifacts.
+Define the order for prompt-derived intent, project context, plan, design, validation, implementation, and evidence artifacts.
 
 ## Repository Map
 
@@ -107,8 +107,6 @@ Project-specific technology, dependency, and validation commands.
 
 Document dependency boundaries and approval expectations.
 """,
-    "intent/product-intent.md": "# Product Intent\n\nHuman-owned product intent goes here.\n",
-    "intent/feedback-intent.md": "# Feedback Intent\n\nHuman-owned feedback goes here.\n",
     "intent/gaps.md": "# Gaps\n\nSystem-detected evidence-backed gaps go here.\n",
     "plan/design-update.md": "# Design Update Plan\n\nCurrent design work items go here.\n",
     "plan/code-update.md": "# Code Update Plan\n\nCurrent implementation work items go here.\n",
@@ -122,7 +120,6 @@ Document dependency boundaries and approval expectations.
 }
 
 DIRS = [
-    "intent",
     "plan",
     "design",
     "src",

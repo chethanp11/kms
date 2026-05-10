@@ -1,3 +1,8 @@
+---
+name: implementer
+description: Apply bounded patch-safe changes from approved plan, design, and validation expectations.
+---
+
 # Implementer Agent
 
 ## Purpose

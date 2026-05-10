@@ -6,4 +6,6 @@
 - Validation evidence should include command/method, result, findings, classification, and follow-up.
 - New folders require a README or purposeful first artifact.
 - Substantial AppFlow turns should use `.codex/tools/appflow_run.py` or equivalent explicit closeout evidence.
-- Reusable `.codex` files must remain project-agnostic except `.codex/project-context.md` and `.codex/tech-stack.md`.
+- Reusable `.devmode/*` and `.codex/*` files must remain project-agnostic except `.codex/project-context.md` and `.codex/tech-stack.md`.
+
+- Agent role files use standard `name` and `description` frontmatter; skill files use standard `SKILL.md` frontmatter.

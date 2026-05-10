@@ -21,6 +21,10 @@ AppFlow helps Codex CLI, VS Code Codex, Codex Desktop, and future agents:
 - record evidence instead of relying on chat memory
 - keep project-specific rules separate from reusable workflow infrastructure
 
+## Devmode Enforcement
+
+`AGENTS.md` routes every turn through `.devmode/mode.yaml`. AppFlow application workflow is active only in `mode: app`. In `mode: framework`, agents may edit framework/control-plane files but must not repair application code, product design, tests, plans, or logs unless the user explicitly changes mode or asks for app work.
+
 ## Default Prompt Behavior
 
 Every development prompt is treated as an AppFlow trigger by default.
@@ -53,12 +57,16 @@ If the user explicitly asks for answer-only, planning-only, or no file changes, 
 | `.codex/agents/` | Bounded agent role contracts |
 | `.codex/skills/` | Reusable specialized procedures |
 | `.codex/orchestration/` | Long-horizon execution, task patterns, and HITL checkpoints |
-| `.codex/rules/` | Reusable validation, execution, security, and observability rules |
 | `.codex/tools/` | Deterministic helper scripts |
 | `.codex/state/` | Temporary run state and closeout evidence |
-| `.codex/context/` | Context-engineering templates |
 | `.codex/memory/` | Reviewable repository memory |
-| `.codex/prompts/` | Small reusable prompt templates |
+
+
+## Role and Skill Routing
+
+- Use `.codex/agents/` role contracts when a workflow step needs planning, architecture review, implementation, validation, debugging, governance review, documentation, or final review discipline.
+- Use `.codex/skills/*/SKILL.md` only when the task matches the skill description; skills are recognized by their standard frontmatter.
+- Do not invent ad hoc roles or prompt templates when an existing workflow step, agent role, or skill already covers the need.
 
 ## Project-Specific Files
 
@@ -101,7 +109,7 @@ python .codex/tools/validate_codex_contract.py
 git diff --check
 ```
 
-Project behavior changes should additionally run the project-specific commands from `.codex/tech-stack.md` and the project validation plan.
+Application behavior changes should additionally run the project-specific commands from `.codex/tech-stack.md` and the project validation plan.
 
 ## Deployment Boundary
 

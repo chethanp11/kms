@@ -10,7 +10,7 @@ Validate AI prompt contracts, including inputs, outputs, tool policy, and fallba
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- Relevant `intent/*` and `plan/*` files
+- `.codex/state/current-intent.md` and relevant `plan/*` files
 - `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
 - Prompt files, tool definitions, schemas, and model-routing code when present
 - `tests/design-traceability.md`, `tests/test-plan.md`, and `dev_log/validation-results.md`

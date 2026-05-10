@@ -55,10 +55,7 @@ REQUIRED_FILES = [
     ".codex/tech-stack.md",
     ".codex/agents/README.md",
     ".codex/orchestration/README.md",
-    ".codex/context/README.md",
     ".codex/memory/README.md",
-    ".codex/rules/README.md",
-    ".codex/prompts/README.md",
     ".codex/tools/README.md",
     ".codex/tools/appflow_run.py",
     ".codex/tools/bootstrap_appflow.py",
@@ -73,10 +70,7 @@ REQUIRED_DIRS = [
     ".codex/dev_workflow",
     ".codex/skills",
     ".codex/orchestration",
-    ".codex/context",
     ".codex/memory",
-    ".codex/rules",
-    ".codex/prompts",
     ".codex/tools",
     ".codex/state",
 ]
@@ -94,7 +88,7 @@ RETIRED_REFERENCES = [
     "dev_log/release-notes",
 ]
 
-SKILL_FRONTMATTER = re.compile(
+STANDARD_FRONTMATTER = re.compile(
     r"^---\nname:\s*(?P<name>[a-z0-9-]+)\ndescription:\s*(?P<description>.+?)\n---",
     re.DOTALL,
 )
@@ -128,6 +122,28 @@ def require_dirs() -> None:
             fail(f"missing required directory: {rel}")
 
 
+def validate_devmode() -> None:
+    mode_text = read_text(ROOT / ".devmode" / "mode.yaml").strip()
+    if mode_text not in {"mode: app", "mode: framework"}:
+        fail(".devmode/mode.yaml must be exactly 'mode: app' or 'mode: framework'")
+
+    router = read_text(ROOT / "AGENTS.md")
+    required_router_phrases = [
+        ".devmode/mode.yaml` is mandatory and authoritative",
+        "Never blend modes",
+        "Never run `.codex/dev_workflow/*` in framework mode",
+        "Never modify application artifacts in framework mode",
+    ]
+    for phrase in required_router_phrases:
+        if phrase not in router:
+            fail(f"AGENTS.md missing devmode enforcement phrase: {phrase}")
+
+    framework = read_text(ROOT / ".devmode" / "framework.md")
+    for phrase in ["Framework mode is control-plane-only", "report them as out-of-scope instead of fixing application code"]:
+        if phrase not in framework:
+            fail(f".devmode/framework.md missing strict boundary phrase: {phrase}")
+
+
 def validate_skills() -> None:
     skills_dir = ROOT / ".codex" / "skills"
     skill_files = sorted(skills_dir.glob("*/SKILL.md"))
@@ -136,7 +152,7 @@ def validate_skills() -> None:
 
     for skill_file in skill_files:
         text = read_text(skill_file)
-        match = SKILL_FRONTMATTER.search(text)
+        match = STANDARD_FRONTMATTER.search(text)
         if not match:
             fail(f"skill missing required frontmatter: {skill_file.relative_to(ROOT)}")
         folder_name = skill_file.parent.name
@@ -149,6 +165,26 @@ def validate_skills() -> None:
             fail(f"skill description too short: {skill_file.relative_to(ROOT)}")
 
 
+def validate_agents() -> None:
+    agents_dir = ROOT / ".codex" / "agents"
+    agent_files = sorted(path for path in agents_dir.glob("*.md") if path.name != "README.md")
+    if not agent_files:
+        fail("no .codex agent role files found")
+
+    for agent_file in agent_files:
+        text = read_text(agent_file)
+        match = STANDARD_FRONTMATTER.search(text)
+        if not match:
+            fail(f"agent missing required frontmatter: {agent_file.relative_to(ROOT)}")
+        if match.group("name") != agent_file.stem:
+            fail(
+                "agent frontmatter name does not match file: "
+                f"{agent_file.relative_to(ROOT)}"
+            )
+        if len(match.group("description").strip()) < 20:
+            fail(f"agent description too short: {agent_file.relative_to(ROOT)}")
+
+
 def validate_required_mentions() -> None:
     agents = read_text(ROOT / ".devmode" / "app.md")
     for required in [
@@ -156,11 +192,8 @@ def validate_required_mentions() -> None:
         ".codex/dev_workflow/",
         ".codex/skills/",
         ".codex/orchestration/",
-        ".codex/context/",
         ".codex/memory/",
-        ".codex/rules/",
         ".codex/tools/",
-        ".codex/prompts/",
         ".codex/state/",
     ]:
         if required not in agents:
@@ -269,30 +302,7 @@ def validate_workflow_semantics() -> None:
 
 
 def validate_project_artifacts() -> None:
-    required_project_files = [
-        "intent/product-intent.md",
-        "intent/feedback-intent.md",
-        "intent/gaps.md",
-        "plan/design-update.md",
-        "plan/code-update.md",
-        "plan/test-update.md",
-        "design/system-design.md",
-        "design/architecture.md",
-        "design/ux-flows.md",
-        "design/acceptance-criteria.md",
-        "tests/test-plan.md",
-        "tests/design-traceability.md",
-        "dev_log/design-update-log.md",
-        "dev_log/code-update-log.md",
-        "dev_log/test-update-log.md",
-        "dev_log/validation-results.md",
-    ]
-    for rel in required_project_files:
-        path = ROOT / rel
-        if not path.is_file():
-            fail(f"missing project artifact: {rel}")
-        if not read_text(path).strip():
-            fail(f"project artifact is empty: {rel}")
+    """Check retired legacy paths without requiring app-specific artifacts."""
 
     retired_root_dirs = ["dev_workflow", "governance", "observability", "workflows", "knowledge"]
     for rel in retired_root_dirs:
@@ -334,16 +344,27 @@ def validate_optional_appflow_state() -> None:
     ]
     if state.get("schema") != "appflow-run-state-v1":
         fail("AppFlow state schema must be appflow-run-state-v1")
+    if state.get("status") not in {"inactive", "active", "complete", "blocked"}:
+        fail("AppFlow state status must be inactive, active, complete, or blocked")
     steps = state.get("steps", {})
     for step in expected_steps:
         if step not in steps:
             fail(f"AppFlow state missing step {step}")
+        entry = steps[step]
+        if entry.get("status") not in {"pending", "completed", "skipped", "blocked"}:
+            fail(f"AppFlow state step {step} has invalid status")
+        if state.get("status") == "inactive" and entry.get("status") != "pending":
+            fail(f"inactive AppFlow state must not retain completed evidence for {step}")
+        if state.get("status") == "inactive" and entry.get("evidence"):
+            fail(f"inactive AppFlow state must not retain stale evidence for {step}")
 
 
 def main() -> int:
     require_dirs()
     require_files()
+    validate_devmode()
     validate_skills()
+    validate_agents()
     validate_required_mentions()
     validate_retired_references()
     validate_no_retired_id_prefixes()

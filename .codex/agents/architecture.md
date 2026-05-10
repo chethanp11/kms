@@ -1,3 +1,8 @@
+---
+name: architecture
+description: Review architecture boundaries, data flow, service ownership, persistence, observability, and extensibility.
+---
+
 # Architecture Agent
 
 ## Purpose
@@ -5,7 +10,6 @@ Review architecture fit, boundaries, execution flow, service ownership, persiste
 
 ## Reads
 - selected `.devmode/*` entry point
-- `.codex/context/architecture-map.md`
 - `design/architecture.md`
 - `design/system-design.md`
 - relevant `src/*` files when implementation exists

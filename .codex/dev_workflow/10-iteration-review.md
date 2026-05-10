@@ -48,21 +48,21 @@ Produce a closeout summary that includes:
    - security considerations
    - test sufficiency
 2. Confirm that the source-of-truth order still holds:
-   - `intent/*`
+   - current-turn intent
+   - `.codex/project-context.md` and `.codex/tech-stack.md`
    - `plan/*`
-   - `.codex/project-context.md`
    - `design/*`
    - `tests/*`
-   - `src/*`
+   - implementation source
 3. Check that meaningful changes were captured in the correct artifacts and that validation evidence is recorded.
 4. Decide whether the current iteration is `complete`, `partial`, or `blocked`.
 5. State explicit deferrals, residual risks, and follow-up actions needed.
-6. Do not start another iteration automatically. The next loop begins only when new intent, new feedback, or a surfaced gap changes the work.
+6. Do not start another iteration automatically. The next loop begins only when a new prompt, new feedback, or a surfaced gap changes the work.
 
 ## Guardrails
 
 - Do not claim completion if validation or logs are missing.
-- Do not hide misalignment between intent, design, code, and tests.
+- Do not hide misalignment between current-turn intent, design, code, and tests.
 - Do not silently carry unresolved scope into the next loop.
 - Do not treat a blocked iteration as done.
 
@@ -70,4 +70,4 @@ Produce a closeout summary that includes:
 
 - The current iteration has an explicit closeout state.
 - Remaining risks and next actions are visible.
-- Another agent can tell whether to stop, wait for new intent, or begin a fresh loop.
+- Another agent can tell whether to stop, wait for a new prompt, or begin a fresh loop.

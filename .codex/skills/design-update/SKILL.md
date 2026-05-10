@@ -1,6 +1,6 @@
 ---
 name: design-update
-description: Translate active application plan items and validated findings into concrete updates for `.codex/project-context.md` and `design/*` before implementation. Use when intent, feedback, plan work, or logs require design changes.
+description: Translate active application plan items and validated findings into concrete updates for `.codex/project-context.md` and `design/*` before implementation. Use when prompt-derived intent, feedback, plan work, or logs require design changes.
 ---
 
 # Design Update
@@ -10,7 +10,8 @@ Turn approved plan scope and evidence into design updates before implementation 
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
+- `.codex/state/current-intent.md`
+- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - Existing `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md`
 - Relevant `dev_log/*` files when prior outcomes affect the design
@@ -28,6 +29,6 @@ Turn approved plan scope and evidence into design updates before implementation 
 - Follow-up notes for `dev_log/design-update-log.md` after validation or closeout.
 
 ## Rules
-- Do not jump from intent to code.
+- Do not jump from prompt-derived intent to code.
 - Do not hide design uncertainty inside implementation.
 - Do not fabricate completed log entries before the outcome is known.

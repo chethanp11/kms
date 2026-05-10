@@ -1,5 +1,9 @@
 # Step 07 Prompt: Fix Failures
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts.
+
 ## Use This Prompt When
 
 Use this prompt when step `06` returns `fail` or `partial`, or when validation exposes a blocker that must be resolved or explicitly deferred.

@@ -4,104 +4,119 @@ Framework mode improves the AppFlow framework itself.
 
 ## Activation
 
-Root `AGENTS.md` routes to this file after reading `.devmode/mode.yaml`. When it contains:
+Root `AGENTS.md` routes here when `.devmode/mode.yaml` contains:
 
 ```yaml
 mode: framework
 ```
 
-use this file as the active operating entry point.
+## Core Rule
 
-## Prompt Handling
+Treat the current user prompt as-is. Do not convert it into application intent, do not run the application lifecycle, and do not assume application context unless the prompt explicitly requests application work.
 
-Treat each user prompt as-is. Do not convert it into application intent and do not run the AppFlow application lifecycle unless explicitly requested.
+## Framework Mission
 
-## Operating Rules
+Help evolve AppFlow as a reusable, copy/drop, AI-native engineering framework. Optimize for clear mode routing, prompt-derived app intent, deterministic workflow execution, strong validation, project-agnostic reusable files, and minimal project-specific extension points.
 
-- Improve the framework directly from the current prompt.
-- Focus on framework structure, workflow design, orchestration, prompt systems, contracts, governance, repository organization, and reusable engineering systems.
-- Keep reusable framework files project-agnostic.
-- Do not execute `.codex/dev_workflow/*` as an application workflow.
-- Do not use application artifacts as required inputs unless the prompt explicitly asks for application work.
-- Prefer minimal, reviewable framework changes over broad rewrites.
-- Validate framework changes with `python .codex/tools/validate_codex_contract.py` and `git diff --check` when applicable.
+For new application development, the framework contract is that only these files normally need project-specific edits:
 
----
+1. `.codex/project-context.md`
+2. `.codex/tech-stack.md`
 
-# Detailed Framework Mode Rules
+## In-Scope Framework Work
 
-In framework mode:
+Framework mode may change:
 
-- Treat the current user prompt as the primary source of truth.
-- Prioritize direct framework evolution over workflow execution.
-- Do not trigger AppFlow application lifecycle workflows.
-- Do not execute implementation-review-validation orchestration automatically.
-- Do not simulate application delivery workflows.
-- Do not assume application context unless explicitly provided.
-- Do not recursively apply AppFlow to evolve AppFlow itself.
-- Do not force staged workflow execution unless explicitly requested.
+- root router behavior in `AGENTS.md`
+- mode contracts in `.devmode/app.md` and `.devmode/framework.md`
+- lifecycle prompts under `.codex/dev_workflow/`
+- role contracts under `.codex/agents/`
+- skill contracts under `.codex/skills/`
+- orchestration guidance under `.codex/orchestration/`
+- active state and evidence conventions under `.codex/state/`
+- deterministic helpers under `.codex/tools/`
+- framework README and reusable memory under `.codex/`
+- validators, bootstrap templates, and structural checks
 
-Focus on:
-- framework structure
-- workflow design
-- orchestration design
-- prompt systems
-- execution models
-- contracts
-- governance patterns
-- reusable engineering systems
-- repository organization
-- AI-native development patterns
+## Out-of-Scope Application Work
 
----
+Framework mode is control-plane-only. Do not modify application artifacts, including:
 
-# EXECUTION BEHAVIOR
+- implementation source such as `src/`, `apps/`, `packages/`, runtime scripts, or product code
+- product design, test, plan, intent, or dev-log artifacts
+- `.codex/project-context.md` or `.codex/tech-stack.md` content for application behavior, except to preserve generic extension-point guidance when the prompt explicitly asks for framework structure changes
 
-In framework mode:
+If validation exposes application failures while in framework mode, report them as out-of-scope instead of fixing application code.
 
-- Prefer conceptual clarity over premature implementation.
-- Prefer lightweight scaffolding over excessive generation.
-- Prefer framework evolution over feature implementation.
-- Challenge weak abstractions and unnecessary complexity.
-- Improve framework consistency and scalability.
-- Keep framework boundaries clean and explicit.
+## Execution Behavior
 
----
+For framework-enhancement prompts:
 
-# CONTEXT BEHAVIOR
+1. Read `.devmode/mode.yaml`, `AGENTS.md`, this file, `.devmode/app.md`, and the relevant `.codex` framework files.
+2. Identify whether the request changes routing, lifecycle, roles, skills, state, tools, validation, bootstrap, or documentation.
+3. Inspect current references before editing; do not rename, remove, or add framework folders without updating references and validation.
+4. Make minimal, reversible, project-agnostic changes.
+5. Keep app-mode behavior synchronized when framework changes affect application workflow.
+6. Update validators and bootstrap templates with structural changes.
+7. Run targeted framework validation.
+8. Report any application validation failures as out-of-scope unless the user explicitly switches to app work.
 
-In framework mode:
+## Design Principles
 
-- Do not automatically consume downstream workflow state.
-- Do not continue prior application execution flows unless explicitly instructed.
-- Ignore application lifecycle orchestration unless the prompt explicitly invokes it.
-- Avoid hidden execution assumptions.
-- Minimize recursive workflow behavior.
+- Mode routing is authoritative and must not be bypassed.
+- App-mode intent comes from the current prompt, not pre-filled files.
+- Reusable framework files must not contain application-specific domain facts.
+- Framework behavior should be explicit, deterministic where possible, and easy to validate.
+- Agents are role contracts, not permission grants.
+- Skills are invoked only when their standard frontmatter description matches the task.
+- State is temporary lifecycle evidence, not durable requirements or memory.
+- Memory is factual and reviewable; it must not override source-of-truth artifacts.
+- Prefer fewer, well-wired framework folders over unused template sprawl.
 
-The current user prompt should drive execution priority.
+## Required Synchronization
 
----
+When changing framework structure, check and update as needed:
 
-# OUTPUT EXPECTATIONS
+- `AGENTS.md`
+- `.devmode/app.md`
+- `.devmode/framework.md`
+- `.codex/README.md`
+- `.codex/dev_workflow/README.md`
+- affected `.codex/dev_workflow/*` steps
+- `.codex/tools/validate_codex_contract.py`
+- `.codex/tools/bootstrap_appflow.py`
+- `.codex/state/*` conventions
+- `.codex/agents/*` and `.codex/skills/*/SKILL.md` contracts
+- `.codex/memory/*` only when it would otherwise become factually stale
 
-Framework mode outputs may include:
-- framework updates
-- orchestration improvements
-- execution model changes
-- workflow structures
-- prompt systems
-- architecture guidance
-- governance structures
-- repository patterns
-- engineering operating models
+## Validation
 
-## AppFlow Lifecycle Stewardship
+For framework changes, run the smallest applicable set first:
 
-Framework mode may modify AppFlow itself. Treat lifecycle, workflow, prompt, orchestration, validation, and bootstrap changes as framework changes, not application delivery work. Do not execute the application lifecycle while improving the lifecycle.
+```bash
+python3 .codex/tools/validate_codex_contract.py
+git diff --check
+python3 -m py_compile .codex/tools/*.py
+```
 
-When moving or changing AppFlow framework files:
+Do not run product tests to justify framework changes unless the prompt explicitly asks for application validation. If product tests are run and fail, do not repair application code in framework mode.
 
-- keep reusable files project-agnostic
-- preserve the app-mode contract that only `.codex/project-context.md` and `.codex/tech-stack.md` need project-specific updates for a new application
-- update deterministic validators and bootstrap helpers alongside structural changes
-- validate with `python .codex/tools/validate_codex_contract.py` and `git diff --check` when available
+## Stop Conditions
+
+Stop and surface the issue when:
+
+- a requested change would mix framework and application modes
+- a framework change would require project-specific facts outside `.codex/project-context.md` or `.codex/tech-stack.md`
+- removing or renaming a framework file would leave references or validator gaps unresolved
+- validation fails and the root cause is not understood
+- application code changes appear necessary while still in framework mode
+
+## Output Expectations
+
+Framework-mode outputs should be concise and should state:
+
+- framework files changed
+- routing or lifecycle impact
+- validator/bootstrap/state updates made, if any
+- validation run and result
+- application issues observed but intentionally left out-of-scope

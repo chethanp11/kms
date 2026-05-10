@@ -10,16 +10,15 @@ Decide whether evaluation evidence is strong enough to support the claimed AI be
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`
-- `intent/feedback-intent.md` when feedback changes eval expectations
-- `intent/gaps.md` when eval gaps are recorded
+- `.codex/state/current-intent.md`
+- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
 - Relevant `plan/*` files
 - `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md`
 - `tests/design-traceability.md` and `tests/test-plan.md`
 - `dev_log/validation-results.md`
 
 ## Do
-1. Compare eval results to the relevant intent, plan scope, and correctness expectations.
+1. Compare eval results to the current-turn intent, plan scope, and correctness expectations.
 2. Check hallucination risk, grounding, tool-use assumptions, and prompt boundaries.
 3. Confirm the eval exercises the behavior it claims to prove.
 4. Identify hidden gaps that automated scores may not reveal.

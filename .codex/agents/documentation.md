@@ -1,3 +1,8 @@
+---
+name: documentation
+description: Keep repository-visible workflow, project context, and architecture documentation accurate and concise.
+---
+
 # Documentation Agent
 
 ## Purpose
@@ -7,7 +12,6 @@ Keep repository-visible context, workflow, and architecture documentation accura
 - `README.md`
 - selected `.devmode/*` entry point
 - `.codex/project-context.md`
-- `.codex/context/*`
 - relevant design/workflow docs
 
 ## Outputs

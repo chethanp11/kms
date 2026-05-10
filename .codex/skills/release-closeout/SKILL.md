@@ -10,7 +10,8 @@ Capture final iteration status, release readiness, and the next starting point.
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
+- `.codex/state/current-intent.md`
+- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `design/*` and `tests/*` summaries
 - Relevant `src/` files

@@ -31,19 +31,19 @@ AI agents may propose, compare, validate, and review; they must not silently fin
 When KMS artifacts disagree, use this order:
 
 1. user prompt and `.codex/state/current-intent.md` for the active turn
-2. `intent/*`
+2. `.codex/project-context.md` and `.codex/tech-stack.md`
 3. `plan/*`
-4. `.codex/project-context.md`
-5. `design/*`
-6. `tests/*`
-7. implementation source
-8. `dev_log/*`
+4. `design/*`
+5. `tests/*`
+6. implementation source
+7. `dev_log/*`
+8. optional project-owned intent or feedback artifacts when explicitly maintained for the application
 
-Human-owned intent files are `intent/product-intent.md` and `intent/feedback-intent.md`; do not edit them unless explicitly asked. Use `intent/gaps.md` only for evidence-backed system-detected gaps.
+Current-turn intent is prompt-derived, not pre-filled. If project-owned intent or feedback artifacts exist, treat them as supporting context only; do not edit them unless explicitly asked. Use gap records only for evidence-backed system-detected follow-up.
 
 ## Repository Map
 
-- `intent/`: human-owned product intent, feedback, and evidence-backed gaps.
+- `intent/`: optional project-owned intent, feedback, and evidence-backed gaps when the application maintains those artifacts.
 - `plan/`: current iteration work split into design, code, and test updates.
 - `design/`: detailed KMS design layer.
 - `src/`: current implementation scaffold; future runtime code should align to the structure in `.codex/tech-stack.md`.
@@ -52,7 +52,7 @@ Human-owned intent files are `intent/product-intent.md` and `intent/feedback-int
 - `.codex/dev_workflow/`: reusable AppFlow lifecycle prompts.
 - `.codex/skills/`: scoped procedures used only when a task matches their scope.
 - `.codex/agents/`: bounded role contracts.
-- `.codex/orchestration/`, `.codex/rules/`, `.codex/prompts/`, `.codex/tools/`, `.codex/state/`: reusable AppFlow support infrastructure.
+- `.codex/orchestration/`, `.codex/tools/`, and `.codex/state/`: reusable AppFlow support infrastructure.
 
 Only implementation/runtime source is intended for production deployment. AppFlow control-plane artifacts guide development, validation, traceability, and governance.
 
@@ -99,7 +99,7 @@ Service boundaries should preserve auditability, idempotency, explicit failure s
 
 For KMS product work, follow:
 
-user prompt → current-turn intent → `intent/*` → `plan/*` → `.codex/project-context.md` → `design/*` → `tests/*` → implementation → validation → `dev_log/*` → `intent/gaps.md`.
+user prompt → current-turn intent → `.codex/project-context.md` / `.codex/tech-stack.md` → `plan/*` → `design/*` → `tests/*` → implementation → validation → `dev_log/*` → evidence-backed gaps when needed.
 
 Implementation must follow approved plan, design, and validation artifacts. Code must not invent requirements.
 

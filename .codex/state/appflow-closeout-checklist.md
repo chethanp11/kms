@@ -32,3 +32,7 @@ python .codex/tools/appflow_run.py validate --require-complete
 - Use `skipped` only when the user explicitly bounds the task or the step is not applicable.
 - Use `blocked` when a HITL decision or external constraint prevents completion.
 - Do not use this state file as permanent evidence; summarize final outcomes in project logs.
+
+## After closeout
+
+When no app-mode run is active, reset `status` to `inactive` and clear stale step evidence. Permanent outcomes belong in project logs, not active state.

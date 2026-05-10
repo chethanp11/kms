@@ -1,21 +1,27 @@
 # Repository Mode Router
 
-Read `.devmode/mode.yaml` first.
+`.devmode/mode.yaml` is mandatory and authoritative. Read it before any repository-specific instruction file or workflow file.
 
-If it contains:
+Valid modes:
 
 ```yaml
 mode: app
 ```
 
-then read and follow `.devmode/app.md`.
-
-If it contains:
-
 ```yaml
 mode: framework
 ```
 
-then read and follow `.devmode/framework.md`.
+## Strict Routing
 
-Do not apply app-mode workflow rules in framework mode. Do not apply framework-mode direct-edit rules in app mode.
+- If `mode: app`, read and follow `.devmode/app.md`.
+- If `mode: framework`, read and follow `.devmode/framework.md`.
+- If the file is missing, malformed, or contains any other mode, stop and report the configuration error.
+
+## Mode Enforcement
+
+- Never blend modes.
+- Never run `.codex/dev_workflow/*` in framework mode unless the user explicitly asks to test or edit the workflow files themselves.
+- Never modify application artifacts in framework mode, including implementation source, product design, tests, plans, logs, or app-specific project files, unless the user explicitly asks for application work after switching to app mode.
+- Never modify framework/control-plane files in app mode unless the user prompt explicitly changes AppFlow behavior.
+- When uncertain whether a request is framework or application work, follow `.devmode/mode.yaml` and ask before crossing modes.

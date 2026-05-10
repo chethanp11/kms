@@ -6,13 +6,12 @@ description: Ensure every application correctness criterion has a concrete trace
 # Criteria Traceability
 
 ## Purpose
-Ensure every correctness criterion has a usable path from human intent to proof.
+Ensure every correctness criterion has a usable path from prompt-derived intent to proof.
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`
-- `intent/feedback-intent.md` when feedback affects correctness expectations
-- `intent/gaps.md` when system-detected gaps exist
+- `.codex/state/current-intent.md`
+- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `design/acceptance-criteria.md`, `design/system-design.md`, `design/architecture.md`, and `design/ux-flows.md`
 - `tests/test-plan.md` and `tests/design-traceability.md`

@@ -10,7 +10,8 @@ Validate whether implementation, tests, and logs remain aligned with the current
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`, `intent/feedback-intent.md`, and `intent/gaps.md`
+- `.codex/state/current-intent.md`
+- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
 - `plan/design-update.md`, `plan/code-update.md`, and `plan/test-update.md`
 - `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
 - `tests/design-traceability.md` and `tests/test-plan.md`

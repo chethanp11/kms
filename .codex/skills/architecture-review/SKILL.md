@@ -10,8 +10,8 @@ Ensure the architecture can support the intended AI behavior, interfaces, and op
 
 ## Read
 - `.devmode/app.md` and `.codex/project-context.md`
-- `intent/product-intent.md`
-- `intent/feedback-intent.md` when feedback changes operating constraints
+- `.codex/state/current-intent.md`
+- Optional project-owned intent or feedback artifacts when `.codex/project-context.md` says they are active
 - Relevant `plan/*` files
 - `design/architecture.md`, `design/system-design.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
 - Relevant `src/` modules when implementation exists
@@ -19,7 +19,7 @@ Ensure the architecture can support the intended AI behavior, interfaces, and op
 - Relevant `dev_log/*` entries, especially `design-update-log.md`, `code-update-log.md`, and `validation-results.md`
 
 ## Do
-1. Review intent and plan before architecture details.
+1. Review current-turn intent and plan before architecture details.
 2. Validate ownership boundaries between orchestrator, agents, model routing, tools, memory, schemas, and observability.
 3. Check that AI tool use, provenance, tracing, failure handling, and persistence boundaries have clear homes.
 4. Compare current implementation shape to documented architecture when code exists.
@@ -32,5 +32,5 @@ Ensure the architecture can support the intended AI behavior, interfaces, and op
 
 ## Rules
 - Do not approve architecture that ignores grounding, provenance, or tool-use assumptions.
-- Do not approve architecture that satisfies current code but not current intent.
+- Do not approve architecture that satisfies current code but not current-turn intent.
 - Do not change architecture without updating the relevant design artifact.

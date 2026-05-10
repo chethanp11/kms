@@ -1,3 +1,8 @@
+---
+name: reviewer
+description: Review changed artifacts for scope control, contract alignment, maintainability, and unintended impact.
+---
+
 # Reviewer Agent
 
 ## Purpose

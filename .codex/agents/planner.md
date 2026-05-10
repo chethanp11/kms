@@ -1,13 +1,18 @@
+---
+name: planner
+description: Turn prompt-derived intent and repository state into a bounded phased execution plan.
+---
+
 # Planner Agent
 
 ## Purpose
-Turn human intent and repository state into a bounded, phased execution plan.
+Turn prompt-derived intent and repository state into a bounded, phased execution plan.
 
 ## Reads
 - selected `.devmode/*` entry point
 - `.codex/project-context.md`
 - `.devmode/app.md`
-- relevant `intent/*`, `plan/*`, and `.codex/context/*`
+- `.codex/state/current-intent.md`, `.codex/project-context.md`, and relevant `plan/*`
 
 ## Outputs
 - phased plan with dependencies, risks, validation approach, and stop conditions
@@ -16,4 +21,4 @@ Turn human intent and repository state into a bounded, phased execution plan.
 ## Boundaries
 - Do not implement.
 - Do not hide ambiguity.
-- Do not change human-owned intent files unless explicitly asked.
+- Do not change project-owned requirements or intent artifacts unless explicitly asked.

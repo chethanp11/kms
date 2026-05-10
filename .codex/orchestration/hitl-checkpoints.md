@@ -8,7 +8,7 @@ Stop for human approval before:
 - broad refactors across multiple ownership boundaries
 - destructive filesystem or Git operations
 - security, secret-handling, authentication, or authorization changes
-- unresolved ambiguity in human-owned intent
+- unresolved ambiguity in project-owned requirements
 
 When a checkpoint is reached, provide:
 
