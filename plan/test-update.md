@@ -4,20 +4,20 @@
 Capture validation changes required by this cycle.
 
 ## Current intent signal
-- Validate `src/`-only scaffold shape and absence of rejected scaffold locations.
+- Validate completed core domain contracts and existing scaffold compatibility.
 
 ## Required changes
-1. `TEST-018`: Replace stale component/script scaffold tests with tests for the detailed `src/`-only runtime scaffold.
-2. `TEST-018`: Validate key placeholder files exist under `src/` and rejected folders do not exist.
-3. `TEST-018`: Run unit tests, Python compile checks for `src`, whitespace checks, and Codex contract validation.
+1. `TEST-019`: Add unit tests covering all requested core contracts, their identifiers, relationships, state enums, derived projection flags, and validation behavior.
+2. `TEST-019`: Preserve existing contract/scaffold tests.
+3. `TEST-019`: Run unit discovery, Python compile checks, whitespace checks, and Codex contract validation.
 
 ## Existing drift or deviation
-1. Tests currently reflect prior scaffold attempts rather than the corrected `src/`-only expectation.
+1. Existing contract tests only cover a small subset of the domain model.
 
 ## Open questions or blockers
 1. None.
 
 ## Linked IDs
-1. `REQ-018`
-2. `DEV-018`
-3. `TEST-018`
+1. `REQ-019`
+2. `DEV-019`
+3. `TEST-019`

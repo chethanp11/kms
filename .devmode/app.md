@@ -114,7 +114,7 @@ Do not let generated code, chat memory, or hidden assumptions outrank explicit r
 For substantial app-mode changes that edit files, use `.codex/tools/appflow_run.py` and `.codex/state/appflow-current.json` to record lifecycle evidence:
 
 1. run `python .codex/tools/appflow_run.py init --objective "..."` before or during step `00`
-2. mark each lifecycle step as `completed`, `skipped`, or `blocked` with evidence
+2. mark each lifecycle step as `completed`, `skipped`, or `blocked` with evidence; use canonical step IDs such as `02-create-plan` or numeric aliases such as `02` / `2`
 3. record validation commands and results with `python .codex/tools/appflow_run.py validation ...`
 4. run `python .codex/tools/appflow_run.py validate --require-complete` before closeout when a full lifecycle was expected
 

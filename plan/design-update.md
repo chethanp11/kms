@@ -4,21 +4,20 @@
 Capture design updates or explicit no-change decisions for this cycle.
 
 ## Current intent signal
-- Correct scaffold interpretation: KMS runtime/application code scaffolds must live inside `src/` only, including scripts scaffolding. Remove target-layout folders outside `src/` and delete `src/components` metadata scaffolds.
+- Complete core KMS domain contracts from `design/architecture.md` section 9.
 
 ## Required changes
-1. `REQ-018`: Update `design/architecture.md` to define a detailed `src/`-only runtime scaffold layout for API, worker, domain, shared utilities, storage, services, KMI, Infopedia, config, agents, rules, templates, observability, orchestration, and scripts.
-2. `REQ-018`: Mark top-level `apps/`, `packages/`, `config/`, `agents/`, `rules/`, `templates/`, `wiki/`, `raw/`, `docs/`, and `scripts/` scaffold files as incorrect for current implementation preparation.
-3. `REQ-018`: Keep `src/components/` excluded; future implementation should populate concrete files under the detailed `src/` layout.
+1. `REQ-019`: Extend `design/architecture.md` entity field definitions so all requested core contracts are explicit: Run, SourceFile, SourceDocument, WikiPage, WikiPageRevision, ApprovalRecord, ContradictionRecord, QAReport, LintFinding, InfopediaNode, and SearchDocument.
+2. `REQ-019`: Preserve authority semantics: `/wiki` remains canonical, metadata entities are operational, and Infopedia/search entities are derived projections.
 
 ## Existing drift or deviation
-1. Previous scaffold created files outside `src/`, contrary to current clarification.
-2. Previous scaffold used `src/components` metadata packages, which the user explicitly rejected.
+1. Section 9.5 listed field definitions for only a subset of requested entities.
+2. `src/contracts` is currently absent from the src-only scaffold, while existing tests and modules expect it.
 
 ## Open questions or blockers
 1. None.
 
 ## Linked IDs
-1. `REQ-018`
-2. `DEV-018`
-3. `TEST-018`
+1. `REQ-019`
+2. `DEV-019`
+3. `TEST-019`

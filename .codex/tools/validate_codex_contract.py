@@ -347,6 +347,23 @@ def validate_project_artifacts() -> None:
             fail(f"retired support path still exists: {rel}")
 
 
+def validate_tool_contracts() -> None:
+    appflow_tool = read_text(ROOT / ".codex" / "tools" / "appflow_run.py")
+    for phrase in ["STEP_ALIASES", "Numeric aliases", "step_arg", "status_arg"]:
+        if phrase not in appflow_tool:
+            fail(f"appflow_run.py missing CLI ergonomics phrase: {phrase}")
+
+    bootstrap = read_text(ROOT / ".codex" / "tools" / "bootstrap_appflow.py")
+    for phrase in [
+        ".devmode/mode.yaml` is mandatory and authoritative",
+        "Never blend modes",
+        "Framework mode is control-plane-only",
+        "may modify any repository file",
+    ]:
+        if phrase not in bootstrap:
+            fail(f"bootstrap_appflow.py missing synchronized template phrase: {phrase}")
+
+
 def validate_optional_appflow_state() -> None:
     state_path = ROOT / ".codex" / "state" / "appflow-current.json"
     if not state_path.exists():
@@ -400,6 +417,7 @@ def main() -> int:
     validate_factory_is_project_agnostic()
     validate_workflow_semantics()
     validate_project_artifacts()
+    validate_tool_contracts()
     validate_optional_appflow_state()
     print("PASS: Codex contract validation succeeded")
     return 0

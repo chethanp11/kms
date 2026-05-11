@@ -99,6 +99,7 @@ Steps may be marked complete, skipped, or blocked with evidence. Substantial wor
 
 ```bash
 python .codex/tools/appflow_run.py init --objective "..."
+python .codex/tools/appflow_run.py mark 02 completed --evidence "Plan files refreshed"
 python .codex/tools/appflow_run.py validate --require-complete
 ```
 

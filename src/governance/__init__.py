@@ -2,33 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import Enum
-
-from src.contracts import ApprovalDecision, ApprovalRecord, KnowledgePage
-
-
-class GateResult(str, Enum):
-    PASS = "pass"
-    REVIEW_REQUIRED = "review_required"
-    BLOCK = "block"
-
-
-@dataclass(frozen=True)
-class PolicyFinding:
-    rule_id: str
-    severity: str
-    message: str
-
-
-@dataclass(frozen=True)
-class QAReport:
-    result: GateResult
-    findings: tuple[PolicyFinding, ...] = ()
-
-    @property
-    def can_publish(self) -> bool:
-        return self.result is GateResult.PASS
+from src.contracts import ApprovalDecision, ApprovalRecord, GateResult, KnowledgePage, PolicyFinding, QAReport
 
 
 def validate_page_candidate(page: KnowledgePage) -> QAReport:

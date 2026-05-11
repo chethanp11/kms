@@ -18,62 +18,93 @@ ROOT = Path(__file__).resolve().parents[2]
 FILES: dict[str, str] = {
     "AGENTS.md": """# Repository Mode Router
 
-Read `.devmode/mode.yaml` first.
+`.devmode/mode.yaml` is mandatory and authoritative. Read it before any repository-specific instruction file or workflow file.
 
-If it contains:
+Valid modes:
 
 ```yaml
 mode: app
 ```
 
-then read and follow `.devmode/app.md`.
-
-If it contains:
-
 ```yaml
 mode: framework
 ```
-
-then read and follow `.devmode/framework.md`.
-
-If it contains:
 
 ```yaml
 mode: override
 ```
 
-then read and follow `.devmode/override.md`.
+## Strict Routing
 
-Do not apply app-mode workflow rules in framework mode. Do not apply framework-mode direct-edit rules in app mode. In override mode, follow the prompt directly without treating AppFlow or framework docs as workflows.
+- If `mode: app`, read and follow `.devmode/app.md`.
+- If `mode: framework`, read and follow `.devmode/framework.md`.
+- If `mode: override`, read and follow `.devmode/override.md`.
+- Treat the selected `.devmode/<mode>.md` file as the first-class instruction contract for the turn.
+- If the file is missing, malformed, or contains any other mode, stop and report the configuration error.
+
+## Mode Enforcement
+
+- Never blend modes.
+- Never run `.codex/dev_workflow/*` in framework mode unless the user explicitly asks to test or edit the workflow files themselves.
+- Never modify application artifacts in framework mode, including implementation source, product design, tests, plans, logs, or app-specific project files, unless the user explicitly asks for application work after switching to app mode.
+- Never modify framework/control-plane files in app mode unless the user prompt explicitly changes AppFlow behavior.
+- When `mode: override`, do not run AppFlow or framework workflows automatically; modify any file only as directed by the prompt and normal repository safety rules.
+- When uncertain whether a request is framework or application work, follow `.devmode/mode.yaml` and ask before crossing modes.
 """,
     ".devmode/mode.yaml": "mode: app\n",
     ".devmode/app.md": """# App Mode
 
-App mode uses AppFlow to create or change an application. Treat each user prompt as application intent and route work through the AppFlow lifecycle.
+App mode uses AppFlow to create or change an application from the user's prompt.
 
-## Lifecycle
+## Core Rule
 
-Prompt -> product/feedback intent plus current gaps -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> new gaps -> closeout cleanup.
+The current user prompt is the source of intent for the turn. Do not assume intent is pre-filled in repository files.
 
 ## Project-Specific Files
 
-Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`. Intent for each app-mode turn comes from the current user prompt, is written to `intent/product-intent.md` or `intent/feedback-intent.md`, is reconciled with `intent/gaps.md`, and is cleared at closeout after new gaps are written.
+Project-specific application context belongs in `.codex/project-context.md`. Project-specific stack and validation commands belong in `.codex/tech-stack.md`.
+
+## AppFlow Lifecycle
+
+Prompt -> current-turn intent -> product/feedback intent plus current gaps -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> new gaps -> closeout cleanup.
 
 ## Reusable Support
 
 Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestration/`, `.codex/memory/`, `.codex/tools/`, and `.codex/state/` as reusable AppFlow support infrastructure.
+
+## State and Tool Use
+
+For substantial file-changing app-mode work, use `.codex/tools/appflow_run.py` to initialize state, mark lifecycle steps with evidence, record validation, and close out consumed intake.
 """,
     ".devmode/framework.md": """# Framework Mode
 
-Framework mode improves the AppFlow framework directly from the prompt. Treat prompts as-is and do not run application workflow unless explicitly requested.
+Framework mode improves the AppFlow framework itself.
 
-Framework mode must not modify application/product artifacts such as source, design, tests, plans, logs, or project-specific `.codex/project-context.md` and `.codex/tech-stack.md` unless explicitly requested.
+## Core Rule
+
+Treat the current user prompt as-is. Do not convert it into application intent, do not run the application lifecycle, and do not assume application context unless the prompt explicitly requests application work.
+
+## In-Scope Framework Work
+
+Framework mode may change root router behavior, `.devmode/*`, `.codex/dev_workflow/*`, `.codex/agents/*`, `.codex/skills/*`, `.codex/orchestration/*`, `.codex/tools/*`, `.codex/state/*` conventions, validators, bootstrap templates, and reusable framework docs.
+
+## Out-of-Scope Application Work
+
+Framework mode is control-plane-only. Do not modify application/product artifacts such as source, design, tests, plans, logs, or project-specific `.codex/project-context.md` and `.codex/tech-stack.md` unless explicitly requested.
+
+If validation exposes application failures while in framework mode, report them as out-of-scope instead of fixing application code.
+
+## Files Framework Mode Must Not Modify
+
+Framework mode must not modify application/product artifacts unless the current prompt explicitly asks for application work after switching to app mode or explicitly requests a bounded project-specific edit.
 """,
     ".devmode/override.md": """# Override Mode
 
-Override mode follows the prompt directly. It is not AppFlow application workflow and it is not framework workflow.
+Override mode follows the user prompt directly. It is not AppFlow application workflow and it is not framework workflow.
 
-Override mode may modify any repository file when the prompt requires it, while preserving normal safety, reviewability, and validation expectations.
+Override mode may modify any repository file when the prompt requires it, including application artifacts, framework/control-plane files, mode contracts, workflow files, design, tests, source, plans, logs, and project-specific `.codex` files.
+
+This is a permission mode, not a workflow. It does not erase normal safety rules: avoid destructive operations unless explicitly requested, preserve secrets, keep changes reviewable, and validate when practical.
 """,
     ".codex/project-context.md": """# Project Context
 

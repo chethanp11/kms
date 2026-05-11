@@ -62,6 +62,10 @@ STEPS = [
     "10-iteration-review",
 ]
 
+STEP_ALIASES = {step: step for step in STEPS}
+STEP_ALIASES.update({step[:2]: step for step in STEPS})
+STEP_ALIASES.update({str(int(step[:2])): step for step in STEPS})
+
 
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -107,18 +111,26 @@ def init(args: argparse.Namespace) -> None:
     print(f"Initialized {STATE_PATH.relative_to(ROOT)}")
 
 
+def normalize_step(step: str) -> str:
+    try:
+        return STEP_ALIASES[step]
+    except KeyError:
+        expected = ", ".join(STEPS)
+        aliases = ", ".join(step[:2] for step in STEPS)
+        raise SystemExit(f"Unknown step {step!r}. Expected one of: {expected}. Numeric aliases: {aliases}")
+
+
 def mark(args: argparse.Namespace) -> None:
     state = load_state()
-    if args.step not in STEPS:
-        raise SystemExit(f"Unknown step {args.step!r}. Expected one of: {', '.join(STEPS)}")
-    state["steps"][args.step] = {
+    step = normalize_step(args.step)
+    state["steps"][step] = {
         "status": args.status,
         "evidence": args.evidence,
         "updated_at": now(),
     }
     state["updated_at"] = now()
     write_state(state)
-    print(f"Marked {args.step} as {args.status}")
+    print(f"Marked {step} as {args.status}")
 
 
 def add_validation(args: argparse.Namespace) -> None:
@@ -198,11 +210,14 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.set_defaults(func=init)
 
     mark_parser = sub.add_parser("mark", help="mark a lifecycle step")
-    mark_parser.add_argument("--step", required=True)
+    mark_parser.add_argument("step_arg", nargs="?", help="step name or numeric alias, for example 02 or 02-create-plan")
+    mark_parser.add_argument("status_arg", nargs="?", choices=["pending", "completed", "skipped", "blocked"], help="step status")
+    mark_parser.add_argument("--step", dest="step_option", help="step name or numeric alias")
     mark_parser.add_argument(
         "--status",
+        dest="status_option",
         choices=["pending", "completed", "skipped", "blocked"],
-        required=True,
+        help="step status",
     )
     mark_parser.add_argument("--evidence", required=True)
     mark_parser.set_defaults(func=mark)
@@ -232,6 +247,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
+    if getattr(args, "func", None) is mark:
+        args.step = args.step_option or args.step_arg
+        args.status = args.status_option or args.status_arg
+        if not args.step:
+            raise SystemExit("mark requires a step via positional STEP or --step")
+        if not args.status:
+            raise SystemExit("mark requires a status via positional STATUS or --status")
     args.func(args)
     return 0
 

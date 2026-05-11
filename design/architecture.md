@@ -2767,10 +2767,16 @@ The system should keep entity schemas pragmatic and implementation-ready without
 |---|---|
 | Run | `run_id`, `status`, `source_path`, `domain_hint`, `run_notes`, `created_at`, `started_at`, `completed_at`, `created_by`, `summary_counts`, `blocked_reason` |
 | SourceFile | `source_file_id`, `run_id`, `path`, `file_type`, `discovered_at`, `parse_status`, `document_count`, `hash`, `error_summary` |
-| WikiPage | `page_id`, `slug`, `title`, `page_type`, `path`, `status`, `freshness_status`, `confidence_status`, `current_revision_id`, `updated_at` |
+| SourceDocument | `source_document_id`, `source_file_id`, `run_id`, `title`, `content_type`, `text`, `structure`, `metadata`, `parse_status`, `created_at`, `error_summary` |
+| WikiPage | `page_id`, `slug`, `title`, `page_type`, `path`, `status`, `freshness_status`, `confidence_status`, `current_revision_id`, `updated_at`, `source_refs`, `owners`, `tags` |
 | WikiPageRevision | `revision_id`, `page_id`, `run_id`, `status`, `change_type`, `section_changes`, `source_trace_ids`, `diff_summary`, `created_at`, `finalized_at` |
+| ImpactRecord | `impact_id`, `run_id`, `source_document_id`, `page_id`, `affected_sections`, `rationale` |
 | ContradictionRecord | `contradiction_id`, `run_id`, `page_id`, `revision_id`, `severity`, `status`, `conflicting_claims`, `source_refs`, `open_question_page_id`, `created_at` |
+| QAReport | `qa_report_id`, `run_id`, `revision_id`, `result`, `findings`, `policy_version`, `checked_at`, `summary` |
 | ApprovalRecord | `approval_id`, `revision_id`, `decision`, `reviewer_id`, `reviewed_at`, `reason`, `override_requested`, `policy_version` |
+| LintFinding | `lint_finding_id`, `run_id`, `page_id`, `revision_id`, `path`, `rule_id`, `severity`, `status`, `message`, `created_at` |
+| InfopediaNode | `node_id`, `page_id`, `slug`, `title`, `page_type`, `parent_node_id`, `children`, `related_page_ids`, `breadcrumbs`, `updated_at` |
+| SearchDocument | `search_doc_id`, `source_kind`, `source_id`, `title`, `content`, `content_hash`, `path`, `tags`, `updated_at` |
 
 Field sets should support traceability, staged review, and audit-friendly querying. The same identifiers should be reused consistently across services and API responses.
 
