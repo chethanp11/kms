@@ -24,21 +24,23 @@ stop_port() {
     sleep 1
     pids="$(pids_for_port "$port")"
     if [ -n "$pids" ]; then
-      echo "Force stopping process on port $port: $pids"
-      kill -9 $pids 2>/dev/null || true
+      echo "Port $port still busy; will use a fallback port. Busy PIDs: $pids"
     fi
   fi
 }
 
-require_free_port() {
+is_free_port() {
   local port="$1"
-  local pids
-  pids="$(pids_for_port "$port")"
-  if [ -n "$pids" ]; then
-    echo "Port $port is still busy after cleanup: $pids" >&2
-    echo "Stop it manually with: kill -9 $pids" >&2
-    exit 1
-  fi
+  [ -z "$(pids_for_port "$port")" ]
+}
+
+choose_port() {
+  local preferred="$1"
+  local port="$preferred"
+  while ! is_free_port "$port"; do
+    port=$((port + 1))
+  done
+  echo "$port"
 }
 
 cd "$REPO_ROOT" || exit 1
@@ -47,23 +49,45 @@ stop_port 8000
 stop_port 3000
 stop_port 3001
 sleep 1
-require_free_port 8000
-require_free_port 3000
-require_free_port 3001
 
-echo "Starting API..."
-uvicorn src.api.main:app --host 127.0.0.1 --port 8000 &
+API_PORT="$(choose_port 8000)"
+KMI_PORT="$(choose_port 3000)"
+INFOPEDIA_PORT="$(choose_port 3001)"
+if [ "$INFOPEDIA_PORT" = "$KMI_PORT" ]; then
+  INFOPEDIA_PORT="$(choose_port $((KMI_PORT + 1)))"
+fi
 
-echo "Starting KMI..."
-python3 -m http.server 3000 --bind 127.0.0.1 --directory "$SRC_DIR/kmi" &
+DEMO_RAW="/private/tmp/kms-demo/raw"
+mkdir -p "$DEMO_RAW"
+if [ ! -f "$DEMO_RAW/overview.md" ]; then
+  cat > "$DEMO_RAW/overview.md" <<'DEMO'
+Revenue is governed knowledge maintained through KMS.
+DEMO
+fi
 
-echo "Starting Infopedia..."
-python3 -m http.server 3001 --bind 127.0.0.1 --directory "$SRC_DIR/infopedia" &
+cat > "$SRC_DIR/kmi/config.js" <<CONFIG
+window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';
+CONFIG
+cat > "$SRC_DIR/infopedia/config.js" <<CONFIG
+window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';
+CONFIG
+
+echo "Starting API on http://127.0.0.1:$API_PORT ..."
+uvicorn src.api.main:app --host 127.0.0.1 --port "$API_PORT" &
+
+echo "Starting KMI on http://127.0.0.1:$KMI_PORT ..."
+python3 -m http.server "$KMI_PORT" --bind 127.0.0.1 --directory "$SRC_DIR/kmi" &
+
+echo "Starting Infopedia on http://127.0.0.1:$INFOPEDIA_PORT ..."
+python3 -m http.server "$INFOPEDIA_PORT" --bind 127.0.0.1 --directory "$SRC_DIR/infopedia" &
 
 echo "Starting Worker..."
-python3 - <<'PY' &
+python3 - <<'WORKER' &
 from src.worker.main import run_intake
 print("Worker module loaded; use run_intake(source_path, run_id=..., auto_approve=...) for intake jobs.")
-PY
+WORKER
 
 echo "KMS started"
+echo "KMI: http://127.0.0.1:$KMI_PORT"
+echo "Infopedia: http://127.0.0.1:$INFOPEDIA_PORT"
+echo "API: http://127.0.0.1:$API_PORT"
