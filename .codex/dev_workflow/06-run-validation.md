@@ -1,5 +1,10 @@
 # Step 06 Prompt: Run Validation
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after implementation or after any meaningful design, test, workflow, or documentation change that requires explicit proof.
@@ -12,6 +17,12 @@ Use this prompt after implementation or after any meaningful design, test, workf
 ## Objective
 
 Run the right validation for the changed scope, collect real evidence, and determine whether the iteration currently passes, fails, or remains only partially proven.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/validator.md`.
+- Recommended skill support: ai-eval-review when AI behavior is validated.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -53,12 +64,24 @@ Produce a validation result summary that includes:
 7. If validation cannot run because of tooling, environment, or dependency issues, classify that explicitly as an `environment issue`.
 8. If the result is `fail` or `partial`, hand off to step `07` instead of pretending the iteration is complete.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not claim a pass without real evidence.
 - Do not fabricate commands, outputs, or coverage.
 - Do not skip validation because the change looks small.
 - Do not write permanent final validation logs before the validation-fix loop is resolved.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

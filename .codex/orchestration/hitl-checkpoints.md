@@ -9,6 +9,12 @@ Stop for human approval before:
 - destructive filesystem or Git operations
 - security, secret-handling, authentication, or authorization changes
 - unresolved ambiguity in project-owned requirements
+- crossing app, framework, or override mode boundaries without explicit prompt scope
+
+## AppFlow Usage
+
+- Check during steps `01`, `02`, `03`, `05`, `07`, and `10` when scope, authority, architecture, or repair direction is uncertain.
+- Mark the active AppFlow step `blocked` with evidence when a HITL decision is required.
 
 When a checkpoint is reached, provide:
 

@@ -67,7 +67,7 @@ Project-specific application context belongs in `.codex/project-context.md`. Pro
 
 ## AppFlow Lifecycle
 
-Prompt -> current-turn intent -> product/feedback intent plus current gaps -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> new gaps -> closeout cleanup.
+Prompt -> preflight -> current-turn intent -> product/feedback intent plus current gaps -> plan -> design/contracts -> validation expectations -> implementation -> validation -> repair -> evidence/logs -> new gaps -> closeout cleanup -> complete.
 
 ## Reusable Support
 
@@ -75,7 +75,7 @@ Use `.codex/agents/`, `.codex/dev_workflow/`, `.codex/skills/`, `.codex/orchestr
 
 ## State and Tool Use
 
-For substantial file-changing app-mode work, use `.codex/tools/appflow_run.py` to initialize state, mark lifecycle steps with evidence, record validation, and close out consumed intake.
+For substantial file-changing app-mode work, use `.codex/tools/appflow_run.py preflight` before starting, initialize state, mark lifecycle steps with evidence, record validation, close out consumed intake, and run `appflow_run.py complete` after validated closeout.
 """,
     ".devmode/framework.md": """# Framework Mode
 

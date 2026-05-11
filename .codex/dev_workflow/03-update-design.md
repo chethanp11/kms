@@ -1,5 +1,10 @@
 # Step 03 Prompt: Update Design
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after planning when `REQ-*` work exists, when behavior or structure must be defined before tests and implementation can proceed safely, or when the plan says design review is required.
@@ -12,6 +17,12 @@ Use this prompt after planning when `REQ-*` work exists, when behavior or struct
 ## Objective
 
 Apply approved design changes to the correct design artifacts so tests and implementation follow an explicit, reviewable design instead of implicit assumptions. If the current intent does not require a design change, verify and record that decision before tests or code proceed.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/architecture.md`.
+- Recommended skill support: design-update; architecture-review when structure changes.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -59,6 +70,12 @@ Produce design artifacts or an explicit no-change design decision that:
 8. If no design file changes are required, ensure `plan/design-update.md` says `none` with a reason tied to current intent.
 9. Keep design docs human-readable. Use `REQ-*`, `DEV-*`, and `TEST-*` only as comments when needed, not as primary numbering.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not implement code changes in this step unless they are inseparable from the design artifact itself.
@@ -66,6 +83,12 @@ Produce design artifacts or an explicit no-change design decision that:
 - Do not leave acceptance or approval behavior implied.
 - Do not allow design files to contradict `.codex/project-context.md`.
 - Do not skip design review merely because implementation seems obvious.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

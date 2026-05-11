@@ -21,11 +21,13 @@ Each step must be marked `completed`, `skipped`, or `blocked` with evidence befo
 ## Commands
 
 ```bash
+python .codex/tools/appflow_run.py preflight
 python .codex/tools/appflow_run.py init --objective "..."
 python .codex/tools/appflow_run.py mark --step 00-create-intent --status completed --evidence "..."
 python .codex/tools/appflow_run.py validation --command "..." --result pass
 python .codex/tools/appflow_run.py status
 python .codex/tools/appflow_run.py validate --require-complete
+python .codex/tools/appflow_run.py complete
 ```
 
 ## Rules
@@ -36,7 +38,7 @@ python .codex/tools/appflow_run.py validate --require-complete
 
 ## After closeout
 
-When no app-mode run is active, reset `status` to `inactive` and clear stale step evidence. Permanent outcomes belong in project logs, not active state.
+When a full app-mode run is closed, run `complete` so state becomes `complete` and current intent is cleared. Use `inactive` only for an intentionally reset empty state. Permanent outcomes belong in project logs, not active state.
 
 ## Interrupted-run recovery
 

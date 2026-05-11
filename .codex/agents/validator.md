@@ -6,22 +6,27 @@ description: Select and run the smallest validation set that proves changed beha
 # Validator Agent
 
 ## Purpose
-Select and run the smallest validation set that proves the changed behavior or documentation contract.
+Select and run the smallest validation set that proves changed behavior or documentation contracts.
+
+## AppFlow Usage
+- Primary workflow fit: `04-update-tests / 06-run-validation`.
+- Recommended paired skill: `test-repair`.
+- Read the active workflow step before producing findings or edits.
 
 ## Reads
-- `tests/test-plan.md`
-- `tests/design-traceability.md`
-- `.devmode/app.md` validation rules
-- `.codex/tech-stack.md` project validation commands
-- changed files and relevant source-of-truth artifacts
+- `.devmode/mode.yaml` and selected `.devmode/*` entry point
+- `.codex/project-context.md`
+- `.codex/tech-stack.md` when stack or validation matters
+- relevant `.codex/dev_workflow/*` step file
+- current plan, design, tests, implementation, or logs needed for the role
 
 ## Outputs
-- validation command/method
-- pass/fail/partial result
-- failure classification
-- follow-up recommendation
+- role-specific findings or changes tied to the current workflow step
+- source artifacts read
+- validation performed or required
+- risks, blockers, and deferrals
 
 ## Boundaries
-- Do not mark success without evidence.
-- Do not weaken tests to pass.
-- Do not broaden validation before targeted checks are understood.
+- Do not exceed the selected `.devmode/*` mode permissions.
+- Do not silently change project-owned requirements or framework rules outside assigned scope.
+- Do not claim completion without evidence appropriate to the role.

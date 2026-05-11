@@ -17,6 +17,12 @@ Use this prompt at the start of every AppFlow turn. This step converts the user'
 
 Capture what the user asked for, what must change, and what must not be assumed so the rest of AppFlow starts from explicit intent instead of chat memory. Also classify the prompt into the correct transient intake file so downstream workflow steps consume prompt intent, human feedback, and prior gaps through artifacts instead of chat state.
 
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/planner.md`.
+- Recommended skill support: mode-boundary-review when mode or scope is ambiguous.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
+
 ## Required Read Order
 
 Read these in order:
@@ -64,6 +70,12 @@ Create a current-turn intent brief that states:
 9. For substantial file-changing work, initialize or update AppFlow state with `.codex/tools/appflow_run.py` and mark step `00-create-intent` with evidence.
 10. Continue to step `01-read-intent` so current-turn intent, selected intake, and existing gaps can be reconciled with project context and repository state.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not silently rewrite the user's prompt into a different objective.
@@ -71,6 +83,12 @@ Create a current-turn intent brief that states:
 - Do not edit `intent/gaps.md`; old gaps are consumed later and new gaps are produced only at step `09`.
 - Do not skip step `01`; current-turn intent still needs to be reconciled with existing project artifacts.
 - Do not start implementation from this step.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

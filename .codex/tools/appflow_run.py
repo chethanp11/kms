@@ -20,6 +20,21 @@ STATE_PATH = ROOT / ".codex" / "state" / "appflow-current.json"
 PRODUCT_INTENT_PATH = ROOT / "intent" / "product-intent.md"
 FEEDBACK_INTENT_PATH = ROOT / "intent" / "feedback-intent.md"
 GAPS_PATH = ROOT / "intent" / "gaps.md"
+CURRENT_INTENT_PATH = ROOT / ".codex" / "state" / "current-intent.md"
+PLAN_FILES = [
+    ROOT / "plan" / "design-update.md",
+    ROOT / "plan" / "code-update.md",
+    ROOT / "plan" / "test-update.md",
+]
+
+CURRENT_INTENT_TEMPLATE = """# Current Intent
+
+This file is populated at AppFlow step `00` from the current app-mode prompt and cleared at closeout.
+
+## Current-cycle intent
+
+- None.
+"""
 
 PRODUCT_INTENT_TEMPLATE = """# Product Intent
 
@@ -159,6 +174,8 @@ def closeout_intake(args: argparse.Namespace) -> None:
     PRODUCT_INTENT_PATH.parent.mkdir(parents=True, exist_ok=True)
     PRODUCT_INTENT_PATH.write_text(PRODUCT_INTENT_TEMPLATE, encoding="utf-8")
     FEEDBACK_INTENT_PATH.write_text(FEEDBACK_INTENT_TEMPLATE, encoding="utf-8")
+    CURRENT_INTENT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CURRENT_INTENT_PATH.write_text(CURRENT_INTENT_TEMPLATE, encoding="utf-8")
     if args.empty_gaps or not GAPS_PATH.exists():
         GAPS_PATH.write_text(EMPTY_GAPS_TEMPLATE, encoding="utf-8")
     print("Cleared consumed AppFlow intake artifacts")
@@ -175,49 +192,19 @@ def file_has_non_template_content(path: Path, empty_template: Optional[str] = No
     return True
 
 
-def status(args: argparse.Namespace) -> None:
-    """Print a non-mutating summary of AppFlow lifecycle state."""
-
-    state = load_optional_state()
-    if state is None:
-        print("AppFlow state: missing")
-        print("Next action: run appflow_run.py init before substantial app-mode file changes")
-    else:
-        steps = state.get("steps", {})
-        completed = [step for step in STEPS if steps.get(step, {}).get("status") == "completed"]
-        skipped = [step for step in STEPS if steps.get(step, {}).get("status") == "skipped"]
-        blocked = [step for step in STEPS if steps.get(step, {}).get("status") == "blocked"]
-        pending = [step for step in STEPS if steps.get(step, {}).get("status") == "pending"]
-        incomplete = [step for step in STEPS if steps.get(step, {}).get("status") not in {"completed", "skipped"}]
-        validation = state.get("validation", {})
-
-        print(f"AppFlow state: {state.get('status', 'unknown')}")
-        print(f"Objective: {state.get('objective', '')}")
-        print(f"Steps: completed={len(completed)} skipped={len(skipped)} blocked={len(blocked)} pending={len(pending)}")
-        print("Incomplete steps: " + (", ".join(incomplete) if incomplete else "none"))
-        print("Blocked steps: " + (", ".join(blocked) if blocked else "none"))
-        print(f"Validation result: {validation.get('result') or 'none'}")
-        print(f"Validation commands: {len(validation.get('commands', []))}")
-
-    current_intent_has_content = file_has_non_template_content(ROOT / ".codex" / "state" / "current-intent.md")
-    product_intent_has_content = file_has_non_template_content(PRODUCT_INTENT_PATH, PRODUCT_INTENT_TEMPLATE)
-    feedback_intent_has_content = file_has_non_template_content(FEEDBACK_INTENT_PATH, FEEDBACK_INTENT_TEMPLATE)
-    gaps_has_content = file_has_non_template_content(GAPS_PATH, EMPTY_GAPS_TEMPLATE)
-    state_status = state.get("status") if state else "missing"
-    stale_current_intent = current_intent_has_content and state_status != "active"
-    stale_prompt_intake = (product_intent_has_content or feedback_intent_has_content) and state_status != "active"
-
-    print(f"Current-intent content: {'yes' if current_intent_has_content else 'no'}")
-    print(f"Prompt intake content: product={'yes' if product_intent_has_content else 'no'} feedback={'yes' if feedback_intent_has_content else 'no'}")
-    print(f"Next-cycle gaps content: {'yes' if gaps_has_content else 'no'}")
-    print(f"Stale current-intent warning: {'yes' if stale_current_intent else 'no'}")
-    print(f"Stale prompt-intake warning: {'yes' if stale_prompt_intake else 'no'}")
+def step_groups(state: dict[str, Any]) -> dict[str, list[str]]:
+    steps = state.get("steps", {})
+    return {
+        "completed": [step for step in STEPS if steps.get(step, {}).get("status") == "completed"],
+        "skipped": [step for step in STEPS if steps.get(step, {}).get("status") == "skipped"],
+        "blocked": [step for step in STEPS if steps.get(step, {}).get("status") == "blocked"],
+        "pending": [step for step in STEPS if steps.get(step, {}).get("status") == "pending"],
+        "incomplete": [step for step in STEPS if steps.get(step, {}).get("status") not in {"completed", "skipped"}],
+    }
 
 
-def validate_state(args: argparse.Namespace) -> None:
-    state = load_state()
+def validation_errors(state: dict[str, Any], *, require_complete: bool = False, enforce_lifecycle: bool = False) -> list[str]:
     errors: list[str] = []
-
     if state.get("schema") != "appflow-run-state-v1":
         errors.append("schema must be appflow-run-state-v1")
     if not state.get("objective", "").strip():
@@ -229,25 +216,132 @@ def validate_state(args: argparse.Namespace) -> None:
         if not entry:
             errors.append(f"missing step {step}")
             continue
-        status = entry.get("status")
+        status_value = entry.get("status")
         evidence = entry.get("evidence", "").strip()
-        if status not in {"pending", "completed", "skipped", "blocked"}:
-            errors.append(f"{step} has invalid status {status!r}")
-        if status in {"completed", "skipped", "blocked"} and not evidence:
-            errors.append(f"{step} must include evidence when status is {status}")
+        if status_value not in {"pending", "completed", "skipped", "blocked"}:
+            errors.append(f"{step} has invalid status {status_value!r}")
+        if status_value in {"completed", "skipped", "blocked"} and not evidence:
+            errors.append(f"{step} must include evidence when status is {status_value}")
 
-    if args.require_complete:
-        incomplete = [
-            step
-            for step in STEPS
-            if steps.get(step, {}).get("status") not in {"completed", "skipped"}
-        ]
-        if incomplete:
-            errors.append("incomplete steps: " + ", ".join(incomplete))
-        if not state.get("validation", {}).get("commands"):
+    groups = step_groups(state)
+    validation = state.get("validation", {})
+    if require_complete:
+        if groups["incomplete"]:
+            errors.append("incomplete steps: " + ", ".join(groups["incomplete"]))
+        if not validation.get("commands"):
             errors.append("validation commands are required for complete closeout")
-        if state.get("validation", {}).get("result") not in {"pass", "partial", "fail"}:
+        if validation.get("result") not in {"pass", "partial", "fail"}:
             errors.append("validation result must be pass, partial, or fail")
+
+    if enforce_lifecycle:
+        lifecycle_status = state.get("status")
+        if lifecycle_status not in {"inactive", "active", "complete", "blocked"}:
+            errors.append("AppFlow state status must be inactive, active, complete, or blocked")
+        if lifecycle_status == "active" and not groups["incomplete"]:
+            errors.append("active AppFlow state cannot have every step completed or skipped; run appflow_run.py complete")
+        if lifecycle_status == "complete":
+            if groups["incomplete"]:
+                errors.append("complete AppFlow state cannot have incomplete steps")
+            if not validation.get("commands") or validation.get("result") not in {"pass", "partial", "fail"}:
+                errors.append("complete AppFlow state requires validation evidence")
+        if lifecycle_status == "inactive":
+            for step in STEPS:
+                entry = steps.get(step, {})
+                if entry.get("status") != "pending":
+                    errors.append(f"inactive AppFlow state must not retain completed evidence for {step}")
+                if entry.get("evidence"):
+                    errors.append(f"inactive AppFlow state must not retain stale evidence for {step}")
+    return errors
+
+
+def print_state_summary(state: Optional[dict[str, Any]]) -> None:
+    if state is None:
+        print("AppFlow state: missing")
+        print("Next action: run appflow_run.py init before substantial app-mode file changes")
+        return
+    groups = step_groups(state)
+    validation = state.get("validation", {})
+    print(f"AppFlow state: {state.get('status', 'unknown')}")
+    print(f"Objective: {state.get('objective', '')}")
+    print(
+        "Steps: "
+        f"completed={len(groups['completed'])} "
+        f"skipped={len(groups['skipped'])} "
+        f"blocked={len(groups['blocked'])} "
+        f"pending={len(groups['pending'])}"
+    )
+    print("Incomplete steps: " + (", ".join(groups["incomplete"]) if groups["incomplete"] else "none"))
+    print("Blocked steps: " + (", ".join(groups["blocked"]) if groups["blocked"] else "none"))
+    print(f"Validation result: {validation.get('result') or 'none'}")
+    print(f"Validation commands: {len(validation.get('commands', []))}")
+
+
+def print_intake_summary(state: Optional[dict[str, Any]]) -> None:
+    current_intent_has_content = file_has_non_template_content(CURRENT_INTENT_PATH, CURRENT_INTENT_TEMPLATE)
+    product_intent_has_content = file_has_non_template_content(PRODUCT_INTENT_PATH, PRODUCT_INTENT_TEMPLATE)
+    feedback_intent_has_content = file_has_non_template_content(FEEDBACK_INTENT_PATH, FEEDBACK_INTENT_TEMPLATE)
+    gaps_has_content = file_has_non_template_content(GAPS_PATH, EMPTY_GAPS_TEMPLATE)
+    state_status = state.get("status") if state else "missing"
+    stale_current_intent = current_intent_has_content and state_status != "active"
+    stale_prompt_intake = (product_intent_has_content or feedback_intent_has_content) and state_status != "active"
+    print(f"Current-intent content: {'yes' if current_intent_has_content else 'no'}")
+    print(f"Prompt intake content: product={'yes' if product_intent_has_content else 'no'} feedback={'yes' if feedback_intent_has_content else 'no'}")
+    print(f"Next-cycle gaps content: {'yes' if gaps_has_content else 'no'}")
+    print(f"Stale current-intent warning: {'yes' if stale_current_intent else 'no'}")
+    print(f"Stale prompt-intake warning: {'yes' if stale_prompt_intake else 'no'}")
+
+
+def mode_text() -> str:
+    path = ROOT / ".devmode" / "mode.yaml"
+    return path.read_text(encoding="utf-8").strip() if path.exists() else "missing"
+
+
+def preflight(args: argparse.Namespace) -> None:
+    """Print preflight checks before an app-mode AppFlow cycle."""
+
+    state = load_optional_state()
+    print(f"Mode: {mode_text()}")
+    print_state_summary(state)
+    print_intake_summary(state)
+    missing_plan_files = [str(path.relative_to(ROOT)) for path in PLAN_FILES if not path.is_file()]
+    print("Required plan files: " + ("present" if not missing_plan_files else "missing " + ", ".join(missing_plan_files)))
+    tech_stack = ROOT / ".codex" / "tech-stack.md"
+    tests_plan = ROOT / "tests" / "test-plan.md"
+    validation_sources = [str(path.relative_to(ROOT)) for path in [tech_stack, tests_plan] if path.exists()]
+    print("Likely validation sources: " + (", ".join(validation_sources) if validation_sources else "none found"))
+    if state and state.get("status") == "active" and not step_groups(state)["incomplete"]:
+        print("Preflight warning: active run has no incomplete steps; run appflow_run.py complete or start a fresh run")
+
+
+def status(args: argparse.Namespace) -> None:
+    """Print a non-mutating summary of AppFlow lifecycle state."""
+
+    state = load_optional_state()
+    print_state_summary(state)
+    print_intake_summary(state)
+
+
+def complete(args: argparse.Namespace) -> None:
+    """Mark a fully validated AppFlow run complete and clear current intent."""
+
+    state = load_state()
+    errors = validation_errors(state, require_complete=True)
+    if errors:
+        for error in errors:
+            print(f"FAIL: {error}")
+        raise SystemExit(1)
+    state["status"] = "complete"
+    state["updated_at"] = now()
+    write_state(state)
+    CURRENT_INTENT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CURRENT_INTENT_PATH.write_text(CURRENT_INTENT_TEMPLATE, encoding="utf-8")
+    print("Marked AppFlow run as complete")
+
+
+
+def validate_state(args: argparse.Namespace) -> None:
+    state = load_state()
+    errors = validation_errors(state, require_complete=args.require_complete)
 
     if errors:
         for error in errors:
@@ -283,6 +377,9 @@ def build_parser() -> argparse.ArgumentParser:
     validation_parser.add_argument("--result", choices=["pass", "partial", "fail"], required=True)
     validation_parser.set_defaults(func=add_validation)
 
+    preflight_parser = sub.add_parser("preflight", help="print non-mutating mode, state, intake, plan, and validation preflight")
+    preflight_parser.set_defaults(func=preflight)
+
     status_parser = sub.add_parser("status", help="print non-mutating AppFlow state and stale-intake summary")
     status_parser.set_defaults(func=status)
 
@@ -296,6 +393,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="also reset intent/gaps.md to an explicit empty next-cycle gap record",
     )
     closeout_parser.set_defaults(func=closeout_intake)
+
+    complete_parser = sub.add_parser("complete", help="validate closeout, mark state complete, and clear current-intent")
+    complete_parser.set_defaults(func=complete)
 
     validate_parser = sub.add_parser("validate", help="validate current AppFlow state")
     validate_parser.add_argument("--require-complete", action="store_true")

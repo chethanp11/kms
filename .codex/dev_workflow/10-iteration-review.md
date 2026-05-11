@@ -1,5 +1,10 @@
 # Step 10 Prompt: Iteration Review
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after validation, logging, and gap detection are complete for the current pass.
@@ -12,6 +17,12 @@ Use this prompt after validation, logging, and gap detection are complete for th
 ## Objective
 
 Confirm whether the iteration is complete, partial, or blocked; identify residual risks or follow-up work; and prepare the repo for the next loop without silently continuing into new scope.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/reviewer.md`.
+- Recommended skill support: release-closeout; design-audit before final sign-off.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -66,12 +77,24 @@ Produce a closeout summary that includes:
 7. Prefer `python .codex/tools/appflow_run.py closeout-intake` when available so clearing is deterministic.
 8. Do not start another iteration automatically. The next loop begins only when a new prompt, new feedback, or a surfaced gap changes the work.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not claim completion if validation or logs are missing.
 - Do not hide misalignment between current-turn intent, design, code, and tests.
 - Do not silently carry consumed product intent, feedback intent, or old gaps into the next loop.
 - Do not treat a blocked iteration as done.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

@@ -9,3 +9,6 @@
 - Reusable `.devmode/*` and `.codex/*` files must remain project-agnostic except `.codex/project-context.md` and `.codex/tech-stack.md`.
 
 - Agent role files use standard `name` and `description` frontmatter; skill files use standard `SKILL.md` frontmatter.
+
+- Completed AppFlow state should be marked `complete`; active state should not retain a fully completed lifecycle.
+- Current-turn intent should be cleared to a neutral template at closeout or completion.

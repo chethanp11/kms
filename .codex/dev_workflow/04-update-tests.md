@@ -1,5 +1,10 @@
 # Step 04 Prompt: Update Tests
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after design updates and before implementation whenever correctness criteria, workflows, contracts, or system behavior changed.
@@ -12,6 +17,12 @@ Use this prompt after design updates and before implementation whenever correctn
 ## Objective
 
 Create or revise the validation layer from design and correctness criteria before code changes are implemented.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/validator.md`.
+- Recommended skill support: criteria-traceability; test-repair when validation assets are stale.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -59,12 +70,24 @@ Produce test and validation artifacts that:
 7. Flag unclear or untestable design areas instead of masking them.
 8. If the tests folder is empty on a first pass, scaffold the required validation structure from the design before proceeding.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not invent tests with no design linkage.
 - Do not skip failure-path coverage because the happy path is obvious.
 - Do not mistake a manual note for a real validation plan.
 - Do not let code shape the tests before the design does.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

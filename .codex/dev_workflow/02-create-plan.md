@@ -1,5 +1,10 @@
 # Step 02 Prompt: Create Plan
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after step `01` and before changing detailed design, tests, implementation, or logs.
@@ -12,6 +17,12 @@ Use this prompt after step `01` and before changing detailed design, tests, impl
 ## Objective
 
 Translate prompt-derived current intent, feedback, gaps, and current repo state into an explicit iteration plan that downstream steps can execute without guessing. This step is mandatory for every file-changing app-mode cycle; stale plan files must be replaced or updated before downstream edits.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/planner.md`.
+- Recommended skill support: criteria-traceability.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -74,6 +85,12 @@ The plan set must be refreshed for the current cycle and state:
    - `backlog enhancement`
 12. If a request exceeds current scope, mark it for deferment or backlog instead of smuggling it into the current iteration.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not change design, tests, code, or logs in this step.
@@ -81,6 +98,12 @@ The plan set must be refreshed for the current cycle and state:
 - Do not hide uncertainty or convert it into fake clarity.
 - Do not create plan items with no linkage to current-turn intent, detected gaps, or actual repo drift.
 - Do not collapse unrelated workstreams into vague combined bullets.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

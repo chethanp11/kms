@@ -1,5 +1,10 @@
 # Step 09 Prompt: Detect Gaps
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after logs and validation results are current and the system needs to surface evidence-backed follow-on gaps for future reconciliation.
@@ -12,6 +17,12 @@ Use this prompt after logs and validation results are current and the system nee
 ## Objective
 
 Create the next-cycle system-managed gap record from evidence in logs, validation outcomes, repeated failures, unresolved deferrals, or persistent repo misalignment. Treat pre-existing gaps as already-consumed input unless the current cycle produced evidence that they remain unresolved.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/governance.md`.
+- Recommended skill support: design-audit for drift; feedback-triage for unresolved feedback.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -53,12 +64,24 @@ Produce a gap record that tells the next planning step:
 7. If no new gap is detected, write an explicit empty-gaps record for the next cycle.
 8. Keep the file system-generated in tone. It is not a manual feedback note and not a product-backlog wish list.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not modify human-authored intent or feedback in this step.
 - Do not add speculative gaps without evidence.
 - Do not hide repeated failures that should shape the next loop.
 - Do not turn a known blocker into silent backlog drift.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

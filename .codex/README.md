@@ -40,11 +40,12 @@ should automatically enter `.codex/dev_workflow/00-create-intent.md` without req
 The agent should:
 
 1. read the factory and project contracts
-2. create current-turn intent from the raw user prompt
-3. classify the request
-4. execute the 11-step lifecycle as far as safely possible
-5. validate the result
-6. close out with evidence, risks, and follow-up
+2. run AppFlow preflight to detect stale state or intake
+3. create current-turn intent from the raw user prompt
+4. classify the request
+5. execute the 11-step lifecycle as far as safely possible
+6. validate the result
+7. close out with evidence, risks, and follow-up
 
 If the user explicitly asks for answer-only, planning-only, or no file changes, AppFlow still guides reasoning but stops at that requested boundary.
 
@@ -98,10 +99,12 @@ The canonical workflow lives in `.codex/dev_workflow/`:
 Steps may be marked complete, skipped, or blocked with evidence. Substantial work should use:
 
 ```bash
+python .codex/tools/appflow_run.py preflight
 python .codex/tools/appflow_run.py init --objective "..."
 python .codex/tools/appflow_run.py mark 02 completed --evidence "Plan files refreshed"
 python .codex/tools/appflow_run.py status
 python .codex/tools/appflow_run.py validate --require-complete
+python .codex/tools/appflow_run.py complete
 ```
 
 ## Validation

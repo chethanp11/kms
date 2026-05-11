@@ -109,7 +109,7 @@ Framework reliability skills:
 
 ## State and Tool Requirements
 
-For substantial app-mode changes that edit files, run preflight first and record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Use `appflow_run.py status` to inspect incomplete steps, validation state, and stale intake warnings before resuming interrupted work. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
+For substantial app-mode changes that edit files, run preflight first and record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Use `appflow_run.py preflight` before starting or resuming work, `appflow_run.py status` during execution, and `appflow_run.py complete` after validated closeout to prevent active completed runs from lingering. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
 
 `.codex/state/current-intent.md`, `intent/product-intent.md`, and `intent/feedback-intent.md` are current-cycle handoff artifacts from step `00`; they are not durable pre-filled intent. `intent/gaps.md` is next-cycle input from step `09`. Step `10` clears consumed product/feedback intent and old gaps while preserving newly detected gaps.
 
@@ -210,3 +210,9 @@ Validation must state the method, result, findings, failure classification if re
 | Validation loop active | Steps `06` and `07` are repeating |
 | Iteration complete | Validation outcome is recorded, logs are current, and review confirms closure |
 | Next loop begins | Only after a new prompt, new feedback, or a surfaced gap requires another pass |
+
+## Support Integration Rules
+
+- Every workflow step must include `## Mode Guard`, `## Recommended Agent/Skills`, `## Allowed Writes`, `## Skip Rules`, `## State Evidence Expectations`, and `## Exit Criteria`.
+- Agents provide role discipline; skills provide reusable procedures; orchestration provides multi-step execution patterns; memory captures durable factual lessons only after closeout review.
+- Framework-mode work should use `appflow-framework-audit`, `mode-boundary-review`, or `workflow-drift-repair` when the prompt changes `.codex`, `.devmode`, routing, validation, or bootstrap behavior.

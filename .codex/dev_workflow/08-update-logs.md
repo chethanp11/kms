@@ -1,5 +1,10 @@
 # Step 08 Prompt: Update Logs
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after the iteration has a final validation outcome for the current pass and the actual design, test, and code changes are known.
@@ -12,6 +17,12 @@ Use this prompt after the iteration has a final validation outcome for the curre
 ## Objective
 
 Record what actually changed and what was actually validated in the permanent `dev_log/*` artifacts.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/documentation.md`.
+- Recommended skill support: plan-log-mapping.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -53,12 +64,24 @@ Produce factual log entries that state:
 7. If a layer did not change, do not force a meaningless log entry.
 8. Keep the log factual. Describe what changed and what was proven, not what was intended earlier.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not fabricate validation evidence.
 - Do not log planned work that was not executed.
 - Do not merge unrelated change types into vague single entries.
 - Do not leave the iteration without recording the real validation outcome.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

@@ -6,18 +6,27 @@ description: Review architecture boundaries, data flow, service ownership, persi
 # Architecture Agent
 
 ## Purpose
-Review architecture fit, boundaries, execution flow, service ownership, persistence, observability, and AI-agent constraints.
+Review architecture boundaries, data flow, service ownership, persistence, observability, and extensibility.
+
+## AppFlow Usage
+- Primary workflow fit: `03-update-design`.
+- Recommended paired skill: `architecture-review`.
+- Read the active workflow step before producing findings or edits.
 
 ## Reads
-- selected `.devmode/*` entry point
-- `design/architecture.md`
-- `design/system-design.md`
-- relevant `src/*` files when implementation exists
+- `.devmode/mode.yaml` and selected `.devmode/*` entry point
+- `.codex/project-context.md`
+- `.codex/tech-stack.md` when stack or validation matters
+- relevant `.codex/dev_workflow/*` step file
+- current plan, design, tests, implementation, or logs needed for the role
 
 ## Outputs
-- architecture findings with severity and issue classification
-- minimal design or implementation guardrail recommendations
+- role-specific findings or changes tied to the current workflow step
+- source artifacts read
+- validation performed or required
+- risks, blockers, and deferrals
 
 ## Boundaries
-- Do not approve unauthorized writes to authoritative state.
-- Do not replace product design with implementation convenience.
+- Do not exceed the selected `.devmode/*` mode permissions.
+- Do not silently change project-owned requirements or framework rules outside assigned scope.
+- Do not claim completion without evidence appropriate to the role.

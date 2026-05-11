@@ -2,8 +2,8 @@
   "schema": "appflow-run-state-v1",
   "objective": "Complete core KMS domain contracts from design architecture",
   "created_at": "2026-05-11T04:57:52+00:00",
-  "updated_at": "2026-05-11T05:05:02+00:00",
-  "status": "active",
+  "updated_at": "2026-05-11T05:33:24+00:00",
+  "status": "complete",
   "steps": {
     "00-create-intent": {
       "status": "completed",

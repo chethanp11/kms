@@ -1,5 +1,10 @@
 # Step 01 Prompt: Read Intent
 
+## Mode Guard
+
+Use this workflow step only when `.devmode/mode.yaml` is `mode: app`. In framework mode, do not use this step to modify application artifacts. In override mode, follow `.devmode/override.md` instead of running AppFlow automatically.
+
+
 ## Use This Prompt When
 
 Use this prompt after step `00-create-intent` to reconcile the prompt-derived current-turn intent brief with project context and repository constraints before planning, design, testing, coding, validation, or logging.
@@ -12,6 +17,12 @@ Use this prompt after step `00-create-intent` to reconcile the prompt-derived cu
 ## Objective
 
 Reconcile current-turn intent, project context, and repo constraints precisely enough that the rest of the workflow can proceed without guessing.
+
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/governance.md`.
+- Recommended skill support: feedback-triage for feedback prompts; mode-boundary-review for mode-sensitive scope.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
 
 ## Required Read Order
 
@@ -60,6 +71,12 @@ Produce an intent brief that states:
 10. Record unresolved ambiguity explicitly. If the ambiguity is too risky to infer and cannot be resolved from the repo, ask the user a concise clarifying question. Otherwise carry it into plan.
 11. Preserve detail. Do not compress away distinctions that will affect planning, design, testing, implementation, or validation.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not modify intake artifacts in this step; step `00` populates product/feedback intent, step `09` writes new gaps, and step `10` clears consumed intake.
@@ -67,6 +84,12 @@ Produce an intent brief that states:
 - Do not plan from implementation convenience.
 - Do not skip relevant feedback or gaps because they look secondary.
 - Do not start coding or editing downstream artifacts in this step.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

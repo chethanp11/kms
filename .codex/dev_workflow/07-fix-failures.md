@@ -17,6 +17,12 @@ Use this prompt when step `06` returns `fail` or `partial`, or when validation e
 
 Fix validation failures at the correct layer, classify root cause precisely, and loop back into validation until the result passes or the remaining issue is explicitly deferred.
 
+## Recommended Agent/Skills
+
+- Recommended agent: `.codex/agents/debugger.md`.
+- Recommended skill support: test-repair for test defects; design-audit for drift.
+- Use `.codex/orchestration/implementation-review-validation.md` when this step is part of a larger multi-step change.
+
 ## Required Read Order
 
 Read and use:
@@ -62,12 +68,24 @@ Produce a failure-resolution result that states:
 6. Continue looping until the result becomes `pass` or the unresolved remainder is explicitly deferred with rationale.
 7. If a blocker cannot be resolved within the current scope, state it clearly and preserve evidence for logging and gap detection later.
 
+## Skip Rules
+
+- Mark this step `skipped` only when the user explicitly bounds the task or the step is genuinely not applicable.
+- Skipped steps must include evidence in `.codex/state/appflow-current.json`.
+- Do not skip this step to avoid uncertainty; record ambiguity or block instead.
+
 ## Guardrails
 
 - Do not patch around a design problem with an implementation hack.
 - Do not mark unresolved failures as fixed.
 - Do not quietly expand scope to avoid hard decisions.
 - Do not exit the validation loop without a clear pass or explicit deferral outcome.
+
+## State Evidence Expectations
+
+- Record completion, skip, or block status with `.codex/tools/appflow_run.py mark`.
+- Evidence should name the artifacts read or changed and the reason this step can hand off safely.
+- Before resuming interrupted work, inspect `.codex/tools/appflow_run.py status` or `preflight`.
 
 ## Exit Criteria
 

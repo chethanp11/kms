@@ -2,13 +2,19 @@
 
 Use `.codex/state/` only for active, lightweight task checkpoints that help another Codex session resume safely.
 
+## AppFlow Usage
+
+- Use `appflow_run.py preflight` before starting or resuming substantial app-mode work.
+- Use `appflow_run.py status` to inspect incomplete steps, validation state, and stale intake warnings.
+- Keep resumable notes aligned to the current AppFlow step and remove or supersede them after closeout.
+
 ## Checkpoint Template
 
 ```md
 # Task Checkpoint
 
 - Objective:
-- Current phase:
+- Current AppFlow step:
 - Files inspected:
 - Files changed:
 - Validation run:

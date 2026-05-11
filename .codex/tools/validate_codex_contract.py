@@ -302,7 +302,7 @@ def validate_workflow_semantics() -> None:
             fail(f"missing canonical workflow file: {path.relative_to(ROOT)}")
         text = read_text(path)
         if filename != "README.md":
-            for heading in ["## Objective", "## Required Read Order", "## Allowed Writes", "## Exit Criteria"]:
+            for heading in ["## Mode Guard", "## Objective", "## Recommended Agent/Skills", "## Required Read Order", "## Allowed Writes", "## Skip Rules", "## State Evidence Expectations", "## Exit Criteria"]:
                 if heading not in text:
                     fail(f"{path.relative_to(ROOT)} missing heading {heading!r}")
 
@@ -349,16 +349,86 @@ def validate_framework_reliability_skills() -> None:
 
 def validate_reliability_docs() -> None:
     docs = {
-        ".codex/README.md": ["Reliability Skills", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "status"],
-        ".codex/dev_workflow/README.md": ["preflight", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "skipped"],
-        ".codex/state/appflow-closeout-checklist.md": ["status", "Interrupted-run recovery", "stale current-intent"],
-        ".codex/tools/README.md": ["status", "--dry-run"],
+        ".codex/README.md": ["Reliability Skills", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "preflight", "complete", "status"],
+        ".codex/dev_workflow/README.md": ["preflight", "complete", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "skipped"],
+        ".codex/state/appflow-closeout-checklist.md": ["complete", "status", "Interrupted-run recovery", "stale current-intent"],
+        ".codex/tools/README.md": ["preflight", "complete", "status", "--dry-run"],
     }
     for rel, phrases in docs.items():
         text = read_text(ROOT / rel)
         for phrase in phrases:
             if phrase not in text:
                 fail(f"{rel} missing reliability documentation phrase: {phrase}")
+
+
+def validate_agent_integration() -> None:
+    readme = read_text(ROOT / ".codex" / "agents" / "README.md")
+    required_table = "| Agent | Primary responsibility | AppFlow step fit | Must not do |"
+    if required_table not in readme or "| --- | --- | --- | --- |" not in readme:
+        fail(".codex/agents/README.md missing valid role table")
+    for role in ["Planner", "Architecture", "Implementer", "Reviewer", "Validator", "Debugger", "Governance", "Documentation"]:
+        if role not in readme:
+            fail(f".codex/agents/README.md missing role {role}")
+
+    for agent_file in sorted((ROOT / ".codex" / "agents").glob("*.md")):
+        if agent_file.name == "README.md":
+            continue
+        text = read_text(agent_file)
+        for heading in ["## Purpose", "## AppFlow Usage", "## Reads", "## Outputs", "## Boundaries"]:
+            if heading not in text:
+                fail(f"{agent_file.relative_to(ROOT)} missing heading {heading}")
+        for phrase in ["`.devmode/mode.yaml`", "`.codex/project-context.md`", "workflow step"]:
+            if phrase not in text:
+                fail(f"{agent_file.relative_to(ROOT)} missing integration phrase: {phrase}")
+
+
+def validate_workflow_support_integration() -> None:
+    workflow_dir = ROOT / ".codex" / "dev_workflow"
+    expected_support = {
+        "00-create-intent.md": ["planner", "mode-boundary-review"],
+        "01-read-intent.md": ["governance", "feedback-triage"],
+        "02-create-plan.md": ["planner", "criteria-traceability"],
+        "03-update-design.md": ["architecture", "design-update"],
+        "04-update-tests.md": ["validator", "criteria-traceability"],
+        "05-implement-code.md": ["implementer", "architecture-review"],
+        "06-run-validation.md": ["validator", "ai-eval-review"],
+        "07-fix-failures.md": ["debugger", "test-repair"],
+        "08-update-logs.md": ["documentation", "plan-log-mapping"],
+        "09-detect-gaps.md": ["governance", "design-audit"],
+        "10-iteration-review.md": ["reviewer", "release-closeout"],
+    }
+    for filename, phrases in expected_support.items():
+        path = workflow_dir / filename
+        text = read_text(path)
+        for heading in [
+            "## Mode Guard",
+            "## Recommended Agent/Skills",
+            "## Allowed Writes",
+            "## Skip Rules",
+            "## State Evidence Expectations",
+            "## Exit Criteria",
+        ]:
+            if heading not in text:
+                fail(f"{path.relative_to(ROOT)} missing heading {heading}")
+        for phrase in phrases:
+            if phrase not in text:
+                fail(f"{path.relative_to(ROOT)} missing recommended support phrase: {phrase}")
+
+
+def validate_orchestration_memory_integration() -> None:
+    orchestration_checks = {
+        ".codex/orchestration/README.md": ["AppFlow Usage", "single-agent", "hitl-checkpoints", "resumable-state"],
+        ".codex/orchestration/implementation-review-validation.md": ["When to Use", "State Handoff", "appflow_run.py status"],
+        ".codex/orchestration/hitl-checkpoints.md": ["AppFlow Usage", "blocked", "mode boundaries"],
+        ".codex/orchestration/resumable-state.md": ["AppFlow Usage", "preflight", "status"],
+        ".codex/memory/README.md": ["AppFlow Usage", "step `10-iteration-review`", "Memory must never override"],
+        ".codex/memory/workflow-memory.md": ["support subsystems must be wired", "recommended agent/skill support"],
+    }
+    for rel, phrases in orchestration_checks.items():
+        text = read_text(ROOT / rel)
+        for phrase in phrases:
+            if phrase not in text:
+                fail(f"{rel} missing integration phrase: {phrase}")
 
 def validate_project_artifacts() -> None:
     """Check retired legacy paths without requiring app-specific artifacts."""
@@ -379,7 +449,7 @@ def validate_project_artifacts() -> None:
 
 def validate_tool_contracts() -> None:
     appflow_tool = read_text(ROOT / ".codex" / "tools" / "appflow_run.py")
-    for phrase in ["STEP_ALIASES", "Numeric aliases", "step_arg", "status_arg", "def status"]:
+    for phrase in ["STEP_ALIASES", "Numeric aliases", "step_arg", "status_arg", "def preflight", "def status", "def complete"]:
         if phrase not in appflow_tool:
             fail(f"appflow_run.py missing CLI ergonomics phrase: {phrase}")
 
@@ -390,6 +460,8 @@ def validate_tool_contracts() -> None:
         "Framework mode is control-plane-only",
         "may modify any repository file",
         "--dry-run",
+        "preflight",
+        "complete",
     ]:
         if phrase not in bootstrap:
             fail(f"bootstrap_appflow.py missing synchronized template phrase: {phrase}")
@@ -421,19 +493,31 @@ def validate_optional_appflow_state() -> None:
     ]
     if state.get("schema") != "appflow-run-state-v1":
         fail("AppFlow state schema must be appflow-run-state-v1")
-    if state.get("status") not in {"inactive", "active", "complete", "blocked"}:
+    lifecycle_status = state.get("status")
+    if lifecycle_status not in {"inactive", "active", "complete", "blocked"}:
         fail("AppFlow state status must be inactive, active, complete, or blocked")
     steps = state.get("steps", {})
+    incomplete: list[str] = []
     for step in expected_steps:
         if step not in steps:
             fail(f"AppFlow state missing step {step}")
         entry = steps[step]
         if entry.get("status") not in {"pending", "completed", "skipped", "blocked"}:
             fail(f"AppFlow state step {step} has invalid status")
-        if state.get("status") == "inactive" and entry.get("status") != "pending":
+        if entry.get("status") not in {"completed", "skipped"}:
+            incomplete.append(step)
+        if lifecycle_status == "inactive" and entry.get("status") != "pending":
             fail(f"inactive AppFlow state must not retain completed evidence for {step}")
-        if state.get("status") == "inactive" and entry.get("evidence"):
+        if lifecycle_status == "inactive" and entry.get("evidence"):
             fail(f"inactive AppFlow state must not retain stale evidence for {step}")
+    validation = state.get("validation", {})
+    if lifecycle_status == "active" and not incomplete:
+        fail("active AppFlow state cannot have every step completed or skipped; run appflow_run.py complete")
+    if lifecycle_status == "complete":
+        if incomplete:
+            fail("complete AppFlow state cannot have incomplete steps")
+        if not validation.get("commands") or validation.get("result") not in {"pass", "partial", "fail"}:
+            fail("complete AppFlow state requires validation evidence")
 
 
 def main() -> int:
@@ -443,11 +527,14 @@ def main() -> int:
     validate_skills()
     validate_framework_reliability_skills()
     validate_agents()
+    validate_agent_integration()
     validate_required_mentions()
     validate_retired_references()
     validate_no_retired_id_prefixes()
     validate_factory_is_project_agnostic()
     validate_workflow_semantics()
+    validate_workflow_support_integration()
+    validate_orchestration_memory_integration()
     validate_reliability_docs()
     validate_project_artifacts()
     validate_tool_contracts()

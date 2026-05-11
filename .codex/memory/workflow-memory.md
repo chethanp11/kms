@@ -35,3 +35,11 @@ Reusable workflow lessons validated by project artifacts.
 - Update design before code when behavior changes.
 - Validate before closeout.
 - Record outcomes only after evidence exists.
+
+## Lesson: support subsystems must be wired into workflow steps
+
+- Trigger: Review found agents, skills, orchestration, memory, state, and tools existed but were not all directly invoked by step files.
+- Better workflow: Every AppFlow step should name recommended agent/skill support and state evidence expectations.
+- Evidence: `.codex/dev_workflow/*`, `.codex/agents/README.md`, and `.codex/tools/validate_codex_contract.py`.
+- Applies to: Framework maintenance and copied AppFlow repositories.
+- Should be promoted to: Already promoted to workflow docs and validator checks.
