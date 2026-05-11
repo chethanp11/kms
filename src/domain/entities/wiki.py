@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/wiki.py."""
+"""KnowledgePage domain entity export."""
+from src.contracts import KnowledgePage
+__all__ = ["KnowledgePage"]

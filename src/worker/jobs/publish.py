@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: worker/jobs/publish.py."""
+"""Publish worker exports."""
+from src.services.publisher import PublishSummary, publish_page
+__all__ = ["PublishSummary", "publish_page"]

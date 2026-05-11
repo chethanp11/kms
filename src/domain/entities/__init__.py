@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/__init__.py."""
+"""Domain entity exports."""
+from src.contracts import ApprovalRecord, ContradictionRecord, InfopediaNode, KnowledgePage, LintFinding, MaintenanceRun, QAReport, SearchDocument, SourceFile, WikiPageRevision
+__all__ = ["ApprovalRecord", "ContradictionRecord", "InfopediaNode", "KnowledgePage", "LintFinding", "MaintenanceRun", "QAReport", "SearchDocument", "SourceFile", "WikiPageRevision"]

@@ -13,6 +13,7 @@ Map intent, requirements, design constraints, tests, feedback, and issues into o
 | `intent/product-intent.md` | Current scaffold alignment | `REQ-014` | Current `src/` scaffold is limited to existing base modules; no new top-level component families unless future plan/design proves necessity | `TEST-014` | `DEV-014` | Corrects stale plan/test drift and removes references to absent scaffold modules |
 | `intent/product-intent.md` | Corrected src-only runtime scaffold | `REQ-018` | All KMS runtime/application scaffold files live under `src/`; rejected external runtime roots and `src/components` are absent | `TEST-018` | `DEV-018` | Future prompts should populate the detailed `src/` tree |
 | `intent/product-intent.md` | Core domain contracts | `REQ-019` | Architecture section 9 entity contracts are explicit; metadata entities are operational and Infopedia/search entities remain derived projections over `/wiki` | `TEST-019` | `DEV-019` | Complete contracts live in `src/contracts` with backwards-compatible scaffold constructors |
+| `intent/product-intent.md` | Working KMS runtime | `REQ-020` | Existing `src/`-only runtime scaffold is populated with bounded services, governance gates, API route functions, worker jobs, supporting stores, and read-only Infopedia/search projections while preserving `/wiki` authority | `TEST-020` | `DEV-020` | Concrete runtime coverage lives in `tests/unit/test_working_kms_runtime.py` |
 
 ## Guidelines
 - Add a row for every new requirement.

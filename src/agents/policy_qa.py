@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: agents/policy_qa.py."""
+"""Agent facade for policy-qa responsibilities."""
+from src.services.policy_validation import validate_page
+__all__ = ["validate_page"]

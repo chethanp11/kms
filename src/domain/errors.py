@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/errors.py."""
+"""Domain errors."""
+from src.contracts import ValidationError
+__all__ = ["ValidationError"]

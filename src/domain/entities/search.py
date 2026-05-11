@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/search.py."""
+"""SearchDocument domain entity export."""
+from src.contracts import SearchDocument
+__all__ = ["SearchDocument"]

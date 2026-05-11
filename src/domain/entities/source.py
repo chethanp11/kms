@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/source.py."""
+"""SourceFile domain entity export."""
+from src.contracts import SourceFile
+__all__ = ["SourceFile"]

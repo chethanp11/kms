@@ -1,23 +1,11 @@
 # Test Update Plan
 
-## Purpose
-Capture validation changes required by this cycle.
+## Current scope
+- `TEST-020`: Validate the populated KMS runtime through deterministic unit tests and compile checks.
 
-## Current intent signal
-- Validate completed core domain contracts and existing scaffold compatibility.
-
-## Required changes
-1. `TEST-019`: Add unit tests covering all requested core contracts, their identifiers, relationships, state enums, derived projection flags, and validation behavior.
-2. `TEST-019`: Preserve existing contract/scaffold tests.
-3. `TEST-019`: Run unit discovery, Python compile checks, whitespace checks, and Codex contract validation.
-
-## Existing drift or deviation
-1. Existing contract tests only cover a small subset of the domain model.
-
-## Open questions or blockers
-1. None.
-
-## Linked IDs
-1. `REQ-019`
-2. `DEV-019`
-3. `TEST-019`
+## Validation
+- Add `tests/unit/test_working_kms_runtime.py` for end-to-end source intake through approval/publish/search/projection using temporary directories.
+- Run `python3 -m unittest discover -s tests/unit -p 'test_*.py'`.
+- Run `python3 -m compileall -q src`.
+- Run `git diff --check`.
+- Run `python3 .codex/tools/validate_codex_contract.py`.

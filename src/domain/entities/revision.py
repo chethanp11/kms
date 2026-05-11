@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/revision.py."""
+"""WikiPageRevision domain entity export."""
+from src.contracts import WikiPageRevision
+__all__ = ["WikiPageRevision"]

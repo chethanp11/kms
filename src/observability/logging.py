@@ -1,1 +1,6 @@
-"""Placeholder for future KMS implementation: observability/logging.py."""
+"""Small logging helper for scripts and workers."""
+from __future__ import annotations
+import logging
+def configure_logging(level: int = logging.INFO) -> None:
+    logging.basicConfig(level=level, format="%(levelname)s %(name)s: %(message)s")
+__all__ = ["configure_logging"]

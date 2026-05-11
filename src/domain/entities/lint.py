@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/lint.py."""
+"""LintFinding domain entity export."""
+from src.contracts import LintFinding
+__all__ = ["LintFinding"]

@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/contradiction.py."""
+"""ContradictionRecord domain entity export."""
+from src.contracts import ContradictionRecord
+__all__ = ["ContradictionRecord"]

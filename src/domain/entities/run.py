@@ -1,1 +1,3 @@
-"""Placeholder for future KMS implementation: domain/entities/run.py."""
+"""MaintenanceRun domain entity export."""
+from src.contracts import MaintenanceRun
+__all__ = ["MaintenanceRun"]

@@ -1,23 +1,13 @@
 # Design Update Plan
 
-## Purpose
-Capture design updates or explicit no-change decisions for this cycle.
+## Current scope
+- `REQ-020`: Populate the existing `src/`-only KMS runtime scaffold with concrete, stdlib-first behavior aligned to the current design.
 
-## Current intent signal
-- Complete core KMS domain contracts from `design/architecture.md` section 9.
+## Design interpretation
+- No design document changes are required: the existing architecture already defines the runtime service model, governance gates, `/wiki` authority boundary, KMI control surface, Infopedia read-only projection, metadata support role, and source intake flow.
+- The current iteration translates those existing design contracts into implementation only.
 
-## Required changes
-1. `REQ-019`: Extend `design/architecture.md` entity field definitions so all requested core contracts are explicit: Run, SourceFile, SourceDocument, WikiPage, WikiPageRevision, ApprovalRecord, ContradictionRecord, QAReport, LintFinding, InfopediaNode, and SearchDocument.
-2. `REQ-019`: Preserve authority semantics: `/wiki` remains canonical, metadata entities are operational, and Infopedia/search entities are derived projections.
-
-## Existing drift or deviation
-1. Section 9.5 listed field definitions for only a subset of requested entities.
-2. `src/contracts` is currently absent from the src-only scaffold, while existing tests and modules expect it.
-
-## Open questions or blockers
-1. None.
-
-## Linked IDs
-1. `REQ-019`
-2. `DEV-019`
-3. `TEST-019`
+## Boundaries
+- Keep runtime code under `src/`.
+- Do not add new top-level runtime roots or new framework/control-plane behavior.
+- Preserve `/wiki` as the only finalized truth store; metadata, search, and Infopedia stay derived/supporting.

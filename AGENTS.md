@@ -32,3 +32,4 @@ mode: override
 - Never modify framework/control-plane files in app mode unless the user prompt explicitly changes AppFlow behavior.
 - When `mode: override`, do not run AppFlow or framework workflows automatically; modify any file only as directed by the prompt and normal repository safety rules.
 - When uncertain whether a request is framework or application work, follow `.devmode/mode.yaml` and ask before crossing modes.
+- If you feel the mode is incorrent based on the prompt pause and ask user to change the mode.
