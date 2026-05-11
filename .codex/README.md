@@ -4,7 +4,7 @@ AppFlow is a portable AI-native engineering framework for turning ordinary devel
 
 Instead of treating a prompt as a one-off instruction, AppFlow routes it through a repeatable lifecycle:
 
-`user prompt → current-turn intent → plan → design/contracts → validation plan → implementation → validation run → repair → evidence/logs → gaps → closeout`
+`user prompt → preflight → current-turn intent → plan → design/contracts → validation plan → implementation → validation run → repair → evidence/logs → gaps → closeout`
 
 The goal is simple: every meaningful prompt becomes structured engineering work with context, traceability, validation, and a clear stopping point.
 
@@ -100,6 +100,7 @@ Steps may be marked complete, skipped, or blocked with evidence. Substantial wor
 ```bash
 python .codex/tools/appflow_run.py init --objective "..."
 python .codex/tools/appflow_run.py mark 02 completed --evidence "Plan files refreshed"
+python .codex/tools/appflow_run.py status
 python .codex/tools/appflow_run.py validate --require-complete
 ```
 
@@ -119,3 +120,11 @@ Application behavior changes should additionally run the project-specific comman
 `.codex/` is engineering control-plane infrastructure. It supports development, validation, governance, and agent orchestration.
 
 It is not production runtime code. In the default AppFlow scaffold, only the project runtime tree, usually `src/`, should be considered deployable.
+
+## Reliability Skills
+
+Use these framework-focused skills for AppFlow reliability work:
+
+- `appflow-framework-audit`: audit routing, workflow consistency, bootstrap drift, state conventions, and validator coverage.
+- `mode-boundary-review`: review app/framework/override boundary compliance before or after mode-sensitive edits.
+- `workflow-drift-repair`: repair stale framework references across mode docs, workflow docs, tools, state docs, bootstrap templates, and validators.

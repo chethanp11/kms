@@ -4,9 +4,9 @@ Deterministic helper scripts for validating repository-visible Codex infrastruct
 
 ## Available
 
-- `validate_codex_contract.py`: checks required Codex-native support files, instruction references, and non-empty purpose docs.
-- `bootstrap_appflow.py`: creates starter project-specific AppFlow artifacts when `.codex/` is copied into a new repository.
-- `appflow_run.py`: records and validates per-turn AppFlow lifecycle evidence; `closeout-intake` clears consumed product/feedback intent after step `09` writes next-cycle gaps. Step marking accepts canonical IDs such as `02-create-plan` and numeric aliases such as `02` or `2`.
+- `validate_codex_contract.py`: checks required Codex-native support files, instruction references, framework skills, bootstrap synchronization, tool docs, and non-empty purpose docs.
+- `bootstrap_appflow.py`: creates starter project-specific AppFlow artifacts when `.codex/` is copied into a new repository; `--dry-run` previews create/skip actions without writing files.
+- `appflow_run.py`: records and validates per-turn AppFlow lifecycle evidence; `status` prints incomplete steps, validation state, and stale-intake warnings; `closeout-intake` clears consumed product/feedback intent after step `09` writes next-cycle gaps. Step marking accepts canonical IDs such as `02-create-plan` and numeric aliases such as `02` or `2`.
 
 ## Workflow use
 
@@ -21,6 +21,13 @@ python3 .codex/tools/appflow_run.py init --objective "..."
 python3 .codex/tools/appflow_run.py mark 02 completed --evidence "Plan files refreshed"
 python3 .codex/tools/appflow_run.py mark --step 03-update-design --status skipped --evidence "No design change required"
 python3 .codex/tools/appflow_run.py validation --command "python3 -m unittest ..." --result pass
+python3 .codex/tools/appflow_run.py status
 python3 .codex/tools/appflow_run.py closeout-intake
 python3 .codex/tools/appflow_run.py validate --require-complete
+```
+
+## Bootstrap preview
+
+```bash
+python3 .codex/tools/bootstrap_appflow.py --dry-run
 ```

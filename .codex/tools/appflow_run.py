@@ -12,7 +12,7 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -77,6 +77,12 @@ def load_state() -> dict[str, Any]:
             f"Missing AppFlow state: {STATE_PATH.relative_to(ROOT)}. "
             "Run appflow_run.py init first."
         )
+    return json.loads(STATE_PATH.read_text(encoding="utf-8"))
+
+
+def load_optional_state() -> Optional[dict[str, Any]]:
+    if not STATE_PATH.exists():
+        return None
     return json.loads(STATE_PATH.read_text(encoding="utf-8"))
 
 
@@ -158,6 +164,56 @@ def closeout_intake(args: argparse.Namespace) -> None:
     print("Cleared consumed AppFlow intake artifacts")
 
 
+def file_has_non_template_content(path: Path, empty_template: Optional[str] = None) -> bool:
+    if not path.exists():
+        return False
+    text = path.read_text(encoding="utf-8").strip()
+    if not text:
+        return False
+    if empty_template is not None and text == empty_template.strip():
+        return False
+    return True
+
+
+def status(args: argparse.Namespace) -> None:
+    """Print a non-mutating summary of AppFlow lifecycle state."""
+
+    state = load_optional_state()
+    if state is None:
+        print("AppFlow state: missing")
+        print("Next action: run appflow_run.py init before substantial app-mode file changes")
+    else:
+        steps = state.get("steps", {})
+        completed = [step for step in STEPS if steps.get(step, {}).get("status") == "completed"]
+        skipped = [step for step in STEPS if steps.get(step, {}).get("status") == "skipped"]
+        blocked = [step for step in STEPS if steps.get(step, {}).get("status") == "blocked"]
+        pending = [step for step in STEPS if steps.get(step, {}).get("status") == "pending"]
+        incomplete = [step for step in STEPS if steps.get(step, {}).get("status") not in {"completed", "skipped"}]
+        validation = state.get("validation", {})
+
+        print(f"AppFlow state: {state.get('status', 'unknown')}")
+        print(f"Objective: {state.get('objective', '')}")
+        print(f"Steps: completed={len(completed)} skipped={len(skipped)} blocked={len(blocked)} pending={len(pending)}")
+        print("Incomplete steps: " + (", ".join(incomplete) if incomplete else "none"))
+        print("Blocked steps: " + (", ".join(blocked) if blocked else "none"))
+        print(f"Validation result: {validation.get('result') or 'none'}")
+        print(f"Validation commands: {len(validation.get('commands', []))}")
+
+    current_intent_has_content = file_has_non_template_content(ROOT / ".codex" / "state" / "current-intent.md")
+    product_intent_has_content = file_has_non_template_content(PRODUCT_INTENT_PATH, PRODUCT_INTENT_TEMPLATE)
+    feedback_intent_has_content = file_has_non_template_content(FEEDBACK_INTENT_PATH, FEEDBACK_INTENT_TEMPLATE)
+    gaps_has_content = file_has_non_template_content(GAPS_PATH, EMPTY_GAPS_TEMPLATE)
+    state_status = state.get("status") if state else "missing"
+    stale_current_intent = current_intent_has_content and state_status != "active"
+    stale_prompt_intake = (product_intent_has_content or feedback_intent_has_content) and state_status != "active"
+
+    print(f"Current-intent content: {'yes' if current_intent_has_content else 'no'}")
+    print(f"Prompt intake content: product={'yes' if product_intent_has_content else 'no'} feedback={'yes' if feedback_intent_has_content else 'no'}")
+    print(f"Next-cycle gaps content: {'yes' if gaps_has_content else 'no'}")
+    print(f"Stale current-intent warning: {'yes' if stale_current_intent else 'no'}")
+    print(f"Stale prompt-intake warning: {'yes' if stale_prompt_intake else 'no'}")
+
+
 def validate_state(args: argparse.Namespace) -> None:
     state = load_state()
     errors: list[str] = []
@@ -226,6 +282,9 @@ def build_parser() -> argparse.ArgumentParser:
     validation_parser.add_argument("--command", required=True)
     validation_parser.add_argument("--result", choices=["pass", "partial", "fail"], required=True)
     validation_parser.set_defaults(func=add_validation)
+
+    status_parser = sub.add_parser("status", help="print non-mutating AppFlow state and stale-intake summary")
+    status_parser.set_defaults(func=status)
 
     closeout_parser = sub.add_parser(
         "closeout-intake",

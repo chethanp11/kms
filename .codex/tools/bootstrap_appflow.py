@@ -9,6 +9,7 @@ The script is intentionally conservative:
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 
@@ -178,28 +179,41 @@ DIRS = [
 ]
 
 
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="show which starter artifacts would be created without writing files",
+    )
+    return parser
+
+
 def main() -> int:
+    args = build_parser().parse_args()
     created: list[str] = []
     skipped: list[str] = []
 
     for rel in DIRS:
         path = ROOT / rel
         if not path.exists():
-            path.mkdir(parents=True)
+            if not args.dry_run:
+                path.mkdir(parents=True)
             created.append(rel + "/")
 
     for rel, content in FILES.items():
         path = ROOT / rel
-        path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
             skipped.append(rel)
             continue
-        path.write_text(content, encoding="utf-8")
+        if not args.dry_run:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
         created.append(rel)
 
-    print("AppFlow bootstrap complete.")
+    print("AppFlow bootstrap dry run." if args.dry_run else "AppFlow bootstrap complete.")
     if created:
-        print("Created:")
+        print("Would create:" if args.dry_run else "Created:")
         for item in created:
             print(f"  - {item}")
     if skipped:

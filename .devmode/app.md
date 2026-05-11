@@ -54,7 +54,7 @@ Every ordinary development prompt is an AppFlow trigger by default. The user sho
 
 For each app-mode prompt:
 
-1. classify the request
+1. run lightweight preflight: confirm mode, classify the prompt, check stale intake/state, confirm required plan files, and identify likely validation commands
 2. create current-turn intent from the prompt
 3. reconcile that intent with project context and relevant repository artifacts
 4. run the AppFlow lifecycle as far as the task can safely proceed

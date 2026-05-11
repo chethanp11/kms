@@ -15,13 +15,14 @@ For ordinary development prompts such as "Improve the UI", "Fix the failing test
 Default behavior:
 
 1. Treat the prompt as AppFlow input.
-2. Start at `.codex/dev_workflow/00-create-intent.md`.
-3. Populate exactly one transient prompt intake artifact: `intent/product-intent.md` for product/change prompts or `intent/feedback-intent.md` for manual feedback and issue prompts.
-4. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, and all three intake channels: product intent, feedback intent, and gaps.
-5. Execute steps `00` through `10` as far as the task can safely proceed, progressing all non-empty intake channels into plan/design/test/code/validation/log artifacts.
-6. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, and `.codex/tools/` as support when the step needs them.
-7. At closeout, clear consumed product intent, consumed feedback intent, and old gaps; keep only new step-`09` gaps for the next cycle.
-8. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
+2. Run lightweight preflight: confirm `.devmode/mode.yaml`, classify the prompt, check for stale current-intent or prompt intake, confirm required plan files, and identify likely validation commands.
+3. Start at `.codex/dev_workflow/00-create-intent.md`.
+4. Populate exactly one transient prompt intake artifact: `intent/product-intent.md` for product/change prompts or `intent/feedback-intent.md` for manual feedback and issue prompts.
+5. Read `.devmode/mode.yaml`, the selected `.devmode/*` entry point, `.codex/project-context.md`, `.codex/tech-stack.md`, and all three intake channels: product intent, feedback intent, and gaps.
+6. Execute steps `00` through `10` as far as the task can safely proceed, progressing all non-empty intake channels into plan/design/test/code/validation/log artifacts.
+7. Use `.codex/agents/`, `.codex/skills/`, `.codex/orchestration/`, and `.codex/tools/` as support when the step needs them.
+8. At closeout, clear consumed product intent, consumed feedback intent, and old gaps; keep only new step-`09` gaps for the next cycle.
+9. Stop only at completion, explicit user boundary, or a genuine blocker/HITL checkpoint.
 
 ## Core Operating Model
 
@@ -98,9 +99,17 @@ The 11 prompt files are intended to be execution-complete as a set. If followed 
 | `.codex/memory/` | Reviewable structured memory |
 | `.codex/tools/` | Deterministic helper scripts |
 
+Framework reliability skills:
+
+| Skill | Use |
+| --- | --- |
+| `appflow-framework-audit` | Audit mode routing, workflow consistency, bootstrap drift, state conventions, and validator coverage |
+| `mode-boundary-review` | Check app/framework/override boundary compliance before or after mode-sensitive changes |
+| `workflow-drift-repair` | Repair stale references across mode docs, workflow docs, tools, state docs, bootstrap templates, and validators |
+
 ## State and Tool Requirements
 
-For substantial app-mode changes that edit files, record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
+For substantial app-mode changes that edit files, run preflight first and record lifecycle evidence in `.codex/state/appflow-current.json` using `.codex/tools/appflow_run.py`. Use `appflow_run.py status` to inspect incomplete steps, validation state, and stale intake warnings before resuming interrupted work. Step `00` initializes or refreshes the run state, each completed/skipped/blocked step records evidence, validation commands are recorded, and closeout runs `appflow_run.py validate --require-complete` when the full lifecycle is expected.
 
 `.codex/state/current-intent.md`, `intent/product-intent.md`, and `intent/feedback-intent.md` are current-cycle handoff artifacts from step `00`; they are not durable pre-filled intent. `intent/gaps.md` is next-cycle input from step `09`. Step `10` clears consumed product/feedback intent and old gaps while preserving newly detected gaps.
 

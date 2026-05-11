@@ -24,6 +24,7 @@ Each step must be marked `completed`, `skipped`, or `blocked` with evidence befo
 python .codex/tools/appflow_run.py init --objective "..."
 python .codex/tools/appflow_run.py mark --step 00-create-intent --status completed --evidence "..."
 python .codex/tools/appflow_run.py validation --command "..." --result pass
+python .codex/tools/appflow_run.py status
 python .codex/tools/appflow_run.py validate --require-complete
 ```
 
@@ -36,3 +37,9 @@ python .codex/tools/appflow_run.py validate --require-complete
 ## After closeout
 
 When no app-mode run is active, reset `status` to `inactive` and clear stale step evidence. Permanent outcomes belong in project logs, not active state.
+
+## Interrupted-run recovery
+
+- Run `python .codex/tools/appflow_run.py status` before resuming an interrupted app-mode cycle.
+- If `status` reports stale current-intent or prompt-intake warnings and no active run is in progress, start a fresh AppFlow cycle from the new user prompt instead of reusing stale intent.
+- Complete, skip, or block every lifecycle step with evidence before closeout; do not leave pending steps hidden.

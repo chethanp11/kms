@@ -330,6 +330,36 @@ def validate_workflow_semantics() -> None:
         fail("workflow README references removed workflow-pattern path")
 
 
+
+def validate_framework_reliability_skills() -> None:
+    expected = {
+        "appflow-framework-audit": ["mode routing", "bootstrap drift", "validator coverage"],
+        "mode-boundary-review": ["app, framework, and override", "boundary", "mode"],
+        "workflow-drift-repair": ["stale", "bootstrap templates", "validator"],
+    }
+    for skill, phrases in expected.items():
+        path = ROOT / ".codex" / "skills" / skill / "SKILL.md"
+        if not path.is_file():
+            fail(f"missing framework reliability skill: {path.relative_to(ROOT)}")
+        text = read_text(path)
+        for phrase in phrases:
+            if phrase not in text:
+                fail(f"{path.relative_to(ROOT)} missing reliability phrase: {phrase}")
+
+
+def validate_reliability_docs() -> None:
+    docs = {
+        ".codex/README.md": ["Reliability Skills", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "status"],
+        ".codex/dev_workflow/README.md": ["preflight", "appflow-framework-audit", "mode-boundary-review", "workflow-drift-repair", "skipped"],
+        ".codex/state/appflow-closeout-checklist.md": ["status", "Interrupted-run recovery", "stale current-intent"],
+        ".codex/tools/README.md": ["status", "--dry-run"],
+    }
+    for rel, phrases in docs.items():
+        text = read_text(ROOT / rel)
+        for phrase in phrases:
+            if phrase not in text:
+                fail(f"{rel} missing reliability documentation phrase: {phrase}")
+
 def validate_project_artifacts() -> None:
     """Check retired legacy paths without requiring app-specific artifacts."""
 
@@ -349,7 +379,7 @@ def validate_project_artifacts() -> None:
 
 def validate_tool_contracts() -> None:
     appflow_tool = read_text(ROOT / ".codex" / "tools" / "appflow_run.py")
-    for phrase in ["STEP_ALIASES", "Numeric aliases", "step_arg", "status_arg"]:
+    for phrase in ["STEP_ALIASES", "Numeric aliases", "step_arg", "status_arg", "def status"]:
         if phrase not in appflow_tool:
             fail(f"appflow_run.py missing CLI ergonomics phrase: {phrase}")
 
@@ -359,6 +389,7 @@ def validate_tool_contracts() -> None:
         "Never blend modes",
         "Framework mode is control-plane-only",
         "may modify any repository file",
+        "--dry-run",
     ]:
         if phrase not in bootstrap:
             fail(f"bootstrap_appflow.py missing synchronized template phrase: {phrase}")
@@ -410,12 +441,14 @@ def main() -> int:
     require_files()
     validate_devmode()
     validate_skills()
+    validate_framework_reliability_skills()
     validate_agents()
     validate_required_mentions()
     validate_retired_references()
     validate_no_retired_id_prefixes()
     validate_factory_is_project_agnostic()
     validate_workflow_semantics()
+    validate_reliability_docs()
     validate_project_artifacts()
     validate_tool_contracts()
     validate_optional_appflow_state()
