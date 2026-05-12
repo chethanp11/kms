@@ -35,7 +35,7 @@ class MinimalASGIApp:
         path = scope.get("path", "/")
         query = parse_qs((scope.get("query_string") or b"").decode("utf-8"))
         if method == "OPTIONS":
-            await self._send(send, 204, {})
+            await self._send_empty(send, 204)
             return
         try:
             status, payload = await self._dispatch(method, path, query, receive)
@@ -43,11 +43,16 @@ class MinimalASGIApp:
             status, payload = 400, {"error": str(exc)}
         except Exception as exc:  # pragma: no cover - defensive API boundary
             status, payload = 500, {"error": f"internal_error: {exc}"}
+        if status == 204:
+            await self._send_empty(send, status)
+            return
         await self._send(send, status, payload)
 
     async def _dispatch(self, method: str, path: str, query: Dict[str, list[str]], receive: ASGIReceive) -> tuple[int, Dict[str, Any] | list[Any]]:
         if path in {"/", "/api/health"}:
             return 200, {"status": "ok", "name": "KMS API", "endpoints": list(REPRESENTATIVE_ENDPOINTS)}
+        if method == "GET" and path == "/favicon.ico":
+            return 204, {}
         if method == "POST" and path == "/api/runs":
             return 200, create_run(await self._read_json(receive))
         if method == "POST" and path == "/api/candidates":
@@ -69,7 +74,8 @@ class MinimalASGIApp:
         if method == "GET" and path == "/api/infopedia/tree":
             return 200, infopedia_tree()
         if method == "GET" and path == "/api/infopedia/search":
-            return 200, search_pages((query.get("q") or [""])[0])
+            include_candidates = (query.get("include_candidates") or ["false"])[0].casefold() in {"1", "true", "yes", "on"}
+            return 200, search_pages((query.get("q") or [""])[0], include_candidates=include_candidates)
         if method == "GET" and path.startswith("/api/wiki/pages/"):
             return 200, get_page(path.removeprefix("/api/wiki/pages/"))
         return 404, {"error": "not_found", "endpoints": list(REPRESENTATIVE_ENDPOINTS)}
@@ -84,6 +90,10 @@ class MinimalASGIApp:
         raw = b"".join(chunks).decode("utf-8")
         return json.loads(raw or "{}")
 
+    async def _send_empty(self, send: ASGISend, status: int) -> None:
+        await send({"type": "http.response.start", "status": status, "headers": [(b"access-control-allow-origin", b"*")]})
+        await send({"type": "http.response.body", "body": b""})
+
     async def _send(self, send: ASGISend, status: int, payload: Dict[str, Any] | list[Any]) -> None:
         body = json.dumps(payload).encode("utf-8")
         await send({"type": "http.response.start", "status": status, "headers": _HEADERS + [(b"content-length", str(len(body)).encode("ascii"))]})
@@ -92,7 +102,7 @@ class MinimalASGIApp:
 
 def create_app() -> object:
     try:
-        from fastapi import FastAPI, HTTPException, Query  # type: ignore
+        from fastapi import FastAPI, HTTPException, Query, Response  # type: ignore
         from fastapi.middleware.cors import CORSMiddleware  # type: ignore
     except Exception:
         return MinimalASGIApp()
@@ -107,6 +117,10 @@ def create_app() -> object:
     @app.get("/api/health")
     def _health() -> Dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def _favicon() -> Response:
+        return Response(status_code=204)
 
     @app.post("/api/runs")
     def _create_run(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -156,8 +170,8 @@ def create_app() -> object:
         return infopedia_tree()
 
     @app.get("/api/infopedia/search")
-    def _search(q: str = Query(default="")) -> List[Dict[str, Any]]:
-        return search_pages(q)
+    def _search(q: str = Query(default=""), include_candidates: bool = Query(default=False)) -> List[Dict[str, Any]]:
+        return search_pages(q, include_candidates=include_candidates)
 
     @app.get("/api/wiki/pages/{slug:path}")
     def _wiki_page(slug: str) -> Dict[str, str]:

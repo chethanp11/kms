@@ -6,13 +6,17 @@ app.innerHTML = `
     <header class="hero">
       <p class="eyebrow">Read-only knowledge</p>
       <h1>Infopedia</h1>
-      <p>Browse finalized wiki pages published from approved KMI candidates.</p>
+      <p>Browse finalized wiki pages published from approved KMI candidates. Candidate proposals stay hidden unless explicitly included.</p>
     </header>
 
     <section class="toolbar">
       <button id="loadTree">Load wiki tree</button>
       <label>Search finalized knowledge
-        <input id="query" value="" placeholder="Try revenue, process, decision..." />
+        <input id="query" value="" placeholder="Try revenue, workflow, approved metric..." />
+      </label>
+      <label class="checkbox-label">
+        <input id="includeCandidates" type="checkbox" />
+        <span>Include candidate proposals</span>
       </label>
       <button id="search">Search</button>
     </section>
@@ -22,7 +26,7 @@ app.innerHTML = `
         <span class="step">3</span>
         <div>
           <h2>Published knowledge</h2>
-          <p>Only approved wiki pages appear here.</p>
+          <p id="searchScope">Default search shows approved wiki pages only. Enable candidate proposals when review context is needed.</p>
         </div>
       </div>
       <div id="results" class="empty">Load the tree or search after KMI publishes approved candidates.</div>
@@ -31,17 +35,20 @@ app.innerHTML = `
 `;
 
 const results = document.getElementById('results');
+const query = document.getElementById('query');
+const includeCandidates = document.getElementById('includeCandidates');
+const searchScope = document.getElementById('searchScope');
 
 function render(value) {
   if (Array.isArray(value)) {
     results.className = value.length ? 'cards' : 'empty';
     results.innerHTML = value.length ? value.map(item => `
-      <article class="knowledge-card">
+      <article class="knowledge-card ${item.source_kind === 'knowledge_candidate' ? 'candidate-result' : ''}">
         <span class="pill">${item.page_type || item.source_kind || 'wiki'}</span>
         <h3>${item.title}</h3>
         <code>${item.slug || item.path || item.source_id}</code>
       </article>
-    `).join('') : 'No finalized knowledge found.';
+    `).join('') : 'No finalized knowledge found for this search scope.';
   } else {
     results.className = 'empty';
     results.textContent = JSON.stringify(value, null, 2);
@@ -55,10 +62,22 @@ async function request(path) {
   return data;
 }
 
+function updateScopeText() {
+  searchScope.textContent = includeCandidates.checked
+    ? 'Search includes approved wiki pages plus inspectable candidate proposals and archived candidate records.'
+    : 'Default search shows approved wiki pages only. Enable candidate proposals when review context is needed.';
+}
+
 document.getElementById('loadTree').addEventListener('click', async () => {
   try { render(await request('/api/infopedia/tree')); } catch (error) { results.textContent = `Error: ${error.message}`; }
 });
 
 document.getElementById('search').addEventListener('click', async () => {
-  try { render(await request(`/api/infopedia/search?q=${encodeURIComponent(document.getElementById('query').value)}`)); } catch (error) { results.textContent = `Error: ${error.message}`; }
+  try {
+    updateScopeText();
+    const include = includeCandidates.checked ? '&include_candidates=true' : '';
+    render(await request(`/api/infopedia/search?q=${encodeURIComponent(query.value)}${include}`));
+  } catch (error) { results.textContent = `Error: ${error.message}`; }
 });
+
+includeCandidates.addEventListener('change', updateScopeText);

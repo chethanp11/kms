@@ -24,7 +24,7 @@ class OpenAIResponsesClient:
 
     def create_json_response(self, *, instructions: str, user_input: str) -> Mapping[str, Any]:
         if not self.api_key.strip():
-            raise OpenAIClientError("OPENAI_API_KEY is required for AI extraction")
+            raise OpenAIClientError("OPEN_AI_KEY is required for OpenAI extraction")
         payload = {
             "model": self.model,
             "instructions": instructions,

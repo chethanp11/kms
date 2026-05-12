@@ -3440,7 +3440,7 @@ Requirements:
 
 AI provider requirements:
 
-- `OPENAI_API_KEY` is loaded only in backend/runtime settings and must never be exposed to KMI or Infopedia clients.
+- `OPEN_AI_KEY` is loaded only in backend/runtime settings and must never be exposed to KMI or Infopedia clients.
 - `KMS_AI_MODEL` selects the OpenAI model for knowledge understanding; the current default is `gpt-4o`.
 - Missing keys, disabled AI, invalid model responses, timeout, or API failure must fall back to deterministic extraction.
 - API-backed outputs must be validated into `KnowledgeCandidate` and `CandidateDraft` contracts before they are stored.

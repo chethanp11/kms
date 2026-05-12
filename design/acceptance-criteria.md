@@ -106,7 +106,7 @@ Acceptance checks:
 - KMI candidate workflow separates creation, review/approval, and wiki publication into visible stages
 - approve-all marks candidate review decisions but does not publish until the explicit load-to-wiki action runs
 - approved candidate pages appear in Infopedia only after governed publication refreshes `/wiki` projections
-- API-backed extraction uses server-side `OPENAI_API_KEY` configuration only and never exposes secrets in client payloads, artifacts, or logs
+- API-backed extraction uses server-side `OPEN_AI_KEY` configuration only and never exposes secrets in client payloads, artifacts, or logs
 - API-backed extraction falls back to deterministic extraction when the key is missing, AI is disabled, the request fails, or the response cannot be validated into candidate contracts
 
 ```mermaid

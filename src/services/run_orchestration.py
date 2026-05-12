@@ -167,7 +167,7 @@ class KMSRuntime:
         run = self.metadata.get_run(run_id)
         if run is None:
             raise ValidationError(f"run not found: {run_id}")
-        run_candidates = tuple(candidate for candidate in self.metadata.knowledge_candidates.values() if candidate.run_id == run_id)
+        run_candidates = self.metadata.candidates_for_run(run_id, include_archived=False)
         selected = run_candidates if approve_all else tuple(candidate for candidate in run_candidates if candidate.candidate_id in set(candidate_ids))
         if not selected:
             raise ValidationError("no candidates selected for approval")
@@ -202,6 +202,7 @@ class KMSRuntime:
             qa = self.metadata.save_qa_report(validate_page(page, revision_id=revision_id, policy_version=self.settings.policy_version))
             approval = self.metadata.save_approval(create_approval(revision_id, reviewer_id, ApprovalDecision.APPROVED, reason="approved candidate publication"))
             published.append(publish_page(page, qa, approval, self.wiki))
+            self.metadata.archive_candidate(candidate.candidate_id)
         rebuild_search_index(self.wiki, self.search)
         build_tree(self.wiki)
         updated = replace(

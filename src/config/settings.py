@@ -23,7 +23,7 @@ class KMSSettings:
     def from_env(cls) -> "KMSSettings":
         env = _merged_local_env()
         base = Path(env.get("KMS_DATA_ROOT", ".kms-data")).expanduser().resolve()
-        api_key = env.get("OPENAI_API_KEY", "")
+        api_key = env.get("OPEN_AI_KEY", "")
         enabled_value = env.get("KMS_AI_ENABLED")
         ai_enabled = _env_bool(enabled_value, default=bool(api_key))
         return cls(

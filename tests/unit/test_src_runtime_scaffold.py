@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 
 
@@ -72,11 +74,56 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
 
         self.assertIn("tests/kmi-source", app_js)
         self.assertIn("Create candidates", app_js)
+        self.assertIn("Approve selected", app_js)
         self.assertIn("Approve all candidates", app_js)
         self.assertIn("Load approved candidates to wiki", app_js)
+        self.assertIn("Loaded candidates are archived", app_js)
         self.assertNotIn("seedDemo", app_js)
         self.assertIn("restart the KMS API server", app_js)
+        info_js = (ROOT / "src/infopedia/app.js").read_text(encoding="utf-8")
+        self.assertIn("include_candidates=true", info_js)
+        self.assertIn("Include candidate proposals", info_js)
+        self.assertIn("approved wiki pages only", info_js)
+        self.assertTrue((ROOT / "src/kmi/favicon.svg").is_file())
+        self.assertTrue((ROOT / "src/infopedia/favicon.svg").is_file())
         self.assertTrue((ROOT / "tests/kmi-source/metrics/revenue.md").is_file())
+
+
+    def test_api_has_non_error_favicon_response(self) -> None:
+        from src.api.main import MinimalASGIApp
+
+        app = MinimalASGIApp()
+        messages: list[dict[str, object]] = []
+
+        async def receive() -> dict[str, object]:
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message: dict[str, object]) -> None:
+            messages.append(message)
+
+        import asyncio
+
+        asyncio.run(app({"type": "http", "method": "GET", "path": "/favicon.ico", "query_string": b""}, receive, send))
+
+        self.assertEqual(messages[0]["status"], 204)
+        self.assertEqual(messages[1]["body"], b"")
+
+    def test_start_dev_supports_src_cwd_without_nested_src_package(self) -> None:
+        start_dev = (ROOT / "src/scripts/start-dev.sh").read_text(encoding="utf-8")
+
+        self.assertIn('export PYTHONPATH="$REPO_ROOT', start_dev)
+        self.assertFalse((ROOT / "src/src").exists())
+        result = subprocess.run(
+            [sys.executable, "-c", "import src.api.main; print('ok')"],
+            cwd=ROOT / "src",
+            env={"PYTHONPATH": str(ROOT)},
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ok", result.stdout)
 
 
 if __name__ == "__main__":

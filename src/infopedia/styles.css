@@ -32,3 +32,7 @@ label { display: grid; gap: 0.35rem; font-weight: 800; color: #49386b; }
 .knowledge-card code { color: #655979; white-space: normal; }
 .pill { display: inline-block; border-radius: 999px; background: #efe7ff; color: #6d3fd1; padding: 0.2rem 0.55rem; font-size: 0.75rem; font-weight: 900; }
 .empty { color: #6d6380; padding: 1rem; border: 1px dashed #d7c8f4; border-radius: 1rem; background: #fdfbff; }
+.checkbox-label { display: flex; grid-template-columns: none; flex-direction: row; align-items: center; gap: 0.45rem; margin-bottom: 0.75rem; }
+.checkbox-label input { min-width: auto; width: auto; }
+.knowledge-card.candidate-result { border-style: dashed; background: #fffaf1; }
+.knowledge-card.candidate-result .pill { background: #fff0c2; color: #8a5b00; }

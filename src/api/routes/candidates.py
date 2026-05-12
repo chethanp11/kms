@@ -18,17 +18,17 @@ def create_candidates(payload: dict[str, object]) -> dict[str, object]:
         "fallback_used": result.fallback_used,
         "warning": result.warning,
         "summary_counts": dict(result.run.summary_counts),
-        "candidates": [_candidate_response(candidate, approved=False) for candidate in result.candidates],
+        "candidates": [_candidate_response(candidate, approved=False, archived=False) for candidate in result.candidates],
     }
 
 
 def list_candidates(run_id: str) -> list[dict[str, object]]:
     runtime = get_runtime()
     approved = runtime.metadata.approved_candidate_ids
+    archived = runtime.metadata.archived_candidate_ids
     return [
-        _candidate_response(candidate, approved=candidate.candidate_id in approved)
-        for candidate in runtime.metadata.knowledge_candidates.values()
-        if candidate.run_id == run_id
+        _candidate_response(candidate, approved=candidate.candidate_id in approved, archived=candidate.candidate_id in archived)
+        for candidate in runtime.metadata.candidates_for_run(run_id)
     ]
 
 
@@ -57,7 +57,7 @@ def publish_approved_candidates(run_id: str, payload: dict[str, object] | None =
     }
 
 
-def _candidate_response(candidate: KnowledgeCandidate, *, approved: bool) -> dict[str, object]:
+def _candidate_response(candidate: KnowledgeCandidate, *, approved: bool, archived: bool) -> dict[str, object]:
     return {
         "candidate_id": candidate.candidate_id,
         "run_id": candidate.run_id,
@@ -69,6 +69,7 @@ def _candidate_response(candidate: KnowledgeCandidate, *, approved: bool) -> dic
         "confidence_score": candidate.confidence_score,
         "rationale": candidate.rationale,
         "approved": approved,
+        "archived": archived,
     }
 
 

@@ -21,7 +21,7 @@ class KnowledgeUnderstandingTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / ".env").write_text(
-                "OPENAI_API_KEY=test-key\nKMS_AI_MODEL=gpt-4o\nKMS_AI_ENABLED=true\nKMS_AI_TIMEOUT_SECONDS=12\n",
+                "OPEN_AI_KEY=test-key\nKMS_AI_MODEL=gpt-4o\nKMS_AI_ENABLED=true\nKMS_AI_TIMEOUT_SECONDS=12\n",
                 encoding="utf-8",
             )
             previous = Path.cwd()

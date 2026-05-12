@@ -17,6 +17,7 @@ class MetadataStore:
     knowledge_candidates: dict[str, KnowledgeCandidate] = field(default_factory=dict)
     candidate_drafts: dict[str, CandidateDraft] = field(default_factory=dict)
     approved_candidate_ids: set[str] = field(default_factory=set)
+    archived_candidate_ids: set[str] = field(default_factory=set)
     lint_findings: dict[str, LintFinding] = field(default_factory=dict)
     events: list[object] = field(default_factory=list)
 
@@ -54,11 +55,24 @@ class MetadataStore:
     def approve_candidate(self, candidate_id: str) -> None:
         self.approved_candidate_ids.add(candidate_id)
 
+    def archive_candidate(self, candidate_id: str) -> None:
+        self.archived_candidate_ids.add(candidate_id)
+
     def approved_candidates_for_run(self, run_id: str) -> tuple[KnowledgeCandidate, ...]:
         return tuple(
             candidate
             for candidate in self.knowledge_candidates.values()
-            if candidate.run_id == run_id and candidate.candidate_id in self.approved_candidate_ids
+            if candidate.run_id == run_id
+            and candidate.candidate_id in self.approved_candidate_ids
+            and candidate.candidate_id not in self.archived_candidate_ids
+        )
+
+    def candidates_for_run(self, run_id: str, *, include_archived: bool = True) -> tuple[KnowledgeCandidate, ...]:
+        return tuple(
+            candidate
+            for candidate in self.knowledge_candidates.values()
+            if candidate.run_id == run_id
+            and (include_archived or candidate.candidate_id not in self.archived_candidate_ids)
         )
 
 

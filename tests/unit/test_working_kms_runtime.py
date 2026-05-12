@@ -81,6 +81,12 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             created = create_candidates({"source_path": str(source), "run_id": "candidate-api"})
             self.assertEqual(created["summary_counts"]["published_pages"], 0)
             self.assertGreaterEqual(len(created["candidates"]), 2)
+            self.assertEqual(search("revenue"), [])
+            self.assertTrue(search("revenue", include_candidates=True))
+
+            first_id = created["candidates"][0]["candidate_id"]
+            selected = approve_candidates("candidate-api", {"candidate_ids": [first_id]})
+            self.assertEqual(selected["approved_candidate_ids"], [first_id])
 
             approved = approve_candidates("candidate-api", {"approve_all": True})
             self.assertEqual(len(approved["approved_candidate_ids"]), len(created["candidates"]))
@@ -91,6 +97,11 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             self.assertTrue(all(path.startswith("candidates/") for path in published["published"]))
             self.assertGreaterEqual(len(tree()), len(created["candidates"]))
             self.assertTrue(search("revenue"))
+            self.assertTrue(search("trusted"))
+            archived = list_candidates("candidate-api")
+            self.assertTrue(all(candidate["archived"] for candidate in archived))
+            with self.assertRaises(ValidationError):
+                publish_approved_candidates("candidate-api", {})
 
 
 def tree_for(runtime: KMSRuntime) -> list[object]:
