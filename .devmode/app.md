@@ -33,6 +33,7 @@ App mode must not modify framework/control-plane files unless the current prompt
 - `AGENTS.md`
 - `.devmode/*`
 - `.codex/dev_workflow/*`
+- `.codex/fix_workflow/*`
 - `.codex/agents/*`
 - `.codex/skills/*`
 - `.codex/orchestration/*`
@@ -126,6 +127,7 @@ Use `.codex/tools/validate_codex_contract.py` for framework/control-plane valida
 
 - `.codex/agents/`: bounded role contracts.
 - `.codex/dev_workflow/`: canonical prompt-to-change lifecycle.
+- `.codex/fix_workflow/`: bounded application repair loop for fix mode.
 - `.codex/skills/`: reusable task procedures.
 - `.codex/orchestration/`: staged execution and HITL checkpoints.
 - `.codex/memory/`: factual, reviewable workflow memory.

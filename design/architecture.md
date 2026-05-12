@@ -2870,6 +2870,7 @@ Required API categories:
 
 - Run APIs
 - Source APIs
+- Candidate Review APIs
 - Review/Diff APIs
 - Approval APIs
 - Contradiction APIs
@@ -2888,6 +2889,10 @@ Representative endpoints should expose workflow state and read surfaces without 
 | `POST` | `/api/runs` | Create a new governed maintenance run | KMI |
 | `GET` | `/api/runs/{run_id}` | Fetch run status and summary | KMI |
 | `GET` | `/api/runs/{run_id}/artifacts` | List run artifacts and outputs | KMI |
+| `POST` | `/api/candidates` | Create proposal-only candidates from source material | KMI |
+| `GET` | `/api/candidates/{run_id}` | List candidate review items for a run | KMI |
+| `POST` | `/api/candidates/{run_id}/approve` | Approve selected or all candidates for publication | KMI |
+| `POST` | `/api/candidates/{run_id}/publish` | Publish approved candidates to `/wiki` and refresh projections | KMI |
 | `GET` | `/api/reviews/{revision_id}/diff` | Fetch review diff and validation context | KMI |
 | `POST` | `/api/approvals/{revision_id}` | Submit approval or rejection decision | KMI |
 | `GET` | `/api/wiki/pages/{slug}` | Read finalized wiki page content | KMI, Infopedia |

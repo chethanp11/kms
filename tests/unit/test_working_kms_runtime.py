@@ -7,6 +7,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 from src.api.dependencies import set_runtime
+from src.api.routes.candidates import approve_candidates, create_candidates, list_candidates, publish_approved_candidates
 from src.api.routes.infopedia import search, tree
 from src.api.routes.runs import create_run, get_run, list_artifacts
 from src.config.settings import KMSSettings
@@ -63,6 +64,33 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             self.assertEqual(qa.result, GateResult.BLOCK)
             with self.assertRaises(ValidationError):
                 publish_page(page, qa, None, runtime.wiki)
+
+    def test_candidate_approval_workflow_publishes_to_infopedia(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "revenue.md").write_text(
+                "Metric: Revenue is recognized after approved invoice.\n"
+                "Decision: Finance approved revenue as a candidate.",
+                encoding="utf-8",
+            )
+            runtime = self.runtime(root)
+            set_runtime(runtime)
+
+            created = create_candidates({"source_path": str(source), "run_id": "candidate-api"})
+            self.assertEqual(created["summary_counts"]["published_pages"], 0)
+            self.assertGreaterEqual(len(created["candidates"]), 2)
+
+            approved = approve_candidates("candidate-api", {"approve_all": True})
+            self.assertEqual(len(approved["approved_candidate_ids"]), len(created["candidates"]))
+
+            published = publish_approved_candidates("candidate-api", {})
+
+            self.assertEqual(published["summary_counts"]["published_pages"], len(created["candidates"]))
+            self.assertTrue(all(path.startswith("candidates/") for path in published["published"]))
+            self.assertGreaterEqual(len(tree()), len(created["candidates"]))
+            self.assertTrue(search("revenue"))
 
 
 def tree_for(runtime: KMSRuntime) -> list[object]:

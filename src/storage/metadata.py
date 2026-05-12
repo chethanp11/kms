@@ -16,6 +16,7 @@ class MetadataStore:
     contradictions: dict[str, ContradictionRecord] = field(default_factory=dict)
     knowledge_candidates: dict[str, KnowledgeCandidate] = field(default_factory=dict)
     candidate_drafts: dict[str, CandidateDraft] = field(default_factory=dict)
+    approved_candidate_ids: set[str] = field(default_factory=set)
     lint_findings: dict[str, LintFinding] = field(default_factory=dict)
     events: list[object] = field(default_factory=list)
 
@@ -49,6 +50,16 @@ class MetadataStore:
     def save_candidate_draft(self, draft: CandidateDraft) -> CandidateDraft:
         self.candidate_drafts[draft.draft_id] = draft
         return draft
+
+    def approve_candidate(self, candidate_id: str) -> None:
+        self.approved_candidate_ids.add(candidate_id)
+
+    def approved_candidates_for_run(self, run_id: str) -> tuple[KnowledgeCandidate, ...]:
+        return tuple(
+            candidate
+            for candidate in self.knowledge_candidates.values()
+            if candidate.run_id == run_id and candidate.candidate_id in self.approved_candidate_ids
+        )
 
 
 __all__ = ["MetadataStore"]

@@ -1,11 +1,9 @@
 # Test Update Plan
 
 ## Current scope
-- `TEST-022`: Validate GPT-4o configuration, API client payload handling, mocked extraction mapping, and deterministic fallback.
+- `TEST-023`: Validate staged KMI candidate approval/publish workflow and UI contracts.
 
 ## Validation
-- Add/extend unit tests using fake API clients only; no live API calls.
-- Run `python3 -m unittest discover -s tests/unit -p 'test_*.py'`.
-- Run `python3 -m compileall -q src`.
-- Run `git diff --check`.
-- Run `python3 .codex/tools/validate_codex_contract.py`.
+- Add unit coverage for create candidates -> approve all -> publish approved -> Infopedia/search visibility.
+- Extend frontend scaffold tests to assert three KMI stages and no create-demo-source control.
+- Run targeted tests first, then unit discovery, compile, and whitespace checks.

@@ -35,11 +35,16 @@ mode: framework
 mode: override
 ```
 
+```yaml
+mode: fix
+```
+
 ## Strict Routing
 
 - If `mode: app`, read and follow `.devmode/app.md`.
 - If `mode: framework`, read and follow `.devmode/framework.md`.
 - If `mode: override`, read and follow `.devmode/override.md`.
+- If `mode: fix`, read and follow `.devmode/fix.md`.
 - Treat the selected `.devmode/<mode>.md` file as the first-class instruction contract for the turn.
 - If the file is missing, malformed, or contains any other mode, stop and report the configuration error.
 
@@ -50,6 +55,7 @@ mode: override
 - Never modify application artifacts in framework mode, including implementation source, product design, tests, plans, logs, or app-specific project files, unless the user explicitly asks for application work after switching to app mode.
 - Never modify framework/control-plane files in app mode unless the user prompt explicitly changes AppFlow behavior.
 - When `mode: override`, do not run AppFlow or framework workflows automatically; modify any file only as directed by the prompt and normal repository safety rules.
+- When `mode: fix`, run only the application repair loop for existing behavior; do not modify framework/control-plane files or add new features.
 - When uncertain whether a request is framework or application work, follow `.devmode/mode.yaml` and ask before crossing modes.
 """,
     ".devmode/mode.yaml": "mode: app\n",
@@ -106,6 +112,54 @@ Override mode follows the user prompt directly. It is not AppFlow application wo
 Override mode may modify any repository file when the prompt requires it, including application artifacts, framework/control-plane files, mode contracts, workflow files, design, tests, source, plans, logs, and project-specific `.codex` files.
 
 This is a permission mode, not a workflow. It does not erase normal safety rules: avoid destructive operations unless explicitly requested, preserve secrets, keep changes reviewable, and validate when practical.
+""",
+    ".devmode/fix.md": """# Fix Mode
+
+Fix mode is the application repair workflow for existing behavior.
+
+## Activation
+
+Root `AGENTS.md` routes here when `.devmode/mode.yaml` contains:
+
+```yaml
+mode: fix
+```
+
+The normal user prompt to begin this workflow is:
+
+```text
+fix mode start
+```
+
+## Core Rule
+
+When the prompt is `fix mode start`, run the existing application with available test inputs, mimic human testing, identify errors and logical gaps, fix only application defects, and repeat until validation is satisfactory or a blocker is clearly reported.
+
+Fix mode must not modify framework/control-plane files and must not add new features.
+
+## Allowed Work
+
+Fix mode may change application source, tests, fixtures, and app-specific runtime examples required to repair existing behavior.
+
+## Forbidden Work
+
+Fix mode must not modify `AGENTS.md`, `.devmode/*`, reusable `.codex/*` framework/control-plane files, or framework workflow contracts. If a fix appears to require framework changes, stop and report the boundary.
+
+## Execution Loop
+
+1. Inspect the application run/test instructions and current Git diff.
+2. Use terminal commands to run the application or smallest runtime/API smoke path.
+3. Use configured test source fixtures when the application supports source-path input.
+4. Mimic human testing of the visible workflow.
+5. Fix only bugs or gaps in existing behavior.
+6. Re-run targeted validation.
+7. Repeat until validation is satisfactory or a blocker is understood.
+""",
+    ".codex/fix_workflow/README.md": """# Fix Workflow
+
+Fix workflow is a bounded application repair loop used by `.devmode/fix.md`.
+
+It is for testing and repairing existing application behavior only. It must not add new features or modify AppFlow framework/control-plane files.
 """,
     ".codex/project-context.md": """# Project Context
 
@@ -176,6 +230,7 @@ DIRS = [
     "tests",
     "dev_log",
     ".devmode",
+    ".codex/fix_workflow",
 ]
 
 

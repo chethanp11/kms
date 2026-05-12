@@ -71,6 +71,7 @@ KMI should be organized around maintenance workflows and review stages rather th
 | Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions |
 | Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation |
 | Knowledge Candidate Review | Inspect AI-assisted understanding outputs before they influence drafts | Filter candidates, inspect evidence, compare confidence, accept for draft support, reject, or escalate | Entities, processes, metrics, decisions, concepts, contradictions, relevance scores, confidence scores, source excerpts | Candidate disposition and review rationale |
+| Three-stage Candidate Flow | Move candidates from source extraction to approval to wiki publication | Create candidates, approve all or review candidates, load approved candidates to wiki | Source path, candidate cards, approval count, published page list | Approved candidates become finalized wiki pages and appear in Infopedia |
 | Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes |
 | Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision |
 | Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open |
@@ -212,6 +213,12 @@ Required elements:
 - audit trail of reviewer disposition
 
 The UI must visually separate candidate artifacts from finalized wiki pages and staged publication revisions. A candidate accepted for draft support still requires deterministic validation, diff review, and approval before any `/wiki` update is possible.
+
+KMI may present this as a simplified three-stage flow for focused candidate workflows:
+
+1. create candidates based on source material using the configured LLM extraction path
+2. review and approve candidates, including an approve-all action for local validation workflows
+3. load approved candidates to `/wiki`, after which Infopedia shows them through read-only tree and search projections
 
 ## 8.9 KMI Contradictions and Open Questions UX
 

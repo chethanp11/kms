@@ -39,6 +39,7 @@ REQUIRED_FILES = [
     ".devmode/app.md",
     ".devmode/framework.md",
     ".devmode/override.md",
+    ".devmode/fix.md",
     ".codex/README.md",
     ".codex/project-context.md",
     ".codex/dev_workflow/README.md",
@@ -53,6 +54,7 @@ REQUIRED_FILES = [
     ".codex/dev_workflow/08-update-logs.md",
     ".codex/dev_workflow/09-detect-gaps.md",
     ".codex/dev_workflow/10-iteration-review.md",
+    ".codex/fix_workflow/README.md",
     ".codex/tech-stack.md",
     ".codex/agents/README.md",
     ".codex/orchestration/README.md",
@@ -69,6 +71,7 @@ REQUIRED_DIRS = [
     ".devmode",
     ".codex/agents",
     ".codex/dev_workflow",
+    ".codex/fix_workflow",
     ".codex/skills",
     ".codex/orchestration",
     ".codex/memory",
@@ -125,8 +128,8 @@ def require_dirs() -> None:
 
 def validate_devmode() -> None:
     mode_text = read_text(ROOT / ".devmode" / "mode.yaml").strip()
-    if mode_text not in {"mode: app", "mode: framework", "mode: override"}:
-        fail(".devmode/mode.yaml must be exactly 'mode: app', 'mode: framework', or 'mode: override'")
+    if mode_text not in {"mode: app", "mode: framework", "mode: override", "mode: fix"}:
+        fail(".devmode/mode.yaml must be exactly 'mode: app', 'mode: framework', 'mode: override', or 'mode: fix'")
 
     router = read_text(ROOT / "AGENTS.md")
     required_router_phrases = [
@@ -135,6 +138,8 @@ def validate_devmode() -> None:
         "Never run `.codex/dev_workflow/*` in framework mode",
         "Never modify application artifacts in framework mode",
         "If `mode: override`, read and follow `.devmode/override.md`",
+        "If `mode: fix`, read and follow `.devmode/fix.md`",
+        "When `mode: fix`, run only the application repair loop",
     ]
     for phrase in required_router_phrases:
         if phrase not in router:
@@ -149,6 +154,11 @@ def validate_devmode() -> None:
     for phrase in ["Override mode", "may modify any repository file", "not AppFlow application workflow"]:
         if phrase not in override:
             fail(f".devmode/override.md missing override phrase: {phrase}")
+
+    fix = read_text(ROOT / ".devmode" / "fix.md")
+    for phrase in ["Fix mode", "fix mode start", "must not modify framework/control-plane files", "do not add new features"]:
+        if phrase not in fix:
+            fail(f".devmode/fix.md missing fix-mode phrase: {phrase}")
 
 
 def validate_skills() -> None:
@@ -459,6 +469,8 @@ def validate_tool_contracts() -> None:
         "Never blend modes",
         "Framework mode is control-plane-only",
         "may modify any repository file",
+        "mode: fix",
+        "fix mode start",
         "--dry-run",
         "preflight",
         "complete",

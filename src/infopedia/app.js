@@ -2,35 +2,63 @@ const API_BASE = window.KMS_API_BASE || 'http://127.0.0.1:8000';
 const app = document.getElementById('app');
 
 app.innerHTML = `
-  <section class="shell">
-    <h1>Infopedia</h1>
-    <p>Read-only browse and search over finalized wiki pages.</p>
-    <button id="loadTree">Load tree</button>
-    <label>Search
-      <input id="query" value="" placeholder="Search finalized knowledge" />
-    </label>
-    <button id="search">Search</button>
-    <div id="results">Ready.</div>
-  </section>
+  <main class="info-shell">
+    <header class="hero">
+      <p class="eyebrow">Read-only knowledge</p>
+      <h1>Infopedia</h1>
+      <p>Browse finalized wiki pages published from approved KMI candidates.</p>
+    </header>
+
+    <section class="toolbar">
+      <button id="loadTree">Load wiki tree</button>
+      <label>Search finalized knowledge
+        <input id="query" value="" placeholder="Try revenue, process, decision..." />
+      </label>
+      <button id="search">Search</button>
+    </section>
+
+    <section class="results-panel">
+      <div class="panel-heading">
+        <span class="step">3</span>
+        <div>
+          <h2>Published knowledge</h2>
+          <p>Only approved wiki pages appear here.</p>
+        </div>
+      </div>
+      <div id="results" class="empty">Load the tree or search after KMI publishes approved candidates.</div>
+    </section>
+  </main>
 `;
 
 const results = document.getElementById('results');
+
 function render(value) {
   if (Array.isArray(value)) {
-    results.innerHTML = value.length ? `<ul>${value.map(item => `<li><strong>${item.title}</strong><br><code>${item.slug || item.path || item.source_id}</code></li>`).join('')}</ul>` : '<p>No results.</p>';
+    results.className = value.length ? 'cards' : 'empty';
+    results.innerHTML = value.length ? value.map(item => `
+      <article class="knowledge-card">
+        <span class="pill">${item.page_type || item.source_kind || 'wiki'}</span>
+        <h3>${item.title}</h3>
+        <code>${item.slug || item.path || item.source_id}</code>
+      </article>
+    `).join('') : 'No finalized knowledge found.';
   } else {
+    results.className = 'empty';
     results.textContent = JSON.stringify(value, null, 2);
   }
 }
+
 async function request(path) {
   const response = await fetch(`${API_BASE}${path}`);
   const data = await response.json();
   if (!response.ok) throw new Error(data.detail || data.error || response.statusText);
   return data;
 }
+
 document.getElementById('loadTree').addEventListener('click', async () => {
   try { render(await request('/api/infopedia/tree')); } catch (error) { results.textContent = `Error: ${error.message}`; }
 });
+
 document.getElementById('search').addEventListener('click', async () => {
   try { render(await request(`/api/infopedia/search?q=${encodeURIComponent(document.getElementById('query').value)}`)); } catch (error) { results.textContent = `Error: ${error.message}`; }
 });

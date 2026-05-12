@@ -1,16 +1,15 @@
 # Code Update Plan
 
 ## Current scope
-- `DEV-022`: Add stdlib OpenAI Responses API client support to knowledge understanding.
+- `DEV-023`: Implement app runtime/API/UI changes for staged candidate approval and publication.
 
 ## Implementation steps
-1. Add `.env.example` placeholders and ignore local `.env` files.
-2. Extend settings with AI enablement, model, timeout, and API key loading from environment or local `.env`.
-3. Add a small server-side OpenAI Responses API client using stdlib HTTP and structured JSON prompts.
-4. Wire knowledge understanding to call GPT-4o when configured, then validate and map outputs into existing candidate contracts.
-5. Preserve deterministic extraction as fallback and record provider metadata in artifacts.
+1. Add runtime methods to create candidates without publishing source-note pages, approve candidate IDs or all candidates, and publish approved candidates to `/wiki`.
+2. Add API route functions/endpoints for candidate creation, approval, publication, and Infopedia refresh/readback.
+3. Replace KMI UI with a three-stage stage-oriented flow and remove create-demo-source.
+4. Improve Infopedia UI styling and display finalized wiki pages/search results clearly.
+5. Add deterministic unit tests for the new staged workflow and frontend contract.
 
 ## Risks
-- Avoid adding SDK dependencies unless necessary.
-- Avoid network calls in unit tests.
-- Validate AI output shape before creating candidates.
+- Existing `start_run` behavior should remain backwards-compatible for current tests.
+- Do not require live OpenAI network calls in tests; use existing fallback/mocked settings.

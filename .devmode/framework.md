@@ -28,8 +28,9 @@ For new application development, the framework contract is that only these files
 Framework mode may change:
 
 - root router behavior in `AGENTS.md`
-- mode contracts in `.devmode/app.md`, `.devmode/framework.md`, and `.devmode/override.md`
+- mode contracts in `.devmode/app.md`, `.devmode/framework.md`, `.devmode/override.md`, and `.devmode/fix.md`
 - lifecycle prompts under `.codex/dev_workflow/`
+- fix-mode workflow guidance under `.codex/fix_workflow/`
 - role contracts under `.codex/agents/`
 - skill contracts under `.codex/skills/`
 - orchestration guidance under `.codex/orchestration/`
@@ -95,8 +96,10 @@ When changing framework structure, check and update as needed:
 - `.devmode/app.md`
 - `.devmode/framework.md`
 - `.devmode/override.md`
+- `.devmode/fix.md`
 - `.codex/README.md`
 - `.codex/dev_workflow/README.md`
+- `.codex/fix_workflow/README.md`
 - affected `.codex/dev_workflow/*` steps
 - `.codex/tools/validate_codex_contract.py`
 - `.codex/tools/bootstrap_appflow.py`

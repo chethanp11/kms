@@ -67,6 +67,16 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
             self.assertIn("app.js", text)
             self.assertIn("styles.css", text)
 
+    def test_kmi_defaults_to_root_test_source_fixture(self) -> None:
+        app_js = (ROOT / "src/kmi/app.js").read_text(encoding="utf-8")
+
+        self.assertIn("tests/kmi-source", app_js)
+        self.assertIn("Create candidates", app_js)
+        self.assertIn("Approve all candidates", app_js)
+        self.assertIn("Load approved candidates to wiki", app_js)
+        self.assertNotIn("seedDemo", app_js)
+        self.assertTrue((ROOT / "tests/kmi-source/metrics/revenue.md").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

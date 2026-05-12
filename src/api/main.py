@@ -6,6 +6,7 @@ import json
 from typing import Any, Awaitable, Callable, Dict, List
 from urllib.parse import parse_qs
 
+from src.api.routes.candidates import approve_candidates, create_candidates, list_candidates, publish_approved_candidates
 from src.api.routes.infopedia import search as search_pages
 from src.api.routes.infopedia import tree as infopedia_tree
 from src.api.routes.runs import create_run, get_run, list_artifacts
@@ -49,6 +50,16 @@ class MinimalASGIApp:
             return 200, {"status": "ok", "name": "KMS API", "endpoints": list(REPRESENTATIVE_ENDPOINTS)}
         if method == "POST" and path == "/api/runs":
             return 200, create_run(await self._read_json(receive))
+        if method == "POST" and path == "/api/candidates":
+            return 200, create_candidates(await self._read_json(receive))
+        if method == "GET" and path.startswith("/api/candidates/"):
+            return 200, list_candidates(path.removeprefix("/api/candidates/"))
+        if method == "POST" and path.startswith("/api/candidates/"):
+            suffix = path.removeprefix("/api/candidates/")
+            if suffix.endswith("/approve"):
+                return 200, approve_candidates(suffix.removesuffix("/approve"), await self._read_json(receive))
+            if suffix.endswith("/publish"):
+                return 200, publish_approved_candidates(suffix.removesuffix("/publish"), await self._read_json(receive))
         if method == "GET" and path.startswith("/api/runs/"):
             suffix = path.removeprefix("/api/runs/")
             if suffix.endswith("/artifacts"):
@@ -101,6 +112,31 @@ def create_app() -> object:
     def _create_run(payload: Dict[str, Any]) -> Dict[str, Any]:
         try:
             return create_run(payload)
+        except (KeyError, ValidationError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/candidates")
+    def _create_candidates(payload: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            return create_candidates(payload)
+        except (KeyError, ValidationError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.get("/api/candidates/{run_id}")
+    def _list_candidates(run_id: str) -> List[Dict[str, Any]]:
+        return list_candidates(run_id)
+
+    @app.post("/api/candidates/{run_id}/approve")
+    def _approve_candidates(run_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            return approve_candidates(run_id, payload)
+        except (KeyError, ValidationError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.post("/api/candidates/{run_id}/publish")
+    def _publish_approved_candidates(run_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            return publish_approved_candidates(run_id, payload)
         except (KeyError, ValidationError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
