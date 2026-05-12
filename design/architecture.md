@@ -3427,10 +3427,19 @@ The deployment model should support local-first development and remain compatibl
 Requirements:
 
 - environment-configured paths and services
+- server-side AI provider configuration through ignored local environment files or process environment
 - separation of config from code
 - file-system or volume requirements for `/raw` and `/wiki`
 - compatibility with containerized execution later
 - ability to point the same codebase at local or remote metadata stores and search/index services
+
+AI provider requirements:
+
+- `OPENAI_API_KEY` is loaded only in backend/runtime settings and must never be exposed to KMI or Infopedia clients.
+- `KMS_AI_MODEL` selects the OpenAI model for knowledge understanding; the current default is `gpt-4o`.
+- Missing keys, disabled AI, invalid model responses, timeout, or API failure must fall back to deterministic extraction.
+- API-backed outputs must be validated into `KnowledgeCandidate` and `CandidateDraft` contracts before they are stored.
+- API-backed outputs remain proposal-only operational artifacts and cannot directly create approvals, finalized revisions, or `/wiki` writes.
 
 This section does not define enterprise infrastructure, but the design must be deployment-ready. The same authority boundaries that apply locally must hold in later environments.
 

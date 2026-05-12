@@ -1,10 +1,10 @@
 # Test Update Plan
 
 ## Current scope
-- `TEST-021`: Validate governed AI-assisted knowledge understanding candidates and no direct publish behavior.
+- `TEST-022`: Validate GPT-4o configuration, API client payload handling, mocked extraction mapping, and deterministic fallback.
 
 ## Validation
-- Add `tests/unit/test_knowledge_understanding.py` for extraction categories, relevance filtering, confidence scoring, draft support, and run artifact behavior.
+- Add/extend unit tests using fake API clients only; no live API calls.
 - Run `python3 -m unittest discover -s tests/unit -p 'test_*.py'`.
 - Run `python3 -m compileall -q src`.
 - Run `git diff --check`.

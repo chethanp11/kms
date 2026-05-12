@@ -8,11 +8,13 @@ artifacts and cannot publish canonical wiki truth.
 
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import json
 import re
+from typing import Any, Mapping
 
 from src.contracts import CandidateDraft, KnowledgeCandidate, KnowledgeCandidateType, SourceDocument
+from src.services.openai_client import OpenAIClientError, OpenAIResponsesClient
 from src.services.wiki_draft import slugify
 
 _EXPLICIT_PREFIXES = {
@@ -28,6 +30,38 @@ _PROCESS_TERMS = ("process", "workflow", "stage", "step", "procedure", "handoff"
 _DECISION_TERMS = ("decision", "decided", "approved", "rejected", "deferred")
 _CONTRADICTION_TERMS = ("contradiction", "conflict", "disagrees", "inconsistent", "however", "but ")
 _ENTITY_TERMS = ("team", "system", "service", "owner", "application", "data asset")
+
+
+@dataclass(frozen=True)
+class KnowledgeUnderstandingResult:
+    candidates: tuple[KnowledgeCandidate, ...]
+    provider: str
+    fallback_used: bool = False
+    warning: str = ""
+
+
+def understand_knowledge(
+    documents: tuple[SourceDocument, ...],
+    *,
+    settings: object | None = None,
+    ai_client: object | None = None,
+    min_relevance: float = 0.35,
+) -> KnowledgeUnderstandingResult:
+    """Extract candidates with configured AI first, then deterministic fallback."""
+    if _ai_enabled(settings):
+        model = str(getattr(settings, "ai_model", "gpt-4o"))
+        client = ai_client or OpenAIResponsesClient(
+            api_key=str(getattr(settings, "openai_api_key", "")),
+            model=model,
+            timeout_seconds=float(getattr(settings, "ai_timeout_seconds", 30.0)),
+        )
+        try:
+            candidates = _extract_with_ai(documents, client=client, model=model, min_relevance=min_relevance)
+            return KnowledgeUnderstandingResult(candidates, provider=f"openai:{model}")
+        except (OpenAIClientError, ValueError, TypeError, KeyError) as exc:
+            fallback = extract_knowledge_candidates(documents, min_relevance=min_relevance)
+            return KnowledgeUnderstandingResult(fallback, provider="deterministic", fallback_used=True, warning=str(exc))
+    return KnowledgeUnderstandingResult(extract_knowledge_candidates(documents, min_relevance=min_relevance), provider="deterministic")
 
 
 def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_relevance: float = 0.35) -> tuple[KnowledgeCandidate, ...]:
@@ -98,6 +132,20 @@ def render_candidates_json(candidates: tuple[KnowledgeCandidate, ...]) -> str:
         item["is_proposal"] = candidate.is_proposal
         payload.append(item)
     return json.dumps({"knowledge_candidates": payload}, indent=2, sort_keys=True) + "\n"
+
+
+def render_understanding_metadata(result: KnowledgeUnderstandingResult) -> str:
+    return json.dumps(
+        {
+            "provider": result.provider,
+            "fallback_used": result.fallback_used,
+            "warning": result.warning,
+            "candidate_count": len(result.candidates),
+            "proposal_only": True,
+        },
+        indent=2,
+        sort_keys=True,
+    ) + "\n"
 
 
 def render_candidate_review_markdown(candidates: tuple[KnowledgeCandidate, ...], drafts: tuple[CandidateDraft, ...]) -> str:
@@ -175,9 +223,82 @@ def _title_for(line: str, candidate_type: KnowledgeCandidateType) -> str:
     return title[:80]
 
 
+def _ai_enabled(settings: object | None) -> bool:
+    return bool(settings and getattr(settings, "ai_enabled", False) and getattr(settings, "openai_api_key", ""))
+
+
+def _extract_with_ai(
+    documents: tuple[SourceDocument, ...],
+    *,
+    client: object,
+    model: str,
+    min_relevance: float,
+) -> tuple[KnowledgeCandidate, ...]:
+    candidates: list[KnowledgeCandidate] = []
+    sequence = 1
+    instructions = (
+        "Extract governed KMS knowledge candidates from the source text. "
+        "Return only JSON with a 'candidates' array. Each item must include "
+        "candidate_type, title, excerpt, relevance_score, confidence_score, and rationale. "
+        "candidate_type must be one of entity, process, metric, decision, concept, contradiction. "
+        "Outputs are proposal-only and must not claim to publish or approve wiki truth."
+    )
+    for document in documents:
+        payload = _source_payload(document)
+        response = client.create_json_response(instructions=instructions, user_input=json.dumps(payload, sort_keys=True))
+        for item in response.get("candidates", []):
+            candidate = _candidate_from_ai_item(
+                item,
+                document=document,
+                sequence=sequence,
+                model=model,
+            )
+            if candidate.relevance_score >= min_relevance:
+                candidates.append(candidate)
+                sequence += 1
+    return tuple(candidates)
+
+
+def _source_payload(document: SourceDocument) -> Mapping[str, str]:
+    return {
+        "source_document_id": document.source_document_id,
+        "source_ref": str(document.metadata.get("relative_path", document.source_document_id)),
+        "title": document.title,
+        "text": document.text[:12000],
+    }
+
+
+def _candidate_from_ai_item(item: Any, *, document: SourceDocument, sequence: int, model: str) -> KnowledgeCandidate:
+    if not isinstance(item, Mapping):
+        raise ValueError("candidate item must be an object")
+    candidate_type = KnowledgeCandidateType(str(item["candidate_type"]).casefold())
+    title = str(item["title"]).strip()
+    excerpt = str(item["excerpt"]).strip()
+    source_ref = str(document.metadata.get("relative_path", document.source_document_id))
+    relevance = float(item["relevance_score"])
+    confidence = float(item["confidence_score"])
+    rationale = str(item.get("rationale", f"AI-assisted extraction using {model}.")).strip()
+    return KnowledgeCandidate(
+        candidate_id=f"candidate-{sequence}",
+        run_id=document.run_id,
+        source_document_id=document.source_document_id,
+        source_ref=source_ref,
+        candidate_type=candidate_type,
+        title=title,
+        excerpt=excerpt[:320],
+        relevance_score=relevance,
+        confidence_score=confidence,
+        rationale=f"AI-assisted extraction using {model}: {rationale}",
+        target_slug=f"candidates/{slugify(title)}",
+    )
+
+
 __all__ = [
     "build_candidate_drafts",
     "extract_knowledge_candidates",
+    "KnowledgeUnderstandingResult",
     "render_candidate_review_markdown",
     "render_candidates_json",
+    "render_understanding_metadata",
+    "understand_knowledge",
 ]

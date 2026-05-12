@@ -103,6 +103,8 @@ Acceptance checks:
 - contradiction candidates remain explicit and route to contradiction/open-question handling
 - candidate drafts are marked non-publishable intermediate artifacts
 - publication from candidate-derived drafts fails closed without validation and approval
+- API-backed extraction uses server-side `OPENAI_API_KEY` configuration only and never exposes secrets in client payloads, artifacts, or logs
+- API-backed extraction falls back to deterministic extraction when the key is missing, AI is disabled, the request fails, or the response cannot be validated into candidate contracts
 
 ```mermaid
 flowchart TD

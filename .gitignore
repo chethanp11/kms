@@ -15,3 +15,5 @@ config/.env.local
 config/*.local
 config/*.secret
 config/local/
+.env
+.env.local

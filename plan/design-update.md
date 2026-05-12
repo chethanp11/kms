@@ -1,15 +1,14 @@
 # Design Update Plan
 
 ## Current scope
-- `REQ-021`: Introduce governed AI-assisted knowledge understanding as proposal-only Run artifacts.
+- `REQ-022`: Configure API-key-backed GPT-4o use for AI-assisted knowledge understanding while preserving governance boundaries.
 
 ## Design updates
-1. Extend architecture with a bounded knowledge understanding service between parsing and drafting.
-2. Define candidate knowledge as operational artifacts, not canonical truth.
-3. Document candidate categories, relevance/confidence requirements, contradiction candidate handling, and review/audit boundaries.
-4. Update acceptance criteria so candidate outputs fail closed before publish and remain subject to approval.
+1. Document server-side OpenAI configuration through local environment variables and `.env` placeholders.
+2. Clarify that API-backed extraction is optional and must fail closed to deterministic extraction when unavailable.
+3. Preserve candidate artifacts as proposal-only Run outputs; API responses cannot publish or approve `/wiki` changes.
 
 ## Boundaries
-- `/wiki` remains the only finalized truth store.
-- Candidate and draft artifacts stay in metadata/artifact storage until reviewed and approved.
-- AI-assisted extraction may propose and score; it must not publish, approve, or silently rewrite canonical knowledge.
+- Real API keys must never be committed.
+- KMI/Infopedia clients must not receive the API key.
+- `/wiki` publication still requires deterministic validation and Knowledge Manager approval.

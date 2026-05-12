@@ -110,6 +110,8 @@ KMS validation must prove source-trace integrity, approval gating, contradiction
 
 AI-assisted understanding outputs are governed intermediate artifacts only. Candidate entities, processes, metrics, decisions, concepts, contradictions, confidence scores, relevance scores, and candidate drafts may support review and draft preparation, but they are not finalized knowledge and cannot mutate `/wiki` without deterministic validation and Knowledge Manager approval.
 
+API-backed AI extraction is server-side only. `OPENAI_API_KEY` may be supplied through a local ignored `.env` file, with `KMS_AI_MODEL=gpt-4o` as the current configured model. Missing keys, disabled AI, invalid responses, or API failures must fall back to deterministic extraction and must not block or bypass governance.
+
 Validation evidence belongs in `dev_log/validation-results.md` after checks are actually run. Do not fabricate validation evidence.
 
 ## Stop Conditions

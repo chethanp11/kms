@@ -40,6 +40,19 @@ The metadata DB and indexes must not replace `/wiki` as the knowledge source of 
 | TOML | Python project and tooling configuration. |
 | Environment/config manifests | Runtime configuration and secret references; never commit secret values. |
 
+## AI Provider Configuration
+
+OpenAI-backed AI activities are configured through server-side environment variables:
+
+| Variable | Purpose | Default / behavior |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | Secret key for OpenAI API calls. | Empty by default; load from local `.env` or process env only. |
+| `KMS_AI_MODEL` | Model used for knowledge-understanding extraction. | `gpt-4o` |
+| `KMS_AI_ENABLED` | Enables API-backed AI extraction when an API key exists. | Enabled when a key is present unless explicitly false. |
+| `KMS_AI_TIMEOUT_SECONDS` | API request timeout for AI extraction. | `30` |
+
+Local `.env` files are ignored and must not contain committed secrets. `.env.example` is the committed placeholder.
+
 ## Service and API Contracts
 
 Representative API categories:

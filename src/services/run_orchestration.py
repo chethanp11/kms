@@ -12,9 +12,10 @@ from src.services.contradiction import detect_contradictions
 from src.services.infopedia_projection import build_tree
 from src.services.knowledge_understanding import (
     build_candidate_drafts,
-    extract_knowledge_candidates,
     render_candidate_review_markdown,
     render_candidates_json,
+    render_understanding_metadata,
+    understand_knowledge,
 )
 from src.services.lint import lint_wiki
 from src.services.parsing import parse_source_bundle
@@ -56,7 +57,8 @@ class KMSRuntime:
         bundle = discover_sources(source_path)
         self.artifacts.write_text(run_id, "source-note.md", render_source_note(bundle))
         documents = parse_source_bundle(bundle, run_id=run_id)
-        candidates = extract_knowledge_candidates(documents)
+        understanding = understand_knowledge(documents, settings=self.settings)
+        candidates = understanding.candidates
         candidate_drafts = build_candidate_drafts(candidates)
         for candidate in candidates:
             self.metadata.save_knowledge_candidate(candidate)
@@ -65,6 +67,7 @@ class KMSRuntime:
             self.artifacts.write_text(run_id, f"candidate-drafts/{draft.draft_id}.md", draft.markdown)
         self.artifacts.write_text(run_id, "knowledge-candidates.json", render_candidates_json(candidates))
         self.artifacts.write_text(run_id, "knowledge-candidates-review.md", render_candidate_review_markdown(candidates, candidate_drafts))
+        self.artifacts.write_text(run_id, "knowledge-understanding-metadata.json", render_understanding_metadata(understanding))
         contradictions = detect_contradictions(documents, run_id=run_id)
         for contradiction in contradictions:
             self.metadata.contradictions[contradiction.contradiction_id] = contradiction
