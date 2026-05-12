@@ -73,7 +73,13 @@ function setStage(stageName) {
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, options);
   const data = await response.json();
-  if (!response.ok) throw new Error(data.detail || data.error || response.statusText);
+  if (!response.ok) {
+    const message = data.detail || data.error || response.statusText;
+    if (response.status === 404 && path.startsWith('/api/candidates')) {
+      throw new Error(`${message}. Candidate API route is unavailable; restart the KMS API server so the latest application routes are loaded.`);
+    }
+    throw new Error(message);
+  }
   return data;
 }
 

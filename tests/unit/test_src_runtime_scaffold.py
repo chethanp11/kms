@@ -75,6 +75,7 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertIn("Approve all candidates", app_js)
         self.assertIn("Load approved candidates to wiki", app_js)
         self.assertNotIn("seedDemo", app_js)
+        self.assertIn("restart the KMS API server", app_js)
         self.assertTrue((ROOT / "tests/kmi-source/metrics/revenue.md").is_file())
 
 

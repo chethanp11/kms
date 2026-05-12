@@ -19,6 +19,8 @@ class ScaffoldBoundaryTests(unittest.TestCase):
 
     def test_representative_api_surface_matches_design_categories(self) -> None:
         self.assertIn(("POST", "/api/runs"), REPRESENTATIVE_ENDPOINTS)
+        self.assertIn(("POST", "/api/candidates"), REPRESENTATIVE_ENDPOINTS)
+        self.assertIn(("POST", "/api/candidates/{run_id}/publish"), REPRESENTATIVE_ENDPOINTS)
         self.assertIn(("GET", "/api/wiki/pages/{slug}"), REPRESENTATIVE_ENDPOINTS)
         self.assertIn(("GET", "/api/infopedia/search"), REPRESENTATIVE_ENDPOINTS)
 
