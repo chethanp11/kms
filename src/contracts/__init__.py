@@ -67,6 +67,15 @@ class ChangeType(str, Enum):
     NO_OP = "no_op"
 
 
+class KnowledgeCandidateType(str, Enum):
+    ENTITY = "entity"
+    PROCESS = "process"
+    METRIC = "metric"
+    DECISION = "decision"
+    CONCEPT = "concept"
+    CONTRADICTION = "contradiction"
+
+
 class ApprovalDecision(str, Enum):
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -497,6 +506,66 @@ class SearchDocument:
         return True
 
 
+@dataclass(frozen=True)
+class KnowledgeCandidate:
+    candidate_id: str
+    run_id: str
+    source_document_id: str
+    source_ref: str
+    candidate_type: KnowledgeCandidateType
+    title: str
+    excerpt: str
+    relevance_score: float
+    confidence_score: float
+    rationale: str
+    target_slug: str = ""
+    related_candidate_ids: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        for field_name in ("candidate_id", "run_id", "source_document_id"):
+            _validate_identifier(getattr(self, field_name), field_name)
+        _validate_non_empty(self.source_ref, "source_ref")
+        _validate_non_empty(self.title, "title")
+        _validate_non_empty(self.excerpt, "excerpt")
+        _validate_non_empty(self.rationale, "rationale")
+        if not 0.0 <= self.relevance_score <= 1.0:
+            raise ValidationError("relevance_score must be between 0.0 and 1.0")
+        if not 0.0 <= self.confidence_score <= 1.0:
+            raise ValidationError("confidence_score must be between 0.0 and 1.0")
+        if self.target_slug and not _SLUG_RE.match(self.target_slug):
+            raise ValidationError("target_slug must be lowercase POSIX-safe text")
+        object.__setattr__(self, "related_candidate_ids", _tuple(self.related_candidate_ids))
+
+    @property
+    def is_proposal(self) -> bool:
+        return True
+
+
+@dataclass(frozen=True)
+class CandidateDraft:
+    draft_id: str
+    run_id: str
+    candidate_ids: tuple[str, ...]
+    title: str
+    markdown: str
+    publishable: bool = False
+
+    def __post_init__(self) -> None:
+        for field_name in ("draft_id", "run_id"):
+            _validate_identifier(getattr(self, field_name), field_name)
+        object.__setattr__(self, "candidate_ids", _tuple(self.candidate_ids))
+        if not self.candidate_ids:
+            raise ValidationError("candidate_ids must contain at least one candidate")
+        for candidate_id in self.candidate_ids:
+            _validate_identifier(candidate_id, "candidate_id")
+        _validate_non_empty(self.title, "title")
+        _validate_non_empty(self.markdown, "markdown")
+
+    @property
+    def is_intermediate_artifact(self) -> bool:
+        return True
+
+
 __all__ = [
     "ApprovalDecision",
     "ApprovalRecord",
@@ -510,6 +579,7 @@ __all__ = [
     "ImpactRecord",
     "InfopediaNode",
     "KnowledgePage",
+    "CandidateDraft",
     "LintFinding",
     "LintSeverity",
     "LintStatus",
@@ -517,6 +587,8 @@ __all__ = [
     "PageStatus",
     "ParseStatus",
     "PolicyFinding",
+    "KnowledgeCandidate",
+    "KnowledgeCandidateType",
     "QAReport",
     "QAResult",
     "RevisionState",

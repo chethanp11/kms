@@ -4,6 +4,7 @@ AGENT_ROLES: tuple[str, ...] = (
     "orchestrator",
     "source-intake",
     "source-analyst",
+    "knowledge-understanding",
     "wiki-curator",
     "policy-qa",
     "contradiction-reviewer",

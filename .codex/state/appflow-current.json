@@ -1,64 +1,64 @@
 {
   "schema": "appflow-run-state-v1",
-  "objective": "Implement all code in src/ as per design to create a working KMS application; review and fix in validation loops",
-  "created_at": "2026-05-11T05:43:28+00:00",
-  "updated_at": "2026-05-11T05:50:52+00:00",
+  "objective": "Introduce bounded AI-assisted knowledge understanding candidates into governed KMS Run lifecycle",
+  "created_at": "2026-05-12T03:45:52+00:00",
+  "updated_at": "2026-05-12T03:53:09+00:00",
   "status": "complete",
   "steps": {
     "00-create-intent": {
       "status": "completed",
-      "evidence": "Wrote prompt-derived current intent and product intent for DEV-020 src runtime implementation",
-      "updated_at": "2026-05-11T05:49:29+00:00"
+      "evidence": "Recorded prompt-derived intent in .codex/state/current-intent.md and intent/product-intent.md",
+      "updated_at": "2026-05-12T03:46:56+00:00"
     },
     "01-read-intent": {
       "status": "completed",
-      "evidence": "Read app mode, project context, tech stack, design/test artifacts, current src scaffold, and existing tests",
-      "updated_at": "2026-05-11T05:49:38+00:00"
+      "evidence": "Read app mode, project context, tech stack, design docs, plans, runtime services, contracts, and tests",
+      "updated_at": "2026-05-12T03:46:56+00:00"
     },
     "02-create-plan": {
       "status": "completed",
-      "evidence": "Updated plan/design-update.md, plan/code-update.md, and plan/test-update.md for REQ/DEV/TEST-020",
-      "updated_at": "2026-05-11T05:49:38+00:00"
+      "evidence": "Updated plan/design-update.md, plan/code-update.md, and plan/test-update.md for REQ-021/DEV-021/TEST-021",
+      "updated_at": "2026-05-12T03:46:56+00:00"
     },
     "03-update-design": {
-      "status": "skipped",
-      "evidence": "No design doc change required; existing design already defines runtime service model and governance boundaries",
-      "updated_at": "2026-05-11T05:49:39+00:00"
+      "status": "completed",
+      "evidence": "Updated project context, architecture, UX, acceptance criteria, test plan, and traceability for governed knowledge candidates",
+      "updated_at": "2026-05-12T03:51:30+00:00"
     },
     "04-update-tests": {
       "status": "completed",
-      "evidence": "Added tests/unit/test_working_kms_runtime.py for working source-to-publish/search/projection behavior",
-      "updated_at": "2026-05-11T05:49:39+00:00"
+      "evidence": "Added tests/unit/test_knowledge_understanding.py and updated runtime artifact expectations for TEST-021",
+      "updated_at": "2026-05-12T03:51:30+00:00"
     },
     "05-implement-code": {
       "status": "completed",
-      "evidence": "Populated src placeholders with stdlib KMS runtime services, stores, API routes, workers, agents, rules, scripts, and tests",
-      "updated_at": "2026-05-11T05:49:39+00:00"
+      "evidence": "Added KnowledgeCandidate/CandidateDraft contracts, knowledge_understanding service, metadata storage, agent facade, and run artifact wiring",
+      "updated_at": "2026-05-12T03:51:30+00:00"
     },
     "06-run-validation": {
       "status": "completed",
-      "evidence": "Unit discovery passed 25 tests; compileall passed; diff check passed; Codex contract validation passed",
-      "updated_at": "2026-05-11T05:49:53+00:00"
+      "evidence": "28 unit tests passed; compileall passed; git diff --check passed; Codex contract validation passed",
+      "updated_at": "2026-05-12T03:52:22+00:00"
     },
     "07-fix-failures": {
-      "status": "completed",
-      "evidence": "Fixed validation loop failures: wiki_draft multiline f-string syntax and Python 3.8 annotation imports in route modules",
-      "updated_at": "2026-05-11T05:49:53+00:00"
+      "status": "skipped",
+      "evidence": "No validation failures required repair",
+      "updated_at": "2026-05-12T03:52:22+00:00"
     },
     "08-update-logs": {
       "status": "completed",
-      "evidence": "Updated plan/test traceability and dev_log entries for DEV-020 validation evidence",
-      "updated_at": "2026-05-11T05:50:41+00:00"
+      "evidence": "Recorded DEV-021 design, code, test, and validation log entries",
+      "updated_at": "2026-05-12T03:52:22+00:00"
     },
     "09-detect-gaps": {
       "status": "completed",
-      "evidence": "No new evidence-backed gaps detected after passing unit/static validation",
-      "updated_at": "2026-05-11T05:50:41+00:00"
+      "evidence": "No evidence-backed follow-up gaps identified for DEV-021",
+      "updated_at": "2026-05-12T03:52:22+00:00"
     },
     "10-iteration-review": {
       "status": "completed",
-      "evidence": "Reviewed mode boundaries, placeholder removal, validation results, and git diff scope",
-      "updated_at": "2026-05-11T05:50:41+00:00"
+      "evidence": "Iteration complete: design/code/tests/logs updated and validation passed for DEV-021",
+      "updated_at": "2026-05-12T03:52:33+00:00"
     }
   },
   "validation": {

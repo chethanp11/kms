@@ -70,6 +70,7 @@ KMI should be organized around maintenance workflows and review stages rather th
 | New Run / Intake | Start a governed maintenance run | Enter source path, validate path, launch run | Path validation, source preview, run options | Run creation or rejection |
 | Run Detail | Show orchestration and stage progress | Inspect stages, open artifacts, drill into failures | Stage timeline, counts, statuses, warnings | Diagnosis and stage-level decisions |
 | Source Review | Review ingested sources and notes | Open source files, annotate, mark relevance | Source list, parse quality, source notes | Source acceptance or remediation |
+| Knowledge Candidate Review | Inspect AI-assisted understanding outputs before they influence drafts | Filter candidates, inspect evidence, compare confidence, accept for draft support, reject, or escalate | Entities, processes, metrics, decisions, concepts, contradictions, relevance scores, confidence scores, source excerpts | Candidate disposition and review rationale |
 | Proposed Changes / Impact Review | Understand affected knowledge pages | Inspect impacted pages, compare scope | Change summary, impacted pages, confidence | Accept, defer, or escalate changes |
 | Diff Review | Review exact markdown modifications | Read diffs, compare before/after sections | Structured diffs, source trace markers, rule violations | Approve, reject, or request revision |
 | Contradictions / Open Questions | Resolve conflicting claims | Inspect conflicts, link evidence, create open questions | Severity, conflicting sources, proposed resolution | Resolve, escalate, or keep open |
@@ -195,6 +196,22 @@ Review should always show the relationship between source evidence, generated kn
 | Section-level visibility | Localize the change to a page area | Approve section edits without rereading the full page |
 
 The review screen must not rely on a generic diff alone. It needs structured overlays for trace, confidence, and rule status so the Knowledge Manager can make a governed decision quickly.
+
+## 8.8.1 KMI Knowledge Candidate Review UX
+
+AI-assisted knowledge understanding appears in KMI as a proposal review surface, not as a publish action.
+
+Required elements:
+
+- candidate type (`entity`, `process`, `metric`, `decision`, `concept`, or `contradiction`)
+- source document and source excerpt
+- relevance score and confidence score
+- extraction rationale
+- generated draft-support link when available
+- disposition controls: accept for draft support, reject, defer, or escalate
+- audit trail of reviewer disposition
+
+The UI must visually separate candidate artifacts from finalized wiki pages and staged publication revisions. A candidate accepted for draft support still requires deterministic validation, diff review, and approval before any `/wiki` update is possible.
 
 ## 8.9 KMI Contradictions and Open Questions UX
 

@@ -89,6 +89,21 @@ Mandatory gates:
 
 Pre-draft validation checks input shape, required metadata, and obvious rule violations before draft generation proceeds. Post-draft validation evaluates the generated page set against policy rules and source trace requirements. Pre-publish validation is the final blocking checkpoint before `/wiki` write actions. Post-publish lint runs after publish to detect drift, broken references, and non-blocking maintenance issues, but it cannot authorize an invalid publish after the fact.
 
+### AI-assisted understanding candidate gate
+
+AI-assisted extraction is allowed only as a proposal stage inside the run lifecycle. Candidate entities, processes, metrics, decisions, concepts, and contradictions must be stored as inspectable intermediate artifacts with source references, relevance scores, confidence scores, and review rationale.
+
+Candidate outputs are never publication authority. A candidate or candidate draft cannot write `/wiki`, cannot count as Knowledge Manager approval, and cannot bypass schema, source trace, conflict, or approval gates. Candidate-derived content must become a separate staged revision and pass deterministic validation before any publisher action is eligible.
+
+Acceptance checks:
+
+- candidate records include source document identity and source reference
+- low-relevance candidates are filtered before review queues
+- confidence scores are visible to KMI and audit records but do not authorize publication
+- contradiction candidates remain explicit and route to contradiction/open-question handling
+- candidate drafts are marked non-publishable intermediate artifacts
+- publication from candidate-derived drafts fails closed without validation and approval
+
 ```mermaid
 flowchart TD
   A[Draft Input] --> B[Draft Generation]

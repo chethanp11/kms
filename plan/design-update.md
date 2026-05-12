@@ -1,13 +1,15 @@
 # Design Update Plan
 
 ## Current scope
-- `REQ-020`: Populate the existing `src/`-only KMS runtime scaffold with concrete, stdlib-first behavior aligned to the current design.
+- `REQ-021`: Introduce governed AI-assisted knowledge understanding as proposal-only Run artifacts.
 
-## Design interpretation
-- No design document changes are required: the existing architecture already defines the runtime service model, governance gates, `/wiki` authority boundary, KMI control surface, Infopedia read-only projection, metadata support role, and source intake flow.
-- The current iteration translates those existing design contracts into implementation only.
+## Design updates
+1. Extend architecture with a bounded knowledge understanding service between parsing and drafting.
+2. Define candidate knowledge as operational artifacts, not canonical truth.
+3. Document candidate categories, relevance/confidence requirements, contradiction candidate handling, and review/audit boundaries.
+4. Update acceptance criteria so candidate outputs fail closed before publish and remain subject to approval.
 
 ## Boundaries
-- Keep runtime code under `src/`.
-- Do not add new top-level runtime roots or new framework/control-plane behavior.
-- Preserve `/wiki` as the only finalized truth store; metadata, search, and Infopedia stay derived/supporting.
+- `/wiki` remains the only finalized truth store.
+- Candidate and draft artifacts stay in metadata/artifact storage until reviewed and approved.
+- AI-assisted extraction may propose and score; it must not publish, approve, or silently rewrite canonical knowledge.

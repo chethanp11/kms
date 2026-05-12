@@ -50,7 +50,8 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
 
             self.assertEqual(response["state"], "completed")
             self.assertEqual(get_run("run-api")["summary_counts"]["published_pages"], 1)
-            self.assertEqual(list_artifacts("run-api"), ["source-note.md"])
+            self.assertIn("source-note.md", list_artifacts("run-api"))
+            self.assertIn("knowledge-candidates.json", list_artifacts("run-api"))
             self.assertEqual(search("operations")[0]["title"], "Ops")
             self.assertEqual(tree()[0]["slug"], "sources/ops")
 

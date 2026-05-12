@@ -83,6 +83,7 @@ KMS runtime behavior is organized around bounded services:
 - API service
 - run orchestration service
 - source discovery and parsing services
+- knowledge understanding service
 - source analysis service
 - wiki draft/refresh service
 - policy validation service
@@ -106,6 +107,8 @@ Implementation must follow approved plan, design, and validation artifacts. Code
 ## Validation and Governance Expectations
 
 KMS validation must prove source-trace integrity, approval gating, contradiction handling, deterministic markdown output, read-only Infopedia behavior, and no direct mutation of finalized knowledge outside governed publish paths.
+
+AI-assisted understanding outputs are governed intermediate artifacts only. Candidate entities, processes, metrics, decisions, concepts, contradictions, confidence scores, relevance scores, and candidate drafts may support review and draft preparation, but they are not finalized knowledge and cannot mutate `/wiki` without deterministic validation and Knowledge Manager approval.
 
 Validation evidence belongs in `dev_log/validation-results.md` after checks are actually run. Do not fabricate validation evidence.
 

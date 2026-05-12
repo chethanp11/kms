@@ -46,6 +46,7 @@ Representative API categories:
 
 - run APIs
 - source APIs
+- knowledge candidate/review artifact APIs
 - review/diff APIs
 - approval APIs
 - contradiction APIs

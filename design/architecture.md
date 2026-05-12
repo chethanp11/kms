@@ -99,6 +99,7 @@ The architecture requires concrete components that future implementation can map
 | API service | Provide the application-facing service boundary for KMI and Infopedia | UI requests, authentication context, run commands, browse requests | workflow responses, status, page data, search results, metadata lookups | supporting | read/write to operational metadata and workflow state, read to knowledge and index sources as needed | Metadata and Runtime Services Layer |
 | Run orchestration service | Coordinate the lifecycle of a maintenance run from input to publication decision | source path, existing wiki content, policy rules, orchestration directives | run state transitions, task dispatch, step completion status, failure handling signals | supporting | writes operational run state, reads source and wiki content | Knowledge Maintenance Layer |
 | Source discovery and parsing service | Discover source artifacts and normalize them into processable representations | raw source folder contents, source path configuration | discovered files, parsed text, normalized source records, extraction artifacts | supporting | reads raw source, may write transient artifacts to support storage | Knowledge Maintenance Layer |
+| Knowledge understanding service | Extract structured AI-assisted candidate knowledge from parsed documents while preserving proposal-only authority | parsed source documents, source trace, existing wiki context, extraction policy | entity, process, metric, decision, concept, and contradiction candidates; relevance scores; confidence scores; draft support artifacts | supporting proposal generator, not truth store | reads parsed sources and existing knowledge; writes candidate artifacts to operational storage only | Knowledge Maintenance Layer |
 | Source analysis service | Analyze normalized source material against current knowledge and rules | parsed source content, current `/wiki` pages, rules and validation context | proposed knowledge deltas, contradiction signals, confidence indicators, refresh recommendations | supporting | reads sources and knowledge, writes proposals and analysis outputs to operational storage | Knowledge Maintenance Layer |
 | Wiki drafting / refresh service | Produce or update finalized markdown candidates for publication | approved proposals, structured page model, source trace, refresh directives | candidate markdown files, page refresh artifacts, publication-ready outputs | supporting writer, not the truth store itself | writes to wiki publication pipeline, reads existing wiki content and proposals | Knowledge Maintenance Layer |
 | Policy validation service | Enforce structural, freshness, traceability, and governance rules | proposals, source trace, page structure, policy rules | validation pass/fail, rule violations, review requirements | supporting | reads proposals and rules, writes validation outcomes | Metadata and Runtime Services Layer |
@@ -2714,6 +2715,8 @@ The metadata model should be minimal, explicit, and sufficient to support govern
 | Run | Represents one maintenance execution | `run_id` | Owns source intake, validations, and output revisions | Operational |
 | SourceFile | Represents a discovered file in the raw source set | `source_file_id` | Belongs to a run and may map to source documents | Structural |
 | SourceDocument | Represents parsed source content | `source_document_id` | Informs revision proposals and traceability | Structural |
+| KnowledgeCandidate | Represents proposal-only AI-assisted understanding output | `candidate_id` | Belongs to a run and source document; may inform review and draft preparation but is not `/wiki` truth | Operational |
+| CandidateDraft | Represents non-publishable draft support generated from candidates | `draft_id` | Belongs to a run and candidate set; can support review but cannot be finalized directly | Operational artifact |
 | WikiPage | Represents a canonical wiki page | `page_id` or slug | Maps to a finalized `/wiki` page | Structural |
 | WikiPageRevision | Represents a staged or finalized change to a page | `revision_id` | Connected to a wiki page and run | Operational |
 | ImpactRecord | Captures what pages or sections are affected by a source set | `impact_id` | Derived from run analysis and revision planning | Projection |
@@ -2735,6 +2738,8 @@ The relational model should preserve the lifecycle from intake to finalization w
 | Run has many SourceFiles | One maintenance run can ingest multiple inputs |
 | SourceFiles may yield SourceDocuments | A file may parse into one or more structured documents |
 | SourceDocuments inform ImpactRecords | Parsed evidence drives impact analysis |
+| SourceDocuments yield KnowledgeCandidates | Parsed evidence can produce proposal-only structured knowledge candidates |
+| KnowledgeCandidates may yield CandidateDrafts | Candidate drafts support human review and downstream deterministic validation only |
 | WikiPages have many WikiPageRevisions | A page accumulates staged and finalized edits |
 | QAReports attach to revisions or runs | Validation is run-level or revision-level |
 | ContradictionRecords may attach to pages or runs | Conflicts are tracked in operational context |
@@ -2748,6 +2753,9 @@ erDiagram
   RUN ||--o{ IMPACT_RECORD : produces
   RUN ||--o{ QA_REPORT : generates
   RUN ||--o{ CONTRADICTION_RECORD : detects
+  RUN ||--o{ KNOWLEDGE_CANDIDATE : proposes
+  SOURCE_DOCUMENT ||--o{ KNOWLEDGE_CANDIDATE : yields
+  KNOWLEDGE_CANDIDATE ||--o{ CANDIDATE_DRAFT : supports
   RUN ||--o{ APPROVAL_RECORD : requires
   WIKI_PAGE ||--o{ WIKI_PAGE_REVISION : has
   WIKI_PAGE_REVISION ||--o{ QA_REPORT : validated_by
@@ -2780,6 +2788,33 @@ The system should keep entity schemas pragmatic and implementation-ready without
 
 Field sets should support traceability, staged review, and audit-friendly querying. The same identifiers should be reused consistently across services and API responses.
 
+### Knowledge understanding candidate fields
+
+AI-assisted knowledge understanding produces bounded intermediate records, not canonical pages.
+
+`KnowledgeCandidate` fields:
+
+- `candidate_id`: stable run-local identifier.
+- `run_id`: owning maintenance run.
+- `source_document_id` and `source_ref`: source evidence that produced the candidate.
+- `candidate_type`: one of `entity`, `process`, `metric`, `decision`, `concept`, or `contradiction`.
+- `title` and `excerpt`: inspectable review text derived from source evidence.
+- `relevance_score`: deterministic score used to filter weak candidates before review.
+- `confidence_score`: deterministic or AI-assisted confidence estimate retained for review; it is not approval.
+- `rationale`: human-readable reason the candidate was produced.
+- `target_slug`: optional proposed placement, never a publish command.
+- `related_candidate_ids`: optional links among candidate records.
+
+`CandidateDraft` fields:
+
+- `draft_id`: stable run-local identifier.
+- `run_id`: owning maintenance run.
+- `candidate_ids`: candidate inputs used for the draft.
+- `title` and `markdown`: inspectable draft support content.
+- `publishable`: must default to `false`; final wiki publication requires a separate validated revision, approval record, and publisher action.
+
+Candidate records and candidate drafts are operational artifacts. They may inform impact analysis, review queues, contradiction triage, and draft preparation, but they must not mutate `/wiki` or outrank finalized markdown truth.
+
 ## 9.6 Run and Revision State Models
 
 Run and revision states must align with the workflow behavior exposed in KMI.
@@ -2810,6 +2845,7 @@ KMS requires bounded backend services so workflow logic remains explicit and tes
 | Run Orchestration Service | Coordinates end-to-end run progression | Source path, run config, policy state | Run status transitions, stage dispatch | Writes run state and stage history |
 | Source Discovery Service | Enumerates source files and supported inputs | Raw source path | Source file inventory | Writes source file records |
 | Parsing/Normalization Service | Parses raw files into structured documents | Source files | Parsed documents, parse errors | Writes source documents and parse artifacts |
+| Knowledge Understanding Service | Extracts proposal-only structured knowledge candidates and draft support | Source documents, source trace, extraction policy | Candidate entities, processes, metrics, decisions, concepts, contradictions, relevance/confidence scores, review bundles | Writes candidate artifacts and draft support to operational storage only |
 | Source Analysis Service | Detects impacts, candidates, and structural changes | Source documents | Impact records, candidate revisions | Writes impact records |
 | Source Note Service | Captures notes, annotations, and supporting commentary | Source files, source documents, user notes | Source notes, annotations | Writes source note records |
 | Wiki Draft Service | Builds staged wiki page revisions | Impact records, source documents, page templates | Draft revisions, diffs | Writes staged revisions and draft artifacts |

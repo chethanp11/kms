@@ -10,6 +10,12 @@ from src.contracts import ApprovalDecision, ChangeType, MaintenanceRun, Revision
 from src.services.approval import create_approval
 from src.services.contradiction import detect_contradictions
 from src.services.infopedia_projection import build_tree
+from src.services.knowledge_understanding import (
+    build_candidate_drafts,
+    extract_knowledge_candidates,
+    render_candidate_review_markdown,
+    render_candidates_json,
+)
 from src.services.lint import lint_wiki
 from src.services.parsing import parse_source_bundle
 from src.services.policy_validation import validate_page
@@ -50,6 +56,15 @@ class KMSRuntime:
         bundle = discover_sources(source_path)
         self.artifacts.write_text(run_id, "source-note.md", render_source_note(bundle))
         documents = parse_source_bundle(bundle, run_id=run_id)
+        candidates = extract_knowledge_candidates(documents)
+        candidate_drafts = build_candidate_drafts(candidates)
+        for candidate in candidates:
+            self.metadata.save_knowledge_candidate(candidate)
+        for draft in candidate_drafts:
+            self.metadata.save_candidate_draft(draft)
+            self.artifacts.write_text(run_id, f"candidate-drafts/{draft.draft_id}.md", draft.markdown)
+        self.artifacts.write_text(run_id, "knowledge-candidates.json", render_candidates_json(candidates))
+        self.artifacts.write_text(run_id, "knowledge-candidates-review.md", render_candidate_review_markdown(candidates, candidate_drafts))
         contradictions = detect_contradictions(documents, run_id=run_id)
         for contradiction in contradictions:
             self.metadata.contradictions[contradiction.contradiction_id] = contradiction
@@ -73,7 +88,20 @@ class KMSRuntime:
             self.metadata.lint_findings[finding.lint_finding_id] = finding
         build_tree(self.wiki)
         final_state = RunState.COMPLETED if not warnings else RunState.BLOCKED
-        run = replace(run, state=final_state, summary_counts={"source_files": len(bundle.files), "documents": len(documents), "draft_pages": len(pages), "published_pages": len(published), "warnings": len(warnings)}, blocked_reason="; ".join(warnings))
+        run = replace(
+            run,
+            state=final_state,
+            summary_counts={
+                "source_files": len(bundle.files),
+                "documents": len(documents),
+                "knowledge_candidates": len(candidates),
+                "candidate_drafts": len(candidate_drafts),
+                "draft_pages": len(pages),
+                "published_pages": len(published),
+                "warnings": len(warnings),
+            },
+            blocked_reason="; ".join(warnings),
+        )
         self.metadata.save_run(run)
         return RuntimeResult(run, len(bundle.files), len(pages), tuple(published), tuple(warnings))
 

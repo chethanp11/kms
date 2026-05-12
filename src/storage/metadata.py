@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from src.contracts import ApprovalRecord, ContradictionRecord, LintFinding, MaintenanceRun, QAReport, WikiPageRevision
+from src.contracts import ApprovalRecord, CandidateDraft, ContradictionRecord, KnowledgeCandidate, LintFinding, MaintenanceRun, QAReport, WikiPageRevision
 
 
 @dataclass
@@ -14,6 +14,8 @@ class MetadataStore:
     approvals: dict[str, ApprovalRecord] = field(default_factory=dict)
     qa_reports: dict[str, QAReport] = field(default_factory=dict)
     contradictions: dict[str, ContradictionRecord] = field(default_factory=dict)
+    knowledge_candidates: dict[str, KnowledgeCandidate] = field(default_factory=dict)
+    candidate_drafts: dict[str, CandidateDraft] = field(default_factory=dict)
     lint_findings: dict[str, LintFinding] = field(default_factory=dict)
     events: list[object] = field(default_factory=list)
 
@@ -39,6 +41,14 @@ class MetadataStore:
         key = report.qa_report_id or report.revision_id or f"qa-{len(self.qa_reports)+1}"
         self.qa_reports[key] = report
         return report
+
+    def save_knowledge_candidate(self, candidate: KnowledgeCandidate) -> KnowledgeCandidate:
+        self.knowledge_candidates[candidate.candidate_id] = candidate
+        return candidate
+
+    def save_candidate_draft(self, draft: CandidateDraft) -> CandidateDraft:
+        self.candidate_drafts[draft.draft_id] = draft
+        return draft
 
 
 __all__ = ["MetadataStore"]
