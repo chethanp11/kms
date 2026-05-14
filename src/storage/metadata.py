@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
-from src.contracts import ApprovalRecord, CandidateDraft, ContradictionRecord, KnowledgeCandidate, LintFinding, MaintenanceRun, QAReport, WikiPageRevision
+from src.contracts import ApprovalRecord, CandidateDraft, CandidateReviewStatus, ContradictionRecord, KnowledgeCandidate, LintFinding, MaintenanceRun, QAReport, WikiPageRevision
 
 
 @dataclass
@@ -17,6 +17,7 @@ class MetadataStore:
     knowledge_candidates: dict[str, KnowledgeCandidate] = field(default_factory=dict)
     candidate_drafts: dict[str, CandidateDraft] = field(default_factory=dict)
     approved_candidate_ids: set[str] = field(default_factory=set)
+    rejected_candidate_ids: set[str] = field(default_factory=set)
     archived_candidate_ids: set[str] = field(default_factory=set)
     lint_findings: dict[str, LintFinding] = field(default_factory=dict)
     events: list[object] = field(default_factory=list)
@@ -46,6 +47,9 @@ class MetadataStore:
 
     def save_knowledge_candidate(self, candidate: KnowledgeCandidate) -> KnowledgeCandidate:
         self.knowledge_candidates[candidate.candidate_id] = candidate
+        self.approved_candidate_ids.discard(candidate.candidate_id)
+        self.rejected_candidate_ids.discard(candidate.candidate_id)
+        self.archived_candidate_ids.discard(candidate.candidate_id)
         return candidate
 
     def save_candidate_draft(self, draft: CandidateDraft) -> CandidateDraft:
@@ -53,7 +57,33 @@ class MetadataStore:
         return draft
 
     def approve_candidate(self, candidate_id: str) -> None:
+        candidate = self.knowledge_candidates[candidate_id]
+        self.knowledge_candidates[candidate_id] = replace(candidate, review_status=CandidateReviewStatus.APPROVED, duplicate_rationale="")
         self.approved_candidate_ids.add(candidate_id)
+        self.rejected_candidate_ids.discard(candidate_id)
+
+    def approve_candidate_with_mods(self, candidate_id: str, modification_text: str) -> None:
+        candidate = self.knowledge_candidates[candidate_id]
+        self.knowledge_candidates[candidate_id] = replace(candidate, review_status=CandidateReviewStatus.APPROVED_WITH_MODS, modification_text=modification_text.strip())
+        self.approved_candidate_ids.add(candidate_id)
+        self.rejected_candidate_ids.discard(candidate_id)
+
+    def reject_candidate(self, candidate_id: str, *, reason: str = "") -> None:
+        candidate = self.knowledge_candidates[candidate_id]
+        self.knowledge_candidates[candidate_id] = replace(candidate, review_status=CandidateReviewStatus.REJECTED, duplicate_rationale=reason or candidate.duplicate_rationale)
+        self.rejected_candidate_ids.add(candidate_id)
+        self.approved_candidate_ids.discard(candidate_id)
+
+    def auto_reject_duplicate(self, candidate_id: str, *, duplicate_of: str, reason: str) -> None:
+        candidate = self.knowledge_candidates[candidate_id]
+        self.knowledge_candidates[candidate_id] = replace(
+            candidate,
+            review_status=CandidateReviewStatus.REJECTED,
+            duplicate_of=duplicate_of,
+            duplicate_rationale=reason,
+        )
+        self.rejected_candidate_ids.add(candidate_id)
+        self.approved_candidate_ids.discard(candidate_id)
 
     def archive_candidate(self, candidate_id: str) -> None:
         self.archived_candidate_ids.add(candidate_id)

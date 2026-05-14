@@ -70,13 +70,13 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
     sequence = 1
     for document in documents:
         source_ref = str(document.metadata.get("relative_path", document.source_document_id))
-        for line in _candidate_lines(document.text):
-            candidate_type = _classify(line)
-            relevance = _relevance_score(line, candidate_type)
+        for segment in _semantic_segments(document.text):
+            candidate_type = _classify(segment)
+            relevance = _relevance_score(segment, candidate_type)
             if relevance < min_relevance:
                 continue
-            confidence = _confidence_score(line, candidate_type)
-            title = _title_for(line, candidate_type)
+            confidence = _confidence_score(segment, candidate_type)
+            title = _title_for(segment, candidate_type)
             candidates.append(KnowledgeCandidate(
                 candidate_id=f"candidate-{sequence}",
                 run_id=document.run_id,
@@ -84,11 +84,11 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
                 source_ref=source_ref,
                 candidate_type=candidate_type,
                 title=title,
-                excerpt=line[:320],
+                excerpt=segment[:320],
                 relevance_score=relevance,
                 confidence_score=confidence,
-                rationale=f"{candidate_type.value} candidate extracted from source evidence with deterministic relevance and confidence scoring.",
-                target_slug=f"candidates/{slugify(title)}",
+                rationale=f"{candidate_type.value} candidate extracted by semantic decomposition with deterministic relevance and confidence scoring.",
+                target_slug=f"sources/{slugify(title)}",
             ))
             sequence += 1
     return tuple(candidates)
@@ -166,9 +166,25 @@ def render_candidate_review_markdown(candidates: tuple[KnowledgeCandidate, ...],
     return "\n".join(lines)
 
 
-def _candidate_lines(text: str) -> tuple[str, ...]:
-    lines = [line.strip("-* \t") for line in text.splitlines()]
-    return tuple(line for line in lines if len(line) >= 12)
+def _semantic_segments(text: str) -> tuple[str, ...]:
+    """Group nearby source text into candidate-sized semantic units."""
+    segments: list[str] = []
+    current: list[str] = []
+    current_type: KnowledgeCandidateType | None = None
+    for raw in text.splitlines():
+        line = raw.strip("-* \t")
+        if len(line) < 12:
+            continue
+        line_type = _classify(line)
+        starts_new = ":" in line or (current_type is not None and line_type is not current_type)
+        if current and starts_new:
+            segments.append(" ".join(current))
+            current = []
+        current.append(line)
+        current_type = line_type
+    if current:
+        segments.append(" ".join(current))
+    return tuple(segments)
 
 
 def _classify(line: str) -> KnowledgeCandidateType:
@@ -178,12 +194,12 @@ def _classify(line: str) -> KnowledgeCandidateType:
         return _EXPLICIT_PREFIXES[prefix]
     if any(term in lowered for term in _CONTRADICTION_TERMS):
         return KnowledgeCandidateType.CONTRADICTION
+    if any(term in lowered for term in _PROCESS_TERMS):
+        return KnowledgeCandidateType.PROCESS
     if any(term in lowered for term in _METRIC_TERMS) or re.search(r"\b\d+(?:\.\d+)?%?\b", lowered):
         return KnowledgeCandidateType.METRIC
     if any(term in lowered for term in _DECISION_TERMS):
         return KnowledgeCandidateType.DECISION
-    if any(term in lowered for term in _PROCESS_TERMS):
-        return KnowledgeCandidateType.PROCESS
     if any(term in lowered for term in _ENTITY_TERMS):
         return KnowledgeCandidateType.ENTITY
     return KnowledgeCandidateType.CONCEPT
@@ -237,10 +253,11 @@ def _extract_with_ai(
     candidates: list[KnowledgeCandidate] = []
     sequence = 1
     instructions = (
-        "Extract governed KMS knowledge candidates from the source text. "
+        "Perform intelligent semantic decomposition of the source text into governed KMS knowledge candidates. "
         "Return only JSON with a 'candidates' array. Each item must include "
         "candidate_type, title, excerpt, relevance_score, confidence_score, and rationale. "
         "candidate_type must be one of entity, process, metric, decision, concept, contradiction. "
+        "Merge adjacent lines that describe the same knowledge unit instead of returning line-by-line fragments. "
         "Outputs are proposal-only and must not claim to publish or approve wiki truth."
     )
     for document in documents:
@@ -289,7 +306,7 @@ def _candidate_from_ai_item(item: Any, *, document: SourceDocument, sequence: in
         relevance_score=relevance,
         confidence_score=confidence,
         rationale=f"AI-assisted extraction using {model}: {rationale}",
-        target_slug=f"candidates/{slugify(title)}",
+        target_slug=f"sources/{slugify(title)}",
     )
 
 

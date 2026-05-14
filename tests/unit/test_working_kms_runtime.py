@@ -94,14 +94,64 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             published = publish_approved_candidates("candidate-api", {})
 
             self.assertEqual(published["summary_counts"]["published_pages"], len(created["candidates"]))
-            self.assertTrue(all(path.startswith("candidates/") for path in published["published"]))
+            self.assertTrue(all(path.startswith("sources/") for path in published["published"]))
+            self.assertFalse((root / "wiki" / "candidates").exists())
             self.assertGreaterEqual(len(tree()), len(created["candidates"]))
             self.assertTrue(search("revenue"))
-            self.assertTrue(search("trusted"))
+            self.assertIn("confidence_score", search("trusted")[0])
             archived = list_candidates("candidate-api")
             self.assertTrue(all(candidate["archived"] for candidate in archived))
             with self.assertRaises(ValidationError):
                 publish_approved_candidates("candidate-api", {})
+
+    def test_candidate_review_supports_reject_mods_and_duplicate_awareness(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "revenue.md").write_text(
+                "Metric: Revenue rate is measured as approved invoice value.\n"
+                "Process: Revenue review workflow has approval steps.",
+                encoding="utf-8",
+            )
+            runtime = self.runtime(root)
+            set_runtime(runtime)
+
+            existing_page = KnowledgePage(
+                page_id="page-existing",
+                page_type="metric",
+                path="sources/revenue-rate.md",
+                title="Revenue Rate",
+                body="## Summary\nRevenue rate is measured as approved invoice value.\n\n## Source Trace\n- prior.md",
+                source_refs=("prior.md",),
+            )
+            (root / "wiki" / "sources").mkdir(parents=True)
+            runtime.wiki.write_page(existing_page)
+
+            created = create_candidates({"source_path": str(source), "run_id": "candidate-024"})
+            rejected = [candidate for candidate in created["candidates"] if candidate["rejected"]]
+            pending = [candidate for candidate in created["candidates"] if not candidate["rejected"]]
+
+            self.assertTrue(rejected)
+            self.assertIn("duplicate", rejected[0]["duplicate_rationale"].casefold())
+
+            reject_response = approve_candidates("candidate-024", {"decision": "reject", "candidate_ids": [pending[0]["candidate_id"]]})
+            self.assertIn(pending[0]["candidate_id"], reject_response["rejected_candidate_ids"])
+
+            # Recreate a fresh run to prove Approve with Mods publishes modified text under sources/.
+            created = create_candidates({"source_path": str(source), "run_id": "candidate-024b"})
+            mod_candidate = next(candidate for candidate in created["candidates"] if not candidate["rejected"])
+            approve_candidates(
+                "candidate-024b",
+                {
+                    "candidate_ids": [mod_candidate["candidate_id"]],
+                    "modifications": {mod_candidate["candidate_id"]: "Modified approved summary."},
+                },
+            )
+            published = publish_approved_candidates("candidate-024b", {})
+
+            self.assertTrue(all(path.startswith("sources/") for path in published["published"]))
+            self.assertIn("Modified approved summary.", (root / "wiki" / published["published"][0]).read_text(encoding="utf-8"))
 
 
 def tree_for(runtime: KMSRuntime) -> list[object]:

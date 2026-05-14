@@ -1,15 +1,17 @@
 # Code Update Plan
 
 ## Current scope
-- `DEV-023`: Implement app runtime/API/UI changes for staged candidate approval and publication.
+- `DEV-024`: Implement runtime/API/UI/search changes for semantic candidate creation, duplicate rejection, per-candidate review decisions, source-path publication, and confidence-scored Infopedia search.
 
 ## Implementation steps
-1. Add runtime methods to create candidates without publishing source-note pages, approve candidate IDs or all candidates, and publish approved candidates to `/wiki`.
-2. Add API route functions/endpoints for candidate creation, approval, publication, and Infopedia refresh/readback.
-3. Replace KMI UI with a three-stage stage-oriented flow and remove create-demo-source.
-4. Improve Infopedia UI styling and display finalized wiki pages/search results clearly.
-5. Add deterministic unit tests for the new staged workflow and frontend contract.
+1. Extend candidate contracts/metadata to track review status, duplicate rationale, and modification text without weakening existing approval contracts.
+2. Update knowledge-understanding extraction so fallback decomposition groups text semantically and AI instructions request semantic candidates; compare new candidates against existing wiki/search content and auto-reject duplicates.
+3. Update candidate approval APIs to support selected approvals, rejections, and approval with modifications.
+4. Publish approved candidates to `sources/` wiki paths and remove candidate-path publication.
+5. Update KMI frontend controls/copy for select-all, per-candidate decisions, Publish to wiki, and no frontend LLM/provider/Knowledge Manager wording.
+6. Update Infopedia API/UI to return keyword+semantic confidence scores for finalized wiki results.
 
 ## Risks
-- Existing `start_run` behavior should remain backwards-compatible for current tests.
-- Do not require live OpenAI network calls in tests; use existing fallback/mocked settings.
+- Preserve deterministic no-network tests and fallback behavior.
+- Preserve `/wiki` authority and approval gating.
+- Existing route names should remain backwards-compatible where possible.

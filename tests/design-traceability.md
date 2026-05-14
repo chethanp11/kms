@@ -18,6 +18,8 @@ Map intent, requirements, design constraints, tests, feedback, and issues into o
 | `intent/product-intent.md` | API-backed AI extraction configuration | `REQ-022` | OpenAI GPT-4o extraction uses server-side `OPEN_AI_KEY` config, validates responses into candidate contracts, falls back deterministically on missing key or API failure, and never exposes secrets or grants publish authority | `TEST-022` | `DEV-022` | Mocked API coverage lives in `tests/unit/test_knowledge_understanding.py`; local secrets are ignored through `.gitignore` |
 | `intent/product-intent.md` | KMI candidate approval and Infopedia publication | `REQ-023` | KMI separates candidate creation, review/approve-all, and load-to-wiki stages; only approved candidates publish to `/wiki`, and Infopedia remains read-only over finalized pages | `TEST-023` | `DEV-023` | Runtime route coverage lives in `tests/unit/test_working_kms_runtime.py`; frontend contract coverage lives in `tests/unit/test_src_runtime_scaffold.py` |
 
+| `intent/product-intent.md` | Semantic candidate review and Infopedia search | `REQ-024`, `REQ-025`, `REQ-026`, `REQ-027` | Semantic decomposition, duplicate auto-rejection, visible review decisions, source-path publication, and confidence-scored read-only search | `TEST-024` | `DEV-024` | Runtime and frontend coverage lives in `tests/unit/test_working_kms_runtime.py`, `tests/unit/test_knowledge_understanding.py`, and `tests/unit/test_src_runtime_scaffold.py` |
+
 ## Guidelines
 - Add a row for every new requirement.
 - Keep `REQ-*`, `DEV-*`, and `TEST-*` references current.

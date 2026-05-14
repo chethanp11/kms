@@ -13,10 +13,10 @@ def tree() -> list[dict[str, object]]:
 def search(query: str, *, include_candidates: bool = False) -> list[dict[str, object]]:
     runtime = get_runtime()
     rebuild_search_index(runtime.wiki, runtime.search)
-    documents = [doc.__dict__ for doc in runtime.search.search(query)]
+    documents = [{**doc.__dict__, "confidence_score": confidence} for doc, confidence in runtime.search.search_with_confidence(query)]
     if include_candidates:
         candidate_index = SearchIndexStore({doc.search_doc_id: doc for doc in _candidate_search_documents()})
-        documents.extend(doc.__dict__ for doc in candidate_index.search(query))
+        documents.extend({**doc.__dict__, "confidence_score": confidence} for doc, confidence in candidate_index.search_with_confidence(query))
     return documents
 
 def _candidate_search_documents() -> list[SearchDocument]:

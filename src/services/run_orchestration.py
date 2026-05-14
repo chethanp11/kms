@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from pathlib import Path
+import re
 
 from src.config.settings import KMSSettings, default_settings
 from src.contracts import ApprovalDecision, ChangeType, KnowledgeCandidate, KnowledgePage, MaintenanceRun, PageStatus, RevisionState, RunState, ValidationError, WikiPageRevision
@@ -52,6 +53,7 @@ class CandidateWorkflowResult:
 class CandidateApprovalResult:
     run_id: str
     approved_candidate_ids: tuple[str, ...]
+    rejected_candidate_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -84,6 +86,8 @@ class KMSRuntime:
         candidate_drafts = build_candidate_drafts(candidates)
         for candidate in candidates:
             self.metadata.save_knowledge_candidate(candidate)
+        self._auto_reject_duplicate_candidates(run_id)
+        candidates = self.metadata.candidates_for_run(run_id, include_archived=False)
         for draft in candidate_drafts:
             self.metadata.save_candidate_draft(draft)
             self.artifacts.write_text(run_id, f"candidate-drafts/{draft.draft_id}.md", draft.markdown)
@@ -121,6 +125,7 @@ class KMSRuntime:
                 "documents": len(documents),
                 "knowledge_candidates": len(candidates),
                 "candidate_drafts": len(candidate_drafts),
+                "rejected_candidates": len(self.metadata.rejected_candidate_ids),
                 "draft_pages": len(pages),
                 "published_pages": len(published),
                 "warnings": len(warnings),
@@ -140,6 +145,8 @@ class KMSRuntime:
         candidate_drafts = build_candidate_drafts(candidates)
         for candidate in candidates:
             self.metadata.save_knowledge_candidate(candidate)
+        self._auto_reject_duplicate_candidates(run_id)
+        candidates = self.metadata.candidates_for_run(run_id, include_archived=False)
         for draft in candidate_drafts:
             self.metadata.save_candidate_draft(draft)
             self.artifacts.write_text(run_id, f"candidate-drafts/{draft.draft_id}.md", draft.markdown)
@@ -155,6 +162,7 @@ class KMSRuntime:
                 "knowledge_candidates": len(candidates),
                 "candidate_drafts": len(candidate_drafts),
                 "approved_candidates": 0,
+                "rejected_candidates": len(self.metadata.rejected_candidate_ids),
                 "published_pages": 0,
                 "warnings": 1 if understanding.warning else 0,
             },
@@ -163,19 +171,50 @@ class KMSRuntime:
         self.metadata.save_run(run)
         return CandidateWorkflowResult(run, candidates, understanding.provider, understanding.fallback_used, understanding.warning)
 
-    def approve_candidates(self, run_id: str, *, candidate_ids: tuple[str, ...] = (), approve_all: bool = False) -> CandidateApprovalResult:
+    def approve_candidates(
+        self,
+        run_id: str,
+        *,
+        candidate_ids: tuple[str, ...] = (),
+        approve_all: bool = False,
+        modifications: dict[str, str] | None = None,
+    ) -> CandidateApprovalResult:
         run = self.metadata.get_run(run_id)
         if run is None:
             raise ValidationError(f"run not found: {run_id}")
         run_candidates = self.metadata.candidates_for_run(run_id, include_archived=False)
-        selected = run_candidates if approve_all else tuple(candidate for candidate in run_candidates if candidate.candidate_id in set(candidate_ids))
+        selected = tuple(
+            candidate
+            for candidate in (run_candidates if approve_all else tuple(candidate for candidate in run_candidates if candidate.candidate_id in set(candidate_ids)))
+            if candidate.candidate_id not in self.metadata.rejected_candidate_ids
+        )
         if not selected:
             raise ValidationError("no candidates selected for approval")
+        modifications = modifications or {}
         for candidate in selected:
-            self.metadata.approve_candidate(candidate.candidate_id)
+            mod_text = modifications.get(candidate.candidate_id, "")
+            if mod_text.strip():
+                self.metadata.approve_candidate_with_mods(candidate.candidate_id, mod_text)
+            else:
+                self.metadata.approve_candidate(candidate.candidate_id)
         approved_ids = tuple(candidate.candidate_id for candidate in self.metadata.approved_candidates_for_run(run_id))
-        self.metadata.save_run(replace(run, summary_counts={**dict(run.summary_counts), "approved_candidates": len(approved_ids)}))
-        return CandidateApprovalResult(run_id, approved_ids)
+        rejected_ids = tuple(sorted(self.metadata.rejected_candidate_ids))
+        self.metadata.save_run(replace(run, summary_counts={**dict(run.summary_counts), "approved_candidates": len(approved_ids), "rejected_candidates": len(rejected_ids)}))
+        return CandidateApprovalResult(run_id, approved_ids, rejected_ids)
+
+    def reject_candidates(self, run_id: str, *, candidate_ids: tuple[str, ...], reason: str = "") -> CandidateApprovalResult:
+        run = self.metadata.get_run(run_id)
+        if run is None:
+            raise ValidationError(f"run not found: {run_id}")
+        selected = tuple(candidate for candidate in self.metadata.candidates_for_run(run_id, include_archived=False) if candidate.candidate_id in set(candidate_ids))
+        if not selected:
+            raise ValidationError("no candidates selected for rejection")
+        for candidate in selected:
+            self.metadata.reject_candidate(candidate.candidate_id, reason=reason or "Rejected during KMI review.")
+        approved_ids = tuple(candidate.candidate_id for candidate in self.metadata.approved_candidates_for_run(run_id))
+        rejected_ids = tuple(sorted(self.metadata.rejected_candidate_ids))
+        self.metadata.save_run(replace(run, summary_counts={**dict(run.summary_counts), "approved_candidates": len(approved_ids), "rejected_candidates": len(rejected_ids)}))
+        return CandidateApprovalResult(run_id, approved_ids, rejected_ids)
 
     def publish_approved_candidates(self, run_id: str, *, reviewer_id: str = "knowledge-manager") -> CandidatePublishResult:
         run = self.metadata.get_run(run_id)
@@ -214,13 +253,28 @@ class KMSRuntime:
         self.metadata.save_run(updated)
         return CandidatePublishResult(updated, tuple(published))
 
+    def _auto_reject_duplicate_candidates(self, run_id: str) -> None:
+        existing = _existing_wiki_signatures(self.wiki)
+        if not existing:
+            return
+        for candidate in self.metadata.candidates_for_run(run_id, include_archived=False):
+            candidate_terms = _semantic_terms(f"{candidate.title} {candidate.excerpt}")
+            duplicate_path = _best_duplicate(candidate_terms, existing, page_type=candidate.candidate_type.value)
+            if duplicate_path:
+                self.metadata.auto_reject_duplicate(
+                    candidate.candidate_id,
+                    duplicate_of=duplicate_path,
+                    reason=f"Auto-rejected as duplicate of existing finalized source `{duplicate_path}`.",
+                )
+
 
 def _page_from_candidate(candidate: KnowledgeCandidate) -> KnowledgePage:
     title = candidate.title
-    slug = f"candidates/{slugify(title)}-{candidate.candidate_id}"
+    slug = f"sources/{slugify(title)}-{candidate.candidate_id}"
+    summary = candidate.modification_text.strip() or candidate.excerpt
     body = "\n".join([
         "## Summary",
-        candidate.excerpt,
+        summary,
         "",
         "## Candidate Type",
         candidate.candidate_type.value,
@@ -249,6 +303,55 @@ def _page_from_candidate(candidate: KnowledgeCandidate) -> KnowledgePage:
         tags=(candidate.candidate_type.value,),
         metadata={"candidate_id": candidate.candidate_id, "source_ref": candidate.source_ref},
     )
+
+
+def _existing_wiki_signatures(wiki: WikiStore) -> dict[str, tuple[set[str], str]]:
+    signatures: dict[str, tuple[set[str], str]] = {}
+    for path in wiki.list_pages():
+        rel = path.relative_to(wiki.root).as_posix()
+        text = path.read_text(encoding="utf-8")
+        signatures[rel] = (_semantic_terms(text), _frontmatter_type(text))
+    return signatures
+
+
+def _best_duplicate(candidate_terms: set[str], existing: dict[str, tuple[set[str], str]], *, page_type: str) -> str:
+    if not candidate_terms:
+        return ""
+    best_path = ""
+    best_score = 0.0
+    for path, (terms, existing_type) in existing.items():
+        if existing_type and existing_type != page_type:
+            continue
+        overlap = len(candidate_terms & terms)
+        score = overlap / max(1, min(len(candidate_terms), len(terms)))
+        if score > best_score:
+            best_path, best_score = path, score
+    return best_path if best_score >= 0.45 else ""
+
+
+def _frontmatter_type(text: str) -> str:
+    for line in text.splitlines():
+        if line.startswith("type:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
+def _semantic_terms(value: str) -> set[str]:
+    terms = {term for term in re.findall(r"[a-z0-9]+", value.casefold()) if len(term) > 2}
+    groups = (
+        {"approve", "approved", "approval", "review", "trusted", "governed"},
+        {"publish", "published", "wiki", "canonical", "finalized", "final"},
+        {"metric", "measure", "measured", "kpi", "revenue", "rate"},
+        {"process", "workflow", "procedure", "stage", "step"},
+        {"decision", "decide", "decided", "choice"},
+        {"contradiction", "conflict", "disagree", "disagrees", "inconsistent"},
+        {"entity", "owner", "team", "system", "service"},
+    )
+    expanded = set(terms)
+    for group in groups:
+        if expanded & group:
+            expanded |= group
+    return expanded
 
 
 __all__ = ["CandidateApprovalResult", "CandidatePublishResult", "CandidateWorkflowResult", "KMSRuntime", "RuntimeResult"]

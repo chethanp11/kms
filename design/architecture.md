@@ -3636,3 +3636,11 @@ Rejected scaffold locations for current implementation preparation:
 - `src/components/` metadata scaffold packages
 
 Future prompts should populate files in the approved `src/` folders. New runtime roots outside `src/` require an explicit design change.
+
+## Current-cycle update: semantic candidate review and source publication
+
+- Candidate creation decomposes parsed source content into semantic knowledge units before review. Configured AI extraction may assist this decomposition, but AI/provider details remain server-side and candidates remain proposal-only artifacts.
+- New candidates are compared with existing finalized wiki/search content before review. Substantially duplicate candidates are automatically marked rejected with a duplicate rationale and remain visible in KMI for awareness instead of being silently removed.
+- Candidate review supports explicit decisions per candidate: approve, reject, or approve with modification notes. Selection controls may accelerate decisions, but approval remains a review-state transition and does not publish by itself.
+- Approved candidate publication writes finalized markdown under `sources/` paths. Candidate-specific folders under `/wiki` are not created; candidate drafts and rejected duplicates remain metadata/artifact records only.
+- Infopedia search is a read-only projection over finalized wiki pages and returns a confidence score that combines keyword overlap with semantic-term expansion. Search/index stores remain rebuildable and are not authoritative truth.

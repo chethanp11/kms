@@ -11,13 +11,13 @@ app.innerHTML = `
     <header class="hero">
       <div>
         <p class="eyebrow">Governed maintenance</p>
-        <h1>Knowledge Manager Interface</h1>
-        <p>Create OpenAI API-key-assisted candidates, review them through a HITL Knowledge Manager gate, then load approved knowledge to the wiki.</p>
+        <h1>KMI Review</h1>
+        <p>Create semantically decomposed candidates, review each source proposal, then publish approved knowledge to the wiki.</p>
       </div>
       <div class="status-card">
-        <span>AI source</span>
-        <strong>OpenAI API key only</strong>
-        <small>Configure OPEN_AI_KEY in .env with KMS_AI_MODEL</small>
+        <span>Review boundary</span>
+        <strong>Human approval required</strong>
+        <small>Duplicates are auto-rejected and kept visible for awareness.</small>
       </div>
     </header>
 
@@ -25,7 +25,7 @@ app.innerHTML = `
       <article class="stage active" id="stageCreate">
         <span class="step">1</span>
         <h2>Create candidates</h2>
-        <p>Use source documents and OpenAI-backed extraction to create proposal-only knowledge candidates.</p>
+        <p>Use source documents to create proposal-only knowledge candidates.</p>
         <label>Source path
           <input id="sourcePath" value="${DEFAULT_TEST_SOURCE_PATH}" />
         </label>
@@ -35,22 +35,20 @@ app.innerHTML = `
       <article class="stage" id="stageReview">
         <span class="step">2</span>
         <h2>Review & approve</h2>
-        <p>HITL gate: the Knowledge Manager reviews candidates and approves selected candidates or all candidates.</p>
+        <p>Review candidates individually or select pending candidates for batch approval.</p>
         <div class="button-row">
+          <button id="selectAll" disabled>Select all</button>
           <button id="approveSelected" disabled>Approve selected</button>
-          <button id="approveAll" disabled>Approve all candidates</button>
+          <button id="rejectSelected" disabled>Reject selected</button>
         </div>
         <div id="candidateList" class="candidate-list muted">No candidates created yet.</div>
       </article>
 
       <article class="stage" id="stagePublish">
         <span class="step">3</span>
-        <h2>Load to wiki</h2>
-        <p>The Knowledge Manager loads approved candidates to the governed wiki. Loaded candidates are archived.</p>
-        <label>Knowledge Manager
-          <input id="reviewerId" value="knowledge-manager" />
-        </label>
-        <button id="publishApproved" disabled>Load approved candidates to wiki</button>
+        <h2>Publish to wiki</h2>
+        <p>Publish approved candidates as finalized source wiki pages. Rejected and duplicate candidates stay out of the wiki.</p>
+        <button id="publishApproved" disabled>Publish approved candidates to wiki</button>
         <div id="publishSummary" class="muted">Waiting for approvals.</div>
       </article>
     </section>
@@ -65,8 +63,9 @@ app.innerHTML = `
 const output = document.getElementById('output');
 const candidateList = document.getElementById('candidateList');
 const publishSummary = document.getElementById('publishSummary');
-const approveAllButton = document.getElementById('approveAll');
+const selectAllButton = document.getElementById('selectAll');
 const approveSelectedButton = document.getElementById('approveSelected');
+const rejectSelectedButton = document.getElementById('rejectSelected');
 const publishButton = document.getElementById('publishApproved');
 
 function show(value) {
@@ -91,16 +90,32 @@ async function request(path, options = {}) {
   return data;
 }
 
+function pendingCandidates() {
+  return candidates.filter(candidate => !candidate.approved && !candidate.rejected && !candidate.archived);
+}
+
 function approvedCount() {
   return candidates.filter(candidate => candidate.approved && !candidate.archived).length;
 }
 
+function selectedPendingIds() {
+  const pending = pendingCandidates();
+  return [...selectedCandidateIds].filter(id => pending.some(candidate => candidate.candidate_id === id));
+}
+
 function syncButtons() {
-  const activeCandidates = candidates.filter(candidate => !candidate.archived);
-  const selectable = activeCandidates.filter(candidate => !candidate.approved);
-  approveAllButton.disabled = selectable.length === 0;
-  approveSelectedButton.disabled = [...selectedCandidateIds].filter(id => selectable.some(candidate => candidate.candidate_id === id)).length === 0;
+  selectAllButton.disabled = pendingCandidates().length === 0;
+  approveSelectedButton.disabled = selectedPendingIds().length === 0;
+  rejectSelectedButton.disabled = selectedPendingIds().length === 0;
   publishButton.disabled = approvedCount() === 0;
+}
+
+function statusPills(candidate) {
+  const pills = [`<span class="pill">${candidate.type}</span>`];
+  if (candidate.approved) pills.push('<span class="pill approved-pill">approved</span>');
+  if (candidate.rejected) pills.push('<span class="pill rejected-pill">rejected</span>');
+  if (candidate.archived) pills.push('<span class="pill archived-pill">archived</span>');
+  return pills.join('');
 }
 
 function renderCandidates() {
@@ -112,21 +127,28 @@ function renderCandidates() {
   }
   candidateList.className = 'candidate-list';
   candidateList.innerHTML = candidates.map(candidate => {
+    const pending = !candidate.approved && !candidate.rejected && !candidate.archived;
     const checked = selectedCandidateIds.has(candidate.candidate_id) ? 'checked' : '';
-    const disabled = candidate.approved || candidate.archived ? 'disabled' : '';
+    const disabled = pending ? '' : 'disabled';
+    const duplicate = candidate.duplicate_rationale ? `<p class="notice">${candidate.duplicate_rationale}</p>` : '';
     return `
-      <article class="candidate-card ${candidate.approved ? 'approved' : ''} ${candidate.archived ? 'archived' : ''}">
+      <article class="candidate-card ${candidate.approved ? 'approved' : ''} ${candidate.rejected ? 'rejected' : ''} ${candidate.archived ? 'archived' : ''}">
         <label class="candidate-selector">
           <input type="checkbox" data-candidate-id="${candidate.candidate_id}" ${checked} ${disabled} />
-          <span>Select for approval</span>
+          <span>Select</span>
         </label>
-        <div>
-          <span class="pill">${candidate.type}</span>
-          ${candidate.approved ? '<span class="pill approved-pill">approved</span>' : ''}
-          ${candidate.archived ? '<span class="pill archived-pill">archived</span>' : ''}
-        </div>
+        <div>${statusPills(candidate)}</div>
         <h3>${candidate.title}</h3>
         <p>${candidate.excerpt}</p>
+        ${duplicate}
+        <label class="mods-label">Mods text
+          <textarea data-mods-for="${candidate.candidate_id}" ${pending ? '' : 'disabled'} placeholder="Optional text for Approve with Mods">${candidate.modification_text || ''}</textarea>
+        </label>
+        <div class="button-row candidate-actions">
+          <button data-action="approve" data-candidate-id="${candidate.candidate_id}" ${pending ? '' : 'disabled'}>Approve</button>
+          <button data-action="reject" data-candidate-id="${candidate.candidate_id}" ${pending ? '' : 'disabled'}>Reject</button>
+          <button data-action="approve-mods" data-candidate-id="${candidate.candidate_id}" ${pending ? '' : 'disabled'}>Approve with Mods</button>
+        </div>
         <footer>
           <span>Source: <code>${candidate.source_ref}</code></span>
           <span>Confidence: ${Number(candidate.confidence_score).toFixed(2)}</span>
@@ -140,7 +162,7 @@ function renderCandidates() {
 async function refreshCandidates() {
   if (!activeRunId) return;
   candidates = await request(`/api/candidates/${activeRunId}`);
-  selectedCandidateIds = new Set([...selectedCandidateIds].filter(id => candidates.some(candidate => candidate.candidate_id === id && !candidate.approved && !candidate.archived)));
+  selectedCandidateIds = new Set(selectedPendingIds());
   renderCandidates();
 }
 
@@ -153,15 +175,27 @@ async function approve(payload) {
   });
   selectedCandidateIds.clear();
   await refreshCandidates();
-  publishSummary.textContent = `${result.approved_candidate_ids.length} candidates approved and ready for Knowledge Manager wiki loading.`;
+  publishSummary.textContent = `${result.approved_candidate_ids.length} candidates approved and ready to publish.`;
   setStage('stagePublish');
+  show(result);
+}
+
+async function reject(candidateIds) {
+  const result = await request(`/api/candidates/${activeRunId}/approve`, {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({decision: 'reject', candidate_ids: candidateIds}),
+  });
+  selectedCandidateIds.clear();
+  await refreshCandidates();
+  publishSummary.textContent = `${result.rejected_candidate_ids.length} candidates rejected.`;
   show(result);
 }
 
 document.getElementById('createCandidates').addEventListener('click', async () => {
   try {
     setStage('stageCreate');
-    show('Creating candidates with configured OpenAI API-key extraction...');
+    show('Creating candidates...');
     activeRunId = `candidate-run-${Date.now()}`;
     selectedCandidateIds.clear();
     const result = await request('/api/candidates', {
@@ -173,7 +207,7 @@ document.getElementById('createCandidates').addEventListener('click', async () =
       }),
     });
     candidates = result.candidates || [];
-    publishSummary.textContent = 'Review and approve candidates before loading to wiki.';
+    publishSummary.textContent = 'Review and approve candidates before publishing to wiki.';
     renderCandidates();
     setStage('stageReview');
     show(result);
@@ -191,20 +225,33 @@ candidateList.addEventListener('change', event => {
   syncButtons();
 });
 
-approveSelectedButton.addEventListener('click', async () => {
+candidateList.addEventListener('click', async event => {
+  const button = event.target;
+  if (!button.matches('button[data-action][data-candidate-id]')) return;
+  const id = button.getAttribute('data-candidate-id');
   try {
-    await approve({candidate_ids: [...selectedCandidateIds]});
+    if (button.dataset.action === 'reject') await reject([id]);
+    if (button.dataset.action === 'approve') await approve({candidate_ids: [id]});
+    if (button.dataset.action === 'approve-mods') {
+      const text = document.querySelector(`textarea[data-mods-for="${id}"]`).value;
+      await approve({candidate_ids: [id], modifications: {[id]: text || 'Approved with requested modifications.'}});
+    }
   } catch (error) {
     show(`Error: ${error.message}`);
   }
 });
 
-approveAllButton.addEventListener('click', async () => {
-  try {
-    await approve({approve_all: true});
-  } catch (error) {
-    show(`Error: ${error.message}`);
-  }
+selectAllButton.addEventListener('click', () => {
+  selectedCandidateIds = new Set(pendingCandidates().map(candidate => candidate.candidate_id));
+  renderCandidates();
+});
+
+approveSelectedButton.addEventListener('click', async () => {
+  try { await approve({candidate_ids: selectedPendingIds()}); } catch (error) { show(`Error: ${error.message}`); }
+});
+
+rejectSelectedButton.addEventListener('click', async () => {
+  try { await reject(selectedPendingIds()); } catch (error) { show(`Error: ${error.message}`); }
 });
 
 publishButton.addEventListener('click', async () => {
@@ -213,10 +260,10 @@ publishButton.addEventListener('click', async () => {
     const result = await request(`/api/candidates/${activeRunId}/publish`, {
       method: 'POST',
       headers: {'content-type': 'application/json'},
-      body: JSON.stringify({reviewer_id: document.getElementById('reviewerId').value || 'knowledge-manager'}),
+      body: JSON.stringify({}),
     });
     await refreshCandidates();
-    publishSummary.innerHTML = `<strong>${result.published.length}</strong> wiki pages published. Loaded candidates are archived. Open Infopedia and search finalized wiki pages.`;
+    publishSummary.innerHTML = `<strong>${result.published.length}</strong> wiki pages published. Open Infopedia and search finalized wiki pages.`;
     show(result);
   } catch (error) {
     show(`Error: ${error.message}`);

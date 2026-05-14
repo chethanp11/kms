@@ -504,3 +504,16 @@ This separation preserves trust and usability:
 - finalized `/wiki` knowledge remains the shared content substrate
 - raw source folders are not consumer-facing browse surfaces
 - UI is not the source of truth; `/wiki` is
+
+## Current-cycle update: KMI candidate decisions and Infopedia search confidence
+
+KMI candidate review now uses a create, review, publish flow:
+
+1. Create candidates from a source path.
+2. Review candidate rows/cards in KMI. Reviewers can select all pending candidates for batch approval or decide each candidate individually with Approve, Reject, or Approve with Mods plus modification text.
+3. Duplicate candidates are shown as auto-rejected awareness items, including duplicate rationale, and are not selectable for publication.
+4. Publish to wiki publishes only approved candidates to finalized `sources/` wiki pages.
+
+Frontend copy must avoid exposing AI provider details or implementation labels such as LLM source information. The publish stage is labeled "Publish to wiki" and should not require or display role wording in the frontend.
+
+Infopedia remains read-only over finalized wiki pages. Search combines semantic and keyword matching and displays a confidence score for each returned source/page.

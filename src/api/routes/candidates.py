@@ -35,12 +35,30 @@ def list_candidates(run_id: str) -> list[dict[str, object]]:
 def approve_candidates(run_id: str, payload: dict[str, object]) -> dict[str, object]:
     raw_ids = payload.get("candidate_ids", ())
     candidate_ids = tuple(str(item) for item in raw_ids) if isinstance(raw_ids, list) else ()
+    raw_mods = payload.get("modifications", {})
+    modifications = {str(key): str(value) for key, value in raw_mods.items()} if isinstance(raw_mods, dict) else {}
+    if payload.get("decision") == "reject":
+        result = get_runtime().reject_candidates(
+            run_id,
+            candidate_ids=candidate_ids,
+            reason=str(payload.get("reason", "")),
+        )
+        return {
+            "run_id": result.run_id,
+            "approved_candidate_ids": list(result.approved_candidate_ids),
+            "rejected_candidate_ids": list(result.rejected_candidate_ids),
+        }
     result = get_runtime().approve_candidates(
         run_id,
         candidate_ids=candidate_ids,
         approve_all=bool(payload.get("approve_all", False)),
+        modifications=modifications,
     )
-    return {"run_id": result.run_id, "approved_candidate_ids": list(result.approved_candidate_ids)}
+    return {
+        "run_id": result.run_id,
+        "approved_candidate_ids": list(result.approved_candidate_ids),
+        "rejected_candidate_ids": list(result.rejected_candidate_ids),
+    }
 
 
 def publish_approved_candidates(run_id: str, payload: dict[str, object] | None = None) -> dict[str, object]:
@@ -68,7 +86,12 @@ def _candidate_response(candidate: KnowledgeCandidate, *, approved: bool, archiv
         "relevance_score": candidate.relevance_score,
         "confidence_score": candidate.confidence_score,
         "rationale": candidate.rationale,
+        "review_status": candidate.review_status.value,
+        "duplicate_of": candidate.duplicate_of,
+        "duplicate_rationale": candidate.duplicate_rationale,
+        "modification_text": candidate.modification_text,
         "approved": approved,
+        "rejected": candidate.candidate_id in get_runtime().metadata.rejected_candidate_ids,
         "archived": archived,
     }
 

@@ -6,7 +6,7 @@
 }
 
 body { margin: 0; background: linear-gradient(135deg, #eef3fb 0%, #f8fbff 100%); }
-button, input { font: inherit; }
+button, input, textarea { font: inherit; }
 button {
   border: 0;
   border-radius: 999px;
@@ -25,6 +25,16 @@ input {
   border-radius: 0.85rem;
   padding: 0.75rem 0.9rem;
   margin-top: 0.35rem;
+}
+textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  box-sizing: border-box;
+  border: 1px solid #cbd6ea;
+  border-radius: 0.85rem;
+  padding: 0.75rem 0.9rem;
+  margin-top: 0.35rem;
+  resize: vertical;
 }
 label { display: block; font-weight: 700; color: #34415c; margin: 1rem 0; }
 
@@ -66,11 +76,13 @@ label { display: block; font-weight: 700; color: #34415c; margin: 1rem 0; }
 .candidate-list { display: grid; gap: 0.75rem; max-height: 31rem; overflow: auto; }
 .candidate-card { background: #f8faff; border: 1px solid #dbe5f6; border-radius: 1rem; padding: 0.9rem; }
 .candidate-card.approved { border-color: #28a36a; background: #f4fff9; }
+.candidate-card.rejected { border-color: #d87171; background: #fff6f6; }
 .candidate-card h3 { margin: 0.5rem 0; }
 .candidate-card p { color: #4d5b73; }
 .candidate-card footer { display: flex; justify-content: space-between; gap: 0.75rem; color: #667590; font-size: 0.88rem; }
 .pill { display: inline-block; border-radius: 999px; padding: 0.2rem 0.55rem; background: #e8eefb; color: #2457d6; font-size: 0.75rem; font-weight: 800; }
 .approved-pill { background: #dff8eb; color: #19764c; }
+.rejected-pill { background: #ffe1e1; color: #9a2d2d; }
 .console-panel { margin-top: 1rem; padding: 1.25rem; }
 pre { white-space: pre-wrap; background: #111827; color: #e5edff; border-radius: 1rem; padding: 1rem; overflow: auto; }
 
@@ -82,3 +94,5 @@ pre { white-space: pre-wrap; background: #111827; color: #e5edff; border-radius:
 .candidate-selector input { width: auto; margin: 0; }
 .candidate-card.archived { border-color: #aeb8cc; background: #f3f5f9; opacity: 0.82; }
 .archived-pill { background: #e7ebf3; color: #59657a; }
+.mods-label { font-size: 0.9rem; }
+.notice { border-left: 4px solid #d87171; padding-left: 0.7rem; font-weight: 700; }

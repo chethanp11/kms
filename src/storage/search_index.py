@@ -16,11 +16,15 @@ class SearchIndexStore:
         self.documents = {doc.search_doc_id: doc for doc in documents}
 
     def search(self, query: str) -> list[SearchDocument]:
+        return [doc for doc, _confidence in self.search_with_confidence(query)]
+
+    def search_with_confidence(self, query: str) -> list[tuple[SearchDocument, float]]:
         q = query.casefold().strip()
         if not q:
-            return list(self.documents.values())
+            return [(doc, 1.0) for doc in self.documents.values()]
         scored = [(_match_score(doc, q), doc) for doc in self.documents.values()]
-        return [doc for score, doc in sorted(scored, key=lambda item: item[0], reverse=True) if score > 0]
+        positive = [(doc, _confidence(score)) for score, doc in sorted(scored, key=lambda item: item[0], reverse=True) if score > 0]
+        return positive
 
 
 def _match_score(doc: SearchDocument, query: str) -> int:
@@ -30,8 +34,15 @@ def _match_score(doc: SearchDocument, query: str) -> int:
         score += 100
     query_terms = _expand_terms(_terms(query))
     haystack_terms = _expand_terms(_terms(haystack))
-    score += 10 * len(query_terms & haystack_terms)
+    semantic_overlap = len(query_terms & haystack_terms)
+    literal_overlap = len(_terms(query) & _terms(haystack))
+    score += 10 * literal_overlap
+    score += 6 * max(0, semantic_overlap - literal_overlap)
     return score
+
+
+def _confidence(score: int) -> float:
+    return round(min(0.99, max(0.05, score / 140)), 2)
 
 
 def _terms(value: str) -> set[str]:

@@ -76,6 +76,13 @@ class KnowledgeCandidateType(str, Enum):
     CONTRADICTION = "contradiction"
 
 
+class CandidateReviewStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    APPROVED_WITH_MODS = "approved_with_mods"
+
+
 class ApprovalDecision(str, Enum):
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -520,6 +527,10 @@ class KnowledgeCandidate:
     rationale: str
     target_slug: str = ""
     related_candidate_ids: tuple[str, ...] = ()
+    review_status: CandidateReviewStatus = CandidateReviewStatus.PENDING
+    duplicate_of: str = ""
+    duplicate_rationale: str = ""
+    modification_text: str = ""
 
     def __post_init__(self) -> None:
         for field_name in ("candidate_id", "run_id", "source_document_id"):
@@ -579,6 +590,7 @@ __all__ = [
     "ImpactRecord",
     "InfopediaNode",
     "KnowledgePage",
+    "CandidateReviewStatus",
     "CandidateDraft",
     "LintFinding",
     "LintSeverity",

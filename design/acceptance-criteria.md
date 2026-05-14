@@ -335,3 +335,13 @@ Boundary conditions are absolute:
 - no silent conflict resolution
 - no agent may override governance policy
 - `/wiki` remains protected from invalid publication
+
+## Current-cycle acceptance criteria: semantic candidate decisions and search confidence
+
+- Candidate creation performs semantic decomposition and preserves deterministic fallback behavior without live network dependency.
+- Candidate creation compares candidates against existing finalized wiki/source content; duplicates are auto-rejected, excluded from publication, and visible in KMI with a duplicate rationale.
+- KMI review provides Select all, per-candidate Approve, Reject, and Approve with Mods controls.
+- Frontend pages do not expose LLM/provider/source implementation wording and the publish flow does not display Knowledge Manager wording.
+- The old "Load to wiki" wording is replaced by "Publish to wiki".
+- Publishing approved candidates writes finalized pages under `sources/`; no `/wiki/candidates` folder or candidate page path is produced.
+- Infopedia search combines semantic and keyword signals over finalized wiki pages and each result exposes a confidence score.

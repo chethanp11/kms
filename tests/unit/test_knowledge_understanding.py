@@ -61,6 +61,8 @@ class KnowledgeUnderstandingTests(unittest.TestCase):
         self.assertEqual({candidate.candidate_type for candidate in candidates}, set(KnowledgeCandidateType))
         self.assertTrue(all(candidate.is_proposal for candidate in candidates))
         self.assertTrue(all(candidate.source_ref == "governance.md" for candidate in candidates))
+        self.assertTrue(all(candidate.target_slug.startswith("sources/") for candidate in candidates))
+        self.assertTrue(all("semantic decomposition" in candidate.rationale for candidate in candidates))
         self.assertTrue(all(0.35 <= candidate.relevance_score <= 1.0 for candidate in candidates))
         self.assertTrue(all(0.0 <= candidate.confidence_score <= 1.0 for candidate in candidates))
 
