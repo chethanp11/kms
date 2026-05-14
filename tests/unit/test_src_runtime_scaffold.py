@@ -86,9 +86,15 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertNotIn("Knowledge Manager", app_js)
         self.assertNotIn("seedDemo", app_js)
         self.assertIn("restart the KMS API server", app_js)
+        self.assertIn("searchParams.get('candidate_id')", app_js)
+        self.assertIn("Open candidate", app_js)
+        self.assertIn("scrollIntoView", app_js)
         info_js = (ROOT / "src/infopedia/app.js").read_text(encoding="utf-8")
         self.assertIn("confidence_score", info_js)
         self.assertIn("semantic and keyword", info_js)
+        self.assertIn("searchParams.get('page')", info_js)
+        self.assertIn("Open published source", info_js)
+        self.assertIn("pagePanel", info_js)
         self.assertNotIn("include_candidates=true", info_js)
         self.assertNotIn("Include candidate proposals", info_js)
         self.assertNotIn("LLM", info_js)
@@ -97,6 +103,9 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertTrue((ROOT / "src/kmi/favicon.svg").is_file())
         self.assertTrue((ROOT / "src/infopedia/favicon.svg").is_file())
         self.assertTrue((ROOT / "tests/kmi-source/metrics/revenue.md").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/procedures/monthly-close-procedure.md").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/codes/revenue-status-codes.md").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/data-dictionaries/revenue-data-dictionary.md").is_file())
 
 
     def test_api_has_non_error_favicon_response(self) -> None:

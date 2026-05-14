@@ -9,6 +9,7 @@ button, input { font: inherit; }
 button { border: 0; border-radius: 999px; padding: 0.75rem 1.1rem; background: #6d3fd1; color: white; font-weight: 800; cursor: pointer; }
 input { border: 1px solid #d7c8f4; border-radius: 0.85rem; padding: 0.75rem 0.9rem; min-width: min(28rem, 70vw); }
 label { display: grid; gap: 0.35rem; font-weight: 800; color: #49386b; }
+a { color: #6d3fd1; }
 .info-shell { max-width: 1080px; margin: 0 auto; padding: 2rem; }
 .hero { margin-bottom: 1rem; }
 .hero h1 { font-size: clamp(2.2rem, 5vw, 4rem); margin: 0.2rem 0; letter-spacing: -0.05em; }
@@ -33,3 +34,8 @@ label { display: grid; gap: 0.35rem; font-weight: 800; color: #49386b; }
 .confidence { color: #49386b; font-weight: 800; margin: 0.75rem 0 0; }
 .pill { display: inline-block; border-radius: 999px; background: #efe7ff; color: #6d3fd1; padding: 0.2rem 0.55rem; font-size: 0.75rem; font-weight: 900; }
 .empty { color: #6d6380; padding: 1rem; border: 1px dashed #d7c8f4; border-radius: 1rem; background: #fdfbff; }
+.card-link { display: inline-block; margin-top: 0.65rem; font-weight: 800; text-decoration: none; }
+.card-link:hover { text-decoration: underline; }
+.page-panel { margin: 0 0 1rem; padding: 1rem; border: 1px solid #e2d7f8; border-radius: 1rem; background: #f8f4ff; }
+.panel-heading.compact { margin-bottom: 0.75rem; align-items: start; }
+.page-content { white-space: pre-wrap; background: #fff; color: #362850; border-radius: 0.9rem; padding: 1rem; border: 1px solid #e9def9; overflow: auto; }

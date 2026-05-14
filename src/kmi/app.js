@@ -1,10 +1,14 @@
 const API_BASE = window.KMS_API_BASE || 'http://127.0.0.1:8000';
 const DEFAULT_TEST_SOURCE_PATH = 'tests/kmi-source';
 const app = document.getElementById('app');
+const initialUrlState = new URL(window.location.href);
+const initialRunId = initialUrlState.searchParams.get('run_id') || '';
+const initialCandidateId = initialUrlState.searchParams.get('candidate_id') || '';
 
 let activeRunId = '';
 let candidates = [];
 let selectedCandidateIds = new Set();
+let highlightedCandidateId = initialCandidateId;
 
 app.innerHTML = `
   <main class="kmi-shell">
@@ -77,6 +81,20 @@ function setStage(stageName) {
   document.getElementById(stageName).classList.add('active');
 }
 
+function candidateLink(candidate) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('run_id', candidate.run_id);
+  url.searchParams.set('candidate_id', candidate.candidate_id);
+  url.hash = `candidate-${candidate.candidate_id}`;
+  return url.toString();
+}
+
+function focusCandidate(candidateId) {
+  highlightedCandidateId = candidateId || '';
+  const target = highlightedCandidateId ? document.getElementById(`candidate-${highlightedCandidateId}`) : null;
+  if (target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, options);
   const data = response.status === 204 ? {} : await response.json();
@@ -131,14 +149,15 @@ function renderCandidates() {
     const checked = selectedCandidateIds.has(candidate.candidate_id) ? 'checked' : '';
     const disabled = pending ? '' : 'disabled';
     const duplicate = candidate.duplicate_rationale ? `<p class="notice">${candidate.duplicate_rationale}</p>` : '';
+    const focused = highlightedCandidateId === candidate.candidate_id ? 'focus' : '';
     return `
-      <article class="candidate-card ${candidate.approved ? 'approved' : ''} ${candidate.rejected ? 'rejected' : ''} ${candidate.archived ? 'archived' : ''}">
+      <article id="candidate-${candidate.candidate_id}" class="candidate-card ${candidate.approved ? 'approved' : ''} ${candidate.rejected ? 'rejected' : ''} ${candidate.archived ? 'archived' : ''} ${focused}">
         <label class="candidate-selector">
           <input type="checkbox" data-candidate-id="${candidate.candidate_id}" ${checked} ${disabled} />
           <span>Select</span>
         </label>
         <div>${statusPills(candidate)}</div>
-        <h3>${candidate.title}</h3>
+        <h3><a class="card-link" href="${candidateLink(candidate)}">${candidate.title}</a></h3>
         <p>${candidate.excerpt}</p>
         ${duplicate}
         <label class="mods-label">Mods text
@@ -151,12 +170,14 @@ function renderCandidates() {
         </div>
         <footer>
           <span>Source: <code>${candidate.source_ref}</code></span>
+          <a class="card-link" href="${candidateLink(candidate)}">Open candidate</a>
           <span>Confidence: ${Number(candidate.confidence_score).toFixed(2)}</span>
         </footer>
       </article>
     `;
   }).join('');
   syncButtons();
+  focusCandidate(highlightedCandidateId);
 }
 
 async function refreshCandidates() {
@@ -269,3 +290,18 @@ publishButton.addEventListener('click', async () => {
     show(`Error: ${error.message}`);
   }
 });
+
+async function boot() {
+  if (!initialRunId) return;
+  activeRunId = initialRunId;
+  publishSummary.textContent = 'Loading candidate run from hyperlink.';
+  try {
+    await refreshCandidates();
+    setStage('stageReview');
+    if (initialCandidateId) focusCandidate(initialCandidateId);
+  } catch (error) {
+    show(`Error: ${error.message}`);
+  }
+}
+
+boot();
