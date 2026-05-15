@@ -1,0 +1,7 @@
+{
+  "candidate_count": 7,
+  "fallback_used": true,
+  "proposal_only": true,
+  "provider": "deterministic",
+  "warning": "OpenAI API response did not contain valid candidate JSON"
+}
