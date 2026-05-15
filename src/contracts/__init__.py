@@ -240,6 +240,18 @@ class SourceBundle:
 
 
 @dataclass(frozen=True)
+class UploadedSourceFile:
+    relative_path: str
+    content: str
+    media_type: str = "text/plain"
+
+    def __post_init__(self) -> None:
+        _validate_relative_posix_path(self.relative_path, "relative_path")
+        _validate_non_empty(self.content, "content")
+        _validate_non_empty(self.media_type, "media_type")
+
+
+@dataclass(frozen=True)
 class SourceDocument:
     source_document_id: str
     source_file_id: str
@@ -610,6 +622,7 @@ __all__ = [
     "SourceBundle",
     "SourceDocument",
     "SourceFile",
+    "UploadedSourceFile",
     "ValidationError",
     "WikiPage",
     "WikiPageRevision",

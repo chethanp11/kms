@@ -111,7 +111,8 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             source.mkdir()
             (source / "revenue.md").write_text(
                 "Metric: Revenue rate is measured as approved invoice value.\n"
-                "Process: Revenue review workflow has approval steps.",
+                "Process: Revenue review workflow has approval steps.\n"
+                "Concept: Revenue review notes remain searchable for audit.",
                 encoding="utf-8",
             )
             runtime = self.runtime(root)
@@ -152,6 +153,36 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
 
             self.assertTrue(all(path.startswith("sources/") for path in published["published"]))
             self.assertIn("Modified approved summary.", (root / "wiki" / published["published"][0]).read_text(encoding="utf-8"))
+
+    def test_create_candidates_can_materialize_browser_uploaded_sources(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            runtime = self.runtime(root)
+            set_runtime(runtime)
+
+            created = create_candidates(
+                {
+                    "source_path": "desktop/source-selection",
+                    "run_id": "upload-run",
+                    "source_files": [
+                        {
+                            "relative_path": "folder/code/order_service.py",
+                            "content": "Entity: Order service owns checkout.\nProcess: Intake validates requests.\nMetric: Success rate is measured.",
+                            "media_type": "text/plain",
+                        },
+                        {
+                            "relative_path": "folder/docs/takeaways.md",
+                            "content": "Decision: Finance approved the release.\nConcept: The takeaways stay visible for review.",
+                            "media_type": "text/markdown",
+                        },
+                    ],
+                }
+            )
+
+            self.assertEqual(created["run_id"], "upload-run")
+            self.assertEqual(created["summary_counts"]["source_files"], 2)
+            self.assertLessEqual(len(created["candidates"]), 5)
+            self.assertTrue(all(candidate["source_ref"].startswith("folder/") for candidate in created["candidates"]))
 
 
 def tree_for(runtime: KMSRuntime) -> list[object]:

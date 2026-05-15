@@ -5,8 +5,10 @@ from __future__ import annotations
 from hashlib import sha256
 from pathlib import Path
 import mimetypes
+from tempfile import mkdtemp
 
-from src.contracts import SourceBundle, SourceFile, ValidationError
+from src.config.paths import resolve_under
+from src.contracts import SourceBundle, SourceFile, UploadedSourceFile, ValidationError
 
 
 def discover_source_bundle(root: Path | str) -> SourceBundle:
@@ -41,4 +43,15 @@ def source_note_for_bundle(bundle: SourceBundle) -> str:
     return "\n".join(lines) + "\n"
 
 
-__all__ = ["discover_source_bundle", "source_note_for_bundle"]
+def materialize_uploaded_source_files(files: tuple[UploadedSourceFile, ...], *, run_id: str) -> Path:
+    """Write browser-selected source files into a temp root for governed parsing."""
+
+    root = Path(mkdtemp(prefix=f"kms-upload-{run_id}-")).resolve()
+    for item in files:
+        target = resolve_under(root, item.relative_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(item.content, encoding="utf-8")
+    return root
+
+
+__all__ = ["discover_source_bundle", "materialize_uploaded_source_files", "source_note_for_bundle"]

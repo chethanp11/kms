@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 
 from src.config.settings import KMSSettings, default_settings
-from src.contracts import ApprovalDecision, ChangeType, KnowledgeCandidate, KnowledgePage, MaintenanceRun, PageStatus, RevisionState, RunState, ValidationError, WikiPageRevision
+from src.contracts import ApprovalDecision, ChangeType, KnowledgeCandidate, KnowledgePage, MaintenanceRun, PageStatus, RevisionState, RunState, SourceBundle, UploadedSourceFile, ValidationError, WikiPageRevision
 from src.services.approval import create_approval
 from src.services.contradiction import detect_contradictions
 from src.services.infopedia_projection import build_tree
@@ -29,6 +29,7 @@ from src.services.source_note import render_source_note
 from src.services.wiki_draft import draft_pages
 from src.services.wiki_draft import slugify
 from src.storage import ArtifactStore, MetadataStore, SearchIndexStore, WikiStore
+from src.execution import materialize_uploaded_source_files
 
 
 @dataclass(frozen=True)
@@ -76,9 +77,9 @@ class KMSRuntime:
         resolved.ensure_directories()
         return cls(resolved, MetadataStore(), WikiStore(resolved.wiki_root), ArtifactStore(resolved.artifact_root), SearchIndexStore())
 
-    def start_run(self, source_path: Path | str, *, run_id: str = "run-1", auto_approve: bool = False, reviewer_id: str = "knowledge-manager") -> RuntimeResult:
-        run = self.metadata.save_run(MaintenanceRun(run_id=run_id, source_path=str(source_path), state=RunState.IN_PROGRESS))
-        bundle = discover_sources(source_path)
+    def start_run(self, source_path: Path | str, *, run_id: str = "run-1", auto_approve: bool = False, reviewer_id: str = "knowledge-manager", source_files: tuple[UploadedSourceFile, ...] = ()) -> RuntimeResult:
+        bundle, source_path_label = self._discover_bundle(source_path, run_id=run_id, source_files=source_files)
+        run = self.metadata.save_run(MaintenanceRun(run_id=run_id, source_path=source_path_label, state=RunState.IN_PROGRESS))
         self.artifacts.write_text(run_id, "source-note.md", render_source_note(bundle))
         documents = parse_source_bundle(bundle, run_id=run_id)
         understanding = understand_knowledge(documents, settings=self.settings)
@@ -135,9 +136,9 @@ class KMSRuntime:
         self.metadata.save_run(run)
         return RuntimeResult(run, len(bundle.files), len(pages), tuple(published), tuple(warnings))
 
-    def create_candidates(self, source_path: Path | str, *, run_id: str = "run-1") -> CandidateWorkflowResult:
-        run = self.metadata.save_run(MaintenanceRun(run_id=run_id, source_path=str(source_path), state=RunState.IN_PROGRESS))
-        bundle = discover_sources(source_path)
+    def create_candidates(self, source_path: Path | str, *, run_id: str = "run-1", source_files: tuple[UploadedSourceFile, ...] = ()) -> CandidateWorkflowResult:
+        bundle, source_path_label = self._discover_bundle(source_path, run_id=run_id, source_files=source_files)
+        run = self.metadata.save_run(MaintenanceRun(run_id=run_id, source_path=source_path_label, state=RunState.IN_PROGRESS))
         self.artifacts.write_text(run_id, "source-note.md", render_source_note(bundle))
         documents = parse_source_bundle(bundle, run_id=run_id)
         understanding = understand_knowledge(documents, settings=self.settings)
@@ -170,6 +171,12 @@ class KMSRuntime:
         )
         self.metadata.save_run(run)
         return CandidateWorkflowResult(run, candidates, understanding.provider, understanding.fallback_used, understanding.warning)
+
+    def _discover_bundle(self, source_path: Path | str, *, run_id: str, source_files: tuple[UploadedSourceFile, ...]) -> tuple[SourceBundle, str]:
+        if source_files:
+            root = materialize_uploaded_source_files(source_files, run_id=run_id)
+            return discover_sources(root), str(source_path)
+        return discover_sources(source_path), str(source_path)
 
     def approve_candidates(
         self,

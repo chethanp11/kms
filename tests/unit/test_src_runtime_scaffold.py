@@ -79,10 +79,15 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertIn("Publish wiki", app_js)
         self.assertIn("Create candidates", app_js)
         self.assertIn("Candidate list", app_js)
+        self.assertIn("Rejected candidates", app_js)
+        self.assertIn("Browse local source", app_js)
+        self.assertIn("localSourcePicker", app_js)
+        self.assertIn("source_files", app_js)
         self.assertIn("Open review", app_js)
         self.assertIn("Apply selected reviews", app_js)
         self.assertIn("Feedback", app_js)
         self.assertIn("Candidate", app_js)
+        self.assertIn("Rejected items stay visible here", app_js)
         self.assertIn("Publish approved candidates to wiki", app_js)
         self.assertIn("Publish details", app_js)
         self.assertIn("Default decision is approve", app_js)
@@ -116,6 +121,9 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertTrue((ROOT / "tests/kmi-source/procedures/monthly-close-procedure.md").is_file())
         self.assertTrue((ROOT / "tests/kmi-source/codes/revenue-status-codes.md").is_file())
         self.assertTrue((ROOT / "tests/kmi-source/data-dictionaries/revenue-data-dictionary.md").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/codes/python/order_service.py").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/codes/sql/monthly_close.sql").is_file())
+        self.assertTrue((ROOT / "tests/kmi-source/codes/bash/release_audit.sh").is_file())
 
 
     def test_api_has_non_error_favicon_response(self) -> None:

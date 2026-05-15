@@ -30,6 +30,15 @@ _PROCESS_TERMS = ("process", "workflow", "stage", "step", "procedure", "handoff"
 _DECISION_TERMS = ("decision", "decided", "approved", "rejected", "deferred")
 _CONTRADICTION_TERMS = ("contradiction", "conflict", "disagrees", "inconsistent", "however", "but ")
 _ENTITY_TERMS = ("team", "system", "service", "owner", "application", "data asset")
+_CODE_LIKE_PATTERNS = (
+    r"^\s*def\s+",
+    r"^\s*class\s+",
+    r"^\s*#!/",
+    r"\bSELECT\b",
+    r"\bFROM\b",
+    r"\becho\b",
+    r"[{};]",
+)
 
 
 @dataclass(frozen=True)
@@ -70,6 +79,8 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
     sequence = 1
     for document in documents:
         source_ref = str(document.metadata.get("relative_path", document.source_document_id))
+        document_candidates: list[tuple[float, float, str, KnowledgeCandidateType, str]] = []
+        max_candidates = _max_candidates_for_document(document.text)
         for segment in _semantic_segments(document.text):
             candidate_type = _classify(segment)
             relevance = _relevance_score(segment, candidate_type)
@@ -77,6 +88,12 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
                 continue
             confidence = _confidence_score(segment, candidate_type)
             title = _title_for(segment, candidate_type)
+            document_candidates.append((relevance, confidence, segment, candidate_type, title))
+        seen_types: set[KnowledgeCandidateType] = set()
+        selected = sorted(document_candidates, key=lambda item: (item[0], item[1], len(item[2])), reverse=True)
+        for relevance, confidence, segment, candidate_type, title in selected:
+            if candidate_type in seen_types:
+                continue
             candidates.append(KnowledgeCandidate(
                 candidate_id=f"candidate-{sequence}",
                 run_id=document.run_id,
@@ -90,8 +107,20 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
                 rationale=f"{candidate_type.value} candidate extracted by semantic decomposition with deterministic relevance and confidence scoring.",
                 target_slug=f"sources/{slugify(title)}",
             ))
+            seen_types.add(candidate_type)
             sequence += 1
+            if len(seen_types) >= max_candidates:
+                break
     return tuple(candidates)
+
+
+def _max_candidates_for_document(text: str) -> int:
+    line_count = sum(1 for line in text.splitlines() if line.strip())
+    if line_count <= 2:
+        return 2
+    if any(re.search(pattern, text, re.IGNORECASE | re.MULTILINE) for pattern in _CODE_LIKE_PATTERNS):
+        return 3
+    return 6 if line_count <= 7 else 3
 
 
 def build_candidate_drafts(candidates: tuple[KnowledgeCandidate, ...]) -> tuple[CandidateDraft, ...]:

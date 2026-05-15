@@ -66,6 +66,31 @@ class KnowledgeUnderstandingTests(unittest.TestCase):
         self.assertTrue(all(0.35 <= candidate.relevance_score <= 1.0 for candidate in candidates))
         self.assertTrue(all(0.0 <= candidate.confidence_score <= 1.0 for candidate in candidates))
 
+    def test_extract_limits_per_document_candidate_fanout(self) -> None:
+        document = SourceDocument(
+            source_document_id="doc-2",
+            source_file_id="source-2",
+            run_id="run-021",
+            title="Code Sample",
+            content_type="text/plain",
+            text="\n".join([
+                "Entity: Order service owns a checkout boundary.",
+                "Process: Order intake validates request data.",
+                "Metric: Success rate is measured from accepted orders.",
+                "Decision: Team approved the default delivery path.",
+                "Concept: Shared pricing logic remains a reusable component.",
+                "Contradiction: One rule says pending but another says ready.",
+                "Process: Another workflow step appears here.",
+                "Metric: Another score appears here.",
+            ]),
+            metadata={"relative_path": "code/order_service.py"},
+        )
+
+        candidates = extract_knowledge_candidates((document,), min_relevance=0.35)
+
+        self.assertLessEqual(len(candidates), 3)
+        self.assertEqual(len({candidate.candidate_type for candidate in candidates}), len(candidates))
+
     def test_candidate_drafts_are_intermediate_and_not_publishable(self) -> None:
         candidate = KnowledgeCandidate(
             candidate_id="candidate-1",

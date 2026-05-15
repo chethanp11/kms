@@ -3,13 +3,24 @@
 from __future__ import annotations
 
 from src.api.dependencies import get_runtime
-from src.contracts import KnowledgeCandidate
+from src.contracts import KnowledgeCandidate, UploadedSourceFile
 
 
 def create_candidates(payload: dict[str, object]) -> dict[str, object]:
+    raw_source_files = payload.get("source_files", ())
+    source_files = tuple(
+        UploadedSourceFile(
+            relative_path=str(item.get("relative_path", "")),
+            content=str(item.get("content", "")),
+            media_type=str(item.get("media_type", "text/plain")),
+        )
+        for item in raw_source_files
+        if isinstance(item, dict)
+    ) if isinstance(raw_source_files, list) else ()
     result = get_runtime().create_candidates(
         str(payload["source_path"]),
         run_id=str(payload.get("run_id", "run-1")),
+        source_files=source_files,
     )
     return {
         "run_id": result.run.run_id,

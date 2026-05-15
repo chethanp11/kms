@@ -12,6 +12,8 @@ let selectedCandidateIds = new Set();
 let highlightedCandidateId = initialCandidateId;
 let activeStage = 'stageCandidates';
 let lastPublishedPages = [];
+let selectedSourceFiles = [];
+let selectedSourceLabel = DEFAULT_TEST_SOURCE_PATH;
 
 app.innerHTML = `
   <main class="kmi-shell">
@@ -68,16 +70,20 @@ app.innerHTML = `
             <div class="panel-heading compact">
               <div>
                 <h3>Create candidates</h3>
-                <p>Use the source folder to create the governed candidate set.</p>
+                <p>Use a local folder picker or a typed path to create the governed candidate set.</p>
               </div>
             </div>
             <label>Source path
-              <input id="sourcePath" value="${DEFAULT_TEST_SOURCE_PATH}" />
+              <input id="sourcePath" value="${DEFAULT_TEST_SOURCE_PATH}" placeholder="Desktop path or local folder label" />
             </label>
             <div class="button-row">
               <button id="createCandidates">Create candidates</button>
+              <button id="browseLocalSource" class="secondary-button" type="button">Browse local source</button>
+              <button id="clearLocalSource" class="secondary-button" type="button">Clear local selection</button>
               <button id="jumpToReview" class="secondary-button" type="button">Go to review</button>
             </div>
+            <input id="localSourcePicker" type="file" webkitdirectory multiple hidden />
+            <p id="sourceSelectionSummary" class="muted">Using the default test source path.</p>
             <p id="createNote" class="muted">Ready to scan the test bundle.</p>
           </section>
 
@@ -89,6 +95,16 @@ app.innerHTML = `
               </div>
             </div>
             <div id="candidateOverviewList" class="candidate-list muted">No candidates created yet.</div>
+          </section>
+
+          <section class="stage-panel">
+            <div class="panel-heading compact">
+              <div>
+                <h3>Rejected candidates</h3>
+                <p>Rejected items stay visible here as part of the created candidate history.</p>
+              </div>
+            </div>
+            <div id="rejectedCandidateList" class="candidate-list muted">No rejected candidates yet.</div>
           </section>
         </article>
 
@@ -157,11 +173,14 @@ app.innerHTML = `
 
 const candidateOverviewList = document.getElementById('candidateOverviewList');
 const candidateReviewList = document.getElementById('candidateReviewList');
+const rejectedCandidateList = document.getElementById('rejectedCandidateList');
 const candidateSummary = document.getElementById('candidateSummary');
 const reviewSummary = document.getElementById('reviewSummary');
 const publishSummary = document.getElementById('publishSummary');
 const publishedList = document.getElementById('publishedList');
 const pageNotice = document.getElementById('pageNotice');
+const sourceSelectionSummary = document.getElementById('sourceSelectionSummary');
+const localSourcePicker = document.getElementById('localSourcePicker');
 const selectAllButton = document.getElementById('selectAll');
 const clearSelectionButton = document.getElementById('clearSelection');
 const applySelectedButton = document.getElementById('applySelected');
@@ -180,6 +199,14 @@ function escapeHtml(value) {
 
 function show(message) {
   pageNotice.textContent = message;
+}
+
+function updateSourceSelectionSummary() {
+  if (selectedSourceFiles.length) {
+    sourceSelectionSummary.textContent = `Selected ${selectedSourceFiles.length} local files from ${selectedSourceLabel}. These files will be uploaded for candidate creation.`;
+    return;
+  }
+  sourceSelectionSummary.textContent = `Using the source path ${document.getElementById('sourcePath').value || DEFAULT_TEST_SOURCE_PATH}.`;
 }
 
 function setStage(stageName, {syncUrl = true} = {}) {
@@ -213,6 +240,63 @@ function focusCandidate(candidateId) {
   }
 }
 
+function normalizeRelativePath(path) {
+  return path.replaceAll('\\', '/').replace(/^\/+/, '');
+}
+
+async function readFilesFromHandles(handles, prefix = '') {
+  const files = [];
+  for (const handle of handles) {
+    if (handle.kind === 'file') {
+      const file = await handle.getFile();
+      files.push({
+        relative_path: normalizeRelativePath(prefix ? `${prefix}/${file.name}` : file.name),
+        content: await file.text(),
+        media_type: file.type || 'text/plain',
+      });
+      continue;
+    }
+    if (handle.kind === 'directory') {
+      const nextPrefix = prefix ? `${prefix}/${handle.name}` : handle.name;
+      for await (const child of handle.values()) {
+        files.push(...await readFilesFromHandles([child], nextPrefix));
+      }
+    }
+  }
+  return files;
+}
+
+async function browseLocalSource() {
+  selectedSourceFiles = [];
+  try {
+    if (window.showDirectoryPicker) {
+      const directoryHandle = await window.showDirectoryPicker({mode: 'read'});
+      selectedSourceLabel = directoryHandle.name || 'local-source';
+      selectedSourceFiles = await readFilesFromHandles([directoryHandle], directoryHandle.name);
+    } else {
+      localSourcePicker.click();
+      return;
+    }
+    document.getElementById('sourcePath').value = selectedSourceLabel;
+    createNote.textContent = `Loaded ${selectedSourceFiles.length} local files from ${selectedSourceLabel}.`;
+    updateSourceSelectionSummary();
+  } catch (error) {
+    show(`Error: ${error.message}`);
+  }
+}
+
+async function readFilesFromInput(fileList) {
+  const files = [];
+  for (const file of Array.from(fileList || [])) {
+    files.push({
+      relative_path: normalizeRelativePath(file.webkitRelativePath || file.name),
+      content: await file.text(),
+      media_type: file.type || 'text/plain',
+    });
+  }
+  return files;
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, options);
   const data = response.status === 204 ? {} : await response.json();
@@ -228,6 +312,10 @@ async function request(path, options = {}) {
 
 function pendingCandidates() {
   return candidates.filter(candidate => !candidate.approved && !candidate.rejected && !candidate.archived);
+}
+
+function reviewCandidates() {
+  return candidates.filter(candidate => !candidate.rejected && !candidate.archived);
 }
 
 function approvedCount() {
@@ -348,9 +436,41 @@ function renderCandidateOverview() {
   candidateOverviewList.innerHTML = candidates.map(candidate => overviewCard(candidate)).join('');
 }
 
+function renderRejectedList() {
+  const rejected = candidates.filter(candidate => candidate.rejected && !candidate.archived);
+  if (!candidates.length) {
+    rejectedCandidateList.className = 'candidate-list muted';
+    rejectedCandidateList.textContent = 'No rejected candidates yet.';
+    return;
+  }
+  if (!rejected.length) {
+    rejectedCandidateList.className = 'candidate-list muted';
+    rejectedCandidateList.textContent = 'No rejected candidates yet.';
+    return;
+  }
+  rejectedCandidateList.className = 'candidate-list';
+  rejectedCandidateList.innerHTML = rejected.map(candidate => `
+    <article class="candidate-card rejected">
+      <div class="candidate-headline">
+        <div>
+          <h3>${escapeHtml(candidate.title)}</h3>
+          <div>${statusPills(candidate)}</div>
+        </div>
+        <button type="button" class="secondary-button candidate-jump" data-focus-candidate="${candidate.candidate_id}">Re-open review</button>
+      </div>
+      <p>${escapeHtml(candidate.excerpt)}</p>
+      <footer>
+        <span>Source: <code>${escapeHtml(candidate.source_ref)}</code></span>
+        <span>Reason: ${escapeHtml(candidate.modification_text || candidate.duplicate_rationale || 'Rejected during review')}</span>
+      </footer>
+    </article>
+  `).join('');
+}
+
 function renderReviewList() {
+  const visible = reviewCandidates();
   reviewSummary.textContent = candidates.length
-    ? `${pendingCandidates().length} pending • ${approvedCount()} approved • ${rejectedCount()} rejected`
+    ? `${visible.length} visible • ${pendingCandidates().length} pending • ${approvedCount()} approved`
     : 'Select a run to review.';
   if (!candidates.length) {
     candidateReviewList.className = 'candidate-list muted';
@@ -358,7 +478,9 @@ function renderReviewList() {
     return;
   }
   candidateReviewList.className = 'candidate-list';
-  candidateReviewList.innerHTML = candidates.map(candidate => reviewCard(candidate)).join('');
+  candidateReviewList.innerHTML = visible.length
+    ? visible.map(candidate => reviewCard(candidate)).join('')
+    : '<div class="empty-state">Rejected candidates are hidden from this page. Switch to Candidate for the full history.</div>';
 }
 
 function renderPublishPanel() {
@@ -382,6 +504,7 @@ function renderPublishPanel() {
 
 function renderAll() {
   renderCandidateOverview();
+  renderRejectedList();
   renderReviewList();
   renderPublishPanel();
   syncButtons();
@@ -415,20 +538,26 @@ async function rejectCandidate(candidateId, feedback) {
 }
 
 async function createCandidatesFromSource() {
+  const sourcePathValue = document.getElementById('sourcePath').value || DEFAULT_TEST_SOURCE_PATH;
+  const payload = {
+    source_path: sourcePathValue,
+    run_id: activeRunId || `candidate-run-${Date.now()}`,
+  };
+  if (selectedSourceFiles.length) payload.source_files = selectedSourceFiles;
   const result = await request('/api/candidates', {
     method: 'POST',
     headers: {'content-type': 'application/json'},
-    body: JSON.stringify({
-      source_path: document.getElementById('sourcePath').value,
-      run_id: activeRunId || `candidate-run-${Date.now()}`,
-    }),
+    body: JSON.stringify(payload),
   });
   activeRunId = result.run_id || activeRunId || `candidate-run-${Date.now()}`;
   candidates = result.candidates || [];
   selectedCandidateIds = new Set(pendingCandidates().map(candidate => candidate.candidate_id));
   lastPublishedPages = [];
-  createNote.textContent = `Loaded ${candidates.length} candidates from ${document.getElementById('sourcePath').value}.`;
+  createNote.textContent = selectedSourceFiles.length
+    ? `Loaded ${selectedSourceFiles.length} local files and created ${candidates.length} candidates.`
+    : `Loaded ${candidates.length} candidates from ${sourcePathValue}.`;
   show(`Created ${candidates.length} candidates.`);
+  updateSourceSelectionSummary();
   renderAll();
   setStage('stageCandidates');
 }
@@ -452,6 +581,7 @@ async function applySelectedReviews() {
   selectedCandidateIds.clear();
   show(`Applied reviews to ${selected.length} candidates: ${approved} approved, ${rejected} rejected.`);
   await refreshCandidates();
+  renderReviewList();
   setStage('stageReview');
 }
 
@@ -482,6 +612,40 @@ document.getElementById('createCandidates').addEventListener('click', async () =
     show(`Error: ${error.message}`);
   }
 });
+
+document.getElementById('browseLocalSource').addEventListener('click', async () => {
+  await browseLocalSource();
+});
+
+document.getElementById('clearLocalSource').addEventListener('click', () => {
+  selectedSourceFiles = [];
+  selectedSourceLabel = DEFAULT_TEST_SOURCE_PATH;
+  document.getElementById('sourcePath').value = DEFAULT_TEST_SOURCE_PATH;
+  createNote.textContent = 'Local file selection cleared.';
+  updateSourceSelectionSummary();
+});
+
+document.getElementById('sourcePath').addEventListener('input', event => {
+  selectedSourceFiles = [];
+  selectedSourceLabel = event.target.value || DEFAULT_TEST_SOURCE_PATH;
+  updateSourceSelectionSummary();
+});
+
+localSourcePicker.addEventListener('change', async event => {
+  try {
+    selectedSourceFiles = await readFilesFromInput(event.target.files);
+    selectedSourceLabel = 'local-file-selection';
+    document.getElementById('sourcePath').value = selectedSourceLabel;
+    createNote.textContent = `Selected ${selectedSourceFiles.length} local files for candidate creation.`;
+    updateSourceSelectionSummary();
+  } catch (error) {
+    show(`Error: ${error.message}`);
+  } finally {
+    event.target.value = '';
+  }
+});
+
+updateSourceSelectionSummary();
 
 document.getElementById('jumpToReview').addEventListener('click', () => {
   setStage('stageReview');

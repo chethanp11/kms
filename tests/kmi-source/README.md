@@ -10,4 +10,9 @@ The bundle intentionally mixes:
 - metrics
 - contradictions
 
+It also includes three code samples from different domains:
+- Python order service logic
+- SQL monthly close reporting
+- Bash release audit automation
+
 Use it to exercise candidate creation, review, reject, feedback, and wiki publish flows.
