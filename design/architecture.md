@@ -4,6 +4,20 @@ This file describes the KMS architecture and should be kept aligned with the imp
 
 # 3. System Architecture and Layered Design
 
+## 3.0 Current Source Alignment
+
+The current implementation in `src/` realizes the architecture as a local application slice:
+
+- `src/contracts/` defines the shared domain contracts for runs, sources, wiki pages, revisions, candidates, approvals, contradictions, QA, lint, projections, and search documents.
+- `src/services/` contains the executable maintenance services: source discovery/parsing, deterministic or OpenAI-assisted knowledge understanding, source analysis, wiki drafting, policy validation, approval, publishing, lint, search indexing, contradiction detection, and Infopedia projection.
+- `src/services/run_orchestration.py` is the primary workflow coordinator for full runs and the candidate-specific create/review/publish path, including audit events and contradiction/open-question artifacts.
+- `src/api/main.py` is the active HTTP boundary. It exposes the currently wired run, candidate, wiki, and Infopedia endpoints and falls back to a small ASGI app if FastAPI is unavailable.
+- `src/kmi/` and `src/infopedia/` are static browser clients that call the API; KMI can upload browser-selected source files, while Infopedia remains read-only.
+- `src/storage/` uses local filesystem storage for artifacts and finalized wiki markdown, with in-memory operational metadata, audit events, and search indexes in this implementation slice.
+
+Architectural authority boundaries are preserved in code: candidates and candidate drafts are proposal artifacts; publication requires validation plus approval; full-run auto-approval is disabled unless explicitly enabled for local validation; finalized pages are written only through publisher/runtime paths; Infopedia reads wiki pages and search indexes without mutating canonical markdown.
+
+
 ## 3.1 Architectural Overview
 
 KMS is composed of five architectural layers:

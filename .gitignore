@@ -17,3 +17,4 @@ config/*.secret
 config/local/
 .env
 .env.local
+data-storage/

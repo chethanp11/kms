@@ -18,11 +18,12 @@ class KMSSettings:
     ai_model: str = "gpt-4o"
     ai_timeout_seconds: float = 30.0
     openai_api_key: str = field(default="", repr=False)
+    allow_auto_approve: bool = False
 
     @classmethod
     def from_env(cls) -> "KMSSettings":
         env = _merged_local_env()
-        base = Path(env.get("KMS_DATA_ROOT", ".kms-data")).expanduser().resolve()
+        base = Path(env.get("KMS_DATA_ROOT", "data-storage")).expanduser().resolve()
         api_key = env.get("OPEN_AI_KEY", "")
         enabled_value = env.get("KMS_AI_ENABLED")
         ai_enabled = _env_bool(enabled_value, default=bool(api_key))
@@ -35,6 +36,7 @@ class KMSSettings:
             ai_model=env.get("KMS_AI_MODEL", "gpt-4o"),
             ai_timeout_seconds=float(env.get("KMS_AI_TIMEOUT_SECONDS", "30")),
             openai_api_key=api_key,
+            allow_auto_approve=_env_bool(env.get("KMS_ALLOW_AUTO_APPROVE"), default=False),
         )
 
     def ensure_directories(self) -> None:

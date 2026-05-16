@@ -145,6 +145,31 @@ class SrcRuntimeScaffoldTests(unittest.TestCase):
         self.assertEqual(messages[0]["status"], 204)
         self.assertEqual(messages[1]["body"], b"")
 
+    def test_representative_endpoints_are_wired_in_minimal_asgi(self) -> None:
+        from src.api.main import MinimalASGIApp
+
+        async def async_call(path: str, method: str = "GET", body: bytes = b"") -> tuple[int, str]:
+            app = MinimalASGIApp()
+            messages: list[dict[str, object]] = []
+
+            async def receive() -> dict[str, object]:
+                return {"type": "http.request", "body": body, "more_body": False}
+
+            async def send(message: dict[str, object]) -> None:
+                messages.append(message)
+
+            await app({"type": "http", "method": method, "path": path, "query_string": b""}, receive, send)
+            return int(messages[0]["status"]), bytes(messages[1].get("body", b"")).decode("utf-8")
+
+        import asyncio
+
+        def call(path: str) -> tuple[int, str]:
+            return asyncio.run(async_call(path))
+
+        self.assertEqual(call("/api/health/findings")[0], 200)
+        self.assertIn("revision_not_found", call("/api/reviews/missing/diff")[1])
+        self.assertIn("contradiction_not_found", call("/api/contradictions/missing")[1])
+
     def test_start_dev_supports_src_cwd_without_nested_src_package(self) -> None:
         start_dev = (ROOT / "src/scripts/start-dev.sh").read_text(encoding="utf-8")
 

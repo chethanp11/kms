@@ -4,6 +4,20 @@ This file describes the KMI and Infopedia UX design and should stay aligned with
 
 # 8. Knowledge Manager Interface (KMI) and Infopedia UX Design
 
+## 8.0 Current UI Implementation Snapshot
+
+The current browser clients in `src/` implement a focused subset of the UX design:
+
+- KMI (`src/kmi/`) is a three-stage review UI: Candidate, Review & Approve, and Publish wiki.
+- KMI can use a typed source path or browser-selected local files. Browser files are sent as `source_files` for server-side materialization and candidate creation.
+- Candidate cards show type, title, excerpt, source reference, confidence, review state, duplicate rationale when present, and approval/rejection/archive status.
+- Review defaults to approve, supports batch selection, supports rejection with feedback, and supports approval with modified text.
+- Publish is enabled only when approved candidates exist and calls the approved-candidate publish endpoint.
+- Infopedia (`src/infopedia/`) loads the wiki tree, searches finalized pages, and renders selected wiki markdown read-only.
+
+The fuller dashboard, diff review, lint, policy visibility, and contradiction screens described below remain target design unless they are wired through the active API/UI.
+
+
 ## 8.1 UX Architecture Overview
 
 KMS exposes two distinct user-facing applications with separate authority boundaries and interaction models.

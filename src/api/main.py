@@ -7,8 +7,12 @@ from typing import Any, Awaitable, Callable, Dict, List
 from urllib.parse import parse_qs
 
 from src.api.routes.candidates import approve_candidates, create_candidates, list_candidates, publish_approved_candidates
+from src.api.routes.approvals import submit_approval
+from src.api.routes.contradictions import get_contradiction
+from src.api.routes.health import findings as health_findings
 from src.api.routes.infopedia import search as search_pages
 from src.api.routes.infopedia import tree as infopedia_tree
+from src.api.routes.reviews import get_diff
 from src.api.routes.runs import create_run, get_run, list_artifacts
 from src.api.routes.wiki import get_page
 from src.app import REPRESENTATIVE_ENDPOINTS
@@ -23,6 +27,14 @@ _HEADERS = [
     (b"access-control-allow-methods", b"GET,POST,OPTIONS"),
     (b"access-control-allow-headers", b"content-type"),
 ]
+
+
+def _remove_prefix(value: str, prefix: str) -> str:
+    return value[len(prefix):] if value.startswith(prefix) else value
+
+
+def _remove_suffix(value: str, suffix: str) -> str:
+    return value[:-len(suffix)] if suffix and value.endswith(suffix) else value
 
 
 class MinimalASGIApp:
@@ -58,26 +70,37 @@ class MinimalASGIApp:
         if method == "POST" and path == "/api/candidates":
             return 200, create_candidates(await self._read_json(receive))
         if method == "GET" and path.startswith("/api/candidates/"):
-            return 200, list_candidates(path.removeprefix("/api/candidates/"))
+            return 200, list_candidates(_remove_prefix(path, "/api/candidates/"))
         if method == "POST" and path.startswith("/api/candidates/"):
-            suffix = path.removeprefix("/api/candidates/")
+            suffix = _remove_prefix(path, "/api/candidates/")
             if suffix.endswith("/approve"):
-                return 200, approve_candidates(suffix.removesuffix("/approve"), await self._read_json(receive))
+                return 200, approve_candidates(_remove_suffix(suffix, "/approve"), await self._read_json(receive))
             if suffix.endswith("/publish"):
-                return 200, publish_approved_candidates(suffix.removesuffix("/publish"), await self._read_json(receive))
+                return 200, publish_approved_candidates(_remove_suffix(suffix, "/publish"), await self._read_json(receive))
         if method == "GET" and path.startswith("/api/runs/"):
-            suffix = path.removeprefix("/api/runs/")
+            suffix = _remove_prefix(path, "/api/runs/")
             if suffix.endswith("/artifacts"):
-                return 200, {"artifacts": list_artifacts(suffix.removesuffix("/artifacts"))}
+                return 200, {"artifacts": list_artifacts(_remove_suffix(suffix, "/artifacts"))}
             run = get_run(suffix)
             return (200, run) if run else (404, {"error": "run_not_found"})
+        if method == "GET" and path.startswith("/api/reviews/") and path.endswith("/diff"):
+            revision_id = _remove_suffix(_remove_prefix(path, "/api/reviews/"), "/diff")
+            diff = get_diff(revision_id)
+            return (200, diff) if diff else (404, {"error": "revision_not_found"})
+        if method == "POST" and path.startswith("/api/approvals/"):
+            return 200, submit_approval(_remove_prefix(path, "/api/approvals/"), await self._read_json(receive))
+        if method == "GET" and path.startswith("/api/contradictions/"):
+            contradiction = get_contradiction(_remove_prefix(path, "/api/contradictions/"))
+            return (200, contradiction) if contradiction else (404, {"error": "contradiction_not_found"})
+        if method == "GET" and path == "/api/health/findings":
+            return 200, health_findings()
         if method == "GET" and path == "/api/infopedia/tree":
             return 200, infopedia_tree()
         if method == "GET" and path == "/api/infopedia/search":
             include_candidates = (query.get("include_candidates") or ["false"])[0].casefold() in {"1", "true", "yes", "on"}
             return 200, search_pages((query.get("q") or [""])[0], include_candidates=include_candidates)
         if method == "GET" and path.startswith("/api/wiki/pages/"):
-            return 200, get_page(path.removeprefix("/api/wiki/pages/"))
+            return 200, get_page(_remove_prefix(path, "/api/wiki/pages/"))
         return 404, {"error": "not_found", "endpoints": list(REPRESENTATIVE_ENDPOINTS)}
 
     async def _read_json(self, receive: ASGIReceive) -> Dict[str, Any]:
@@ -164,6 +187,31 @@ def create_app() -> object:
     @app.get("/api/runs/{run_id}/artifacts")
     def _list_artifacts(run_id: str) -> Dict[str, Any]:
         return {"artifacts": list_artifacts(run_id)}
+
+    @app.get("/api/reviews/{revision_id}/diff")
+    def _get_diff(revision_id: str) -> Dict[str, Any]:
+        diff = get_diff(revision_id)
+        if diff is None:
+            raise HTTPException(status_code=404, detail="revision_not_found")
+        return diff
+
+    @app.post("/api/approvals/{revision_id}")
+    def _submit_approval(revision_id: str, payload: Dict[str, Any]) -> Dict[str, str]:
+        try:
+            return submit_approval(revision_id, payload)
+        except (KeyError, ValidationError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    @app.get("/api/contradictions/{contradiction_id}")
+    def _get_contradiction(contradiction_id: str) -> Dict[str, Any]:
+        contradiction = get_contradiction(contradiction_id)
+        if contradiction is None:
+            raise HTTPException(status_code=404, detail="contradiction_not_found")
+        return contradiction
+
+    @app.get("/api/health/findings")
+    def _health_findings() -> List[Dict[str, Any]]:
+        return health_findings()
 
     @app.get("/api/infopedia/tree")
     def _tree() -> List[Dict[str, Any]]:

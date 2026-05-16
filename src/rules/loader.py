@@ -11,10 +11,11 @@ def load_policy_rules(path: Path | str) -> list[dict[str, object]]:
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
-        if line.startswith("-") and current:
-            rules.append(validate_rule(current)); current = {}
+        if line.startswith("-"):
+            if current:
+                rules.append(validate_rule(current)); current = {}
             line = line[1:].strip()
-        if ":" in line and not line.startswith("-"):
+        if ":" in line:
             key, value = line.split(":", 1)
             current[key.strip()] = value.strip() or {}
     if current:

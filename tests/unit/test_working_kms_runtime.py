@@ -18,8 +18,8 @@ from src.services.run_orchestration import KMSRuntime
 
 
 class WorkingKMSRuntimeTests(unittest.TestCase):
-    def runtime(self, root: Path) -> KMSRuntime:
-        return KMSRuntime.create(KMSSettings(raw_root=root / "raw", wiki_root=root / "wiki", artifact_root=root / "artifacts"))
+    def runtime(self, root: Path, *, allow_auto_approve: bool = False) -> KMSRuntime:
+        return KMSRuntime.create(KMSSettings(raw_root=root / "raw", wiki_root=root / "wiki", artifact_root=root / "artifacts", allow_auto_approve=allow_auto_approve))
 
     def test_source_to_approved_publish_search_and_infopedia_projection(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -27,7 +27,7 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             source = root / "source"
             source.mkdir()
             (source / "revenue.md").write_text("Revenue is governed knowledge.", encoding="utf-8")
-            runtime = self.runtime(root)
+            runtime = self.runtime(root, allow_auto_approve=True)
 
             result = runtime.start_run(source, run_id="run-020", auto_approve=True)
 
@@ -44,7 +44,7 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             source = root / "source"
             source.mkdir()
             (source / "ops.md").write_text("Operations knowledge.", encoding="utf-8")
-            runtime = self.runtime(root)
+            runtime = self.runtime(root, allow_auto_approve=True)
             set_runtime(runtime)
 
             response = create_run({"source_path": str(source), "run_id": "run-api", "auto_approve": True})
@@ -55,6 +55,20 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             self.assertIn("knowledge-candidates.json", list_artifacts("run-api"))
             self.assertEqual(search("operations")[0]["title"], "Ops")
             self.assertEqual(tree()[0]["slug"], "sources/ops")
+
+    def test_auto_approve_is_disabled_unless_runtime_setting_allows_it(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "ops.md").write_text("Operations knowledge.", encoding="utf-8")
+            runtime = self.runtime(root)
+
+            result = runtime.start_run(source, run_id="run-no-auto", auto_approve=True)
+
+            self.assertEqual(result.run.state.value, "blocked")
+            self.assertEqual(result.run.summary_counts["published_pages"], 0)
+            self.assertIn("auto_approve disabled", result.run.blocked_reason)
 
     def test_publish_fails_closed_without_qa_or_approval(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -183,6 +197,27 @@ class WorkingKMSRuntimeTests(unittest.TestCase):
             self.assertEqual(created["summary_counts"]["source_files"], 2)
             self.assertLessEqual(len(created["candidates"]), 5)
             self.assertTrue(all(candidate["source_ref"].startswith("folder/") for candidate in created["candidates"]))
+
+    def test_candidate_workflow_records_audit_events(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "decision.md").write_text("Decision: Finance approved the governed definition.", encoding="utf-8")
+            runtime = self.runtime(root)
+            set_runtime(runtime)
+
+            created = create_candidates({"source_path": str(source), "run_id": "audit-run"})
+            candidate_id = created["candidates"][0]["candidate_id"]
+            approve_candidates("audit-run", {"candidate_ids": [candidate_id]})
+            publish_approved_candidates("audit-run", {})
+
+            event_types = [event.event_type for event in runtime.metadata.events]
+            self.assertIn("candidate.created", event_types)
+            self.assertIn("candidate.approved", event_types)
+            self.assertIn("policy.evaluated", event_types)
+            self.assertIn("approval.saved", event_types)
+            self.assertIn("page.published", event_types)
 
 
 def tree_for(runtime: KMSRuntime) -> list[object]:

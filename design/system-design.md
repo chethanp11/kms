@@ -4,6 +4,35 @@ This file describes the KMS system design and should be kept aligned with the im
 
 # 1. Vision, Scope, and Operating Model
 
+## 1.0 Current Implementation Snapshot
+
+The current `src/` application implements a local, stdlib-first KMS slice with optional FastAPI serving. It is narrower than the full target design and should be treated as the current executable baseline.
+
+Implemented runtime surfaces:
+
+- `src/api/main.py` exposes the active API through FastAPI when available, with a dependency-free ASGI fallback.
+- `src/kmi/` implements a three-stage browser workflow: candidate creation, review/approval or rejection, and approved-candidate publication.
+- `src/infopedia/` implements read-only browsing/search over finalized wiki pages.
+- `src/services/run_orchestration.py` coordinates source discovery, parsing, candidate understanding, artifact writing, duplicate checks, approval state, governed publication, audit events, contradiction artifacts, lint, search indexing, and projection refresh.
+- `src/storage/` provides local filesystem stores for artifacts and wiki pages, plus in-memory metadata and search stores for the current runtime.
+
+Implemented candidate lifecycle:
+
+1. KMI or API submits `source_path` and may include browser-uploaded `source_files`.
+2. Runtime writes `source-note.md`, `knowledge-candidates.json`, `knowledge-candidates-review.md`, `knowledge-understanding-metadata.json`, and candidate draft artifacts under the run artifact root.
+3. Candidates remain proposal-only and can be approved, rejected, modified during approval, or auto-rejected as likely duplicates of finalized wiki pages.
+4. `publish_approved_candidates` validates each approved candidate-derived page, records approval/audit events, writes finalized pages under `sources/*.md`, archives published candidates, rebuilds search, and refreshes Infopedia projection data.
+5. Infopedia reads finalized wiki pages only; candidate search is exposed only through the explicit `include_candidates` API option and does not make candidates authoritative.
+
+Current persistence boundary:
+
+- `/wiki` in design maps to `KMS_WIKI_ROOT` at runtime.
+- Run artifacts map to `KMS_ARTIFACT_ROOT`.
+- Raw-source defaults map to `KMS_RAW_ROOT`, although browser-uploaded source files are materialized into a runtime-controlled source area for processing.
+- Metadata, audit events, and search are in-memory in this implementation slice; they are operational state, not canonical knowledge.
+- Full-run `auto_approve` is disabled by default and must be explicitly enabled in runtime settings for local validation.
+
+
 ## 1.1 System Definition
 
 KMS stands for Knowledge Management System. It is an enterprise-grade knowledge maintenance and publishing system that transforms raw source material into curated, structured, finalized markdown knowledge that can be consumed by humans and AI systems.

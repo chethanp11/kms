@@ -1,1 +1,30 @@
-# KMS policy rule placeholder.
+- id: kms.schema.title.required
+  description: Wiki pages must have a non-empty title.
+  scope: wiki_page
+  severity: error
+  condition: page.title exists
+  action: block_publish
+- id: kms.schema.page_type.required
+  description: Wiki pages must have a non-empty page type.
+  scope: wiki_page
+  severity: error
+  condition: page.page_type exists
+  action: block_publish
+- id: kms.content.summary.required
+  description: Wiki pages must include a Summary section.
+  scope: wiki_page
+  severity: error
+  condition: page.body contains Summary section
+  action: block_publish
+- id: kms.source_trace.section.required
+  description: Wiki pages must include a Source Trace section.
+  scope: wiki_page
+  severity: error
+  condition: page.body contains Source Trace section
+  action: block_publish
+- id: kms.source_trace.coverage.required
+  description: Every source reference must appear in the published page body.
+  scope: wiki_page
+  severity: error
+  condition: each page.source_refs value appears in page.body
+  action: block_publish

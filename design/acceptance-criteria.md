@@ -4,6 +4,20 @@ This file describes the KMS governance and acceptance criteria and should be kep
 
 # 7. Governance, Validation Rules, and Policy Enforcement
 
+## 7.0 Current Governance Implementation Status
+
+The current `src/` implementation now enforces a compact executable governance baseline:
+
+- publication requires a passing QA report and an approved decision before `WikiStore.write_page` is called by the publisher
+- page validation checks schema basics, required Summary and Source Trace sections, source reference metadata, and source-reference coverage in the page body
+- candidate approval/rejection, policy evaluation, approval records, contradiction opening, page publication, and candidate archival emit in-memory audit events
+- full-run `auto_approve` is disabled by default and only publishes when runtime settings explicitly allow it
+- contradictions create retained open-question artifacts under the run artifact root instead of silently flattening conflicting claims
+- active API wiring includes run, candidate, review diff, approval, contradiction, wiki, Infopedia, and health finding routes
+
+Remaining target-state gaps are durable metadata/audit persistence, full YAML rule evaluation, richer diff review, authenticated Knowledge Manager identity, and KMI screens for contradictions, policy visibility, and lint health.
+
+
 ## 7.1 Governance Model Overview
 
 Governance is the runtime enforcement layer that determines whether knowledge may progress from draft state to finalized publication. It is not documentation, guidance, or a review preference. It is executable policy applied before content can reach `/wiki`.

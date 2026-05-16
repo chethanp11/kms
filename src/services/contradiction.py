@@ -16,6 +16,7 @@ def detect_contradictions(documents: tuple[SourceDocument, ...], *, run_id: str)
                 contradiction_id=f"contradiction-{len(records)+1}", run_id=run_id, page_id="page-open-question", revision_id="revision-open-question",
                 severity=ContradictionSeverity.MEDIUM, status=ContradictionStatus.OPEN, conflicting_claims=(previous.text[:120] or previous.title, document.text[:120] or document.title),
                 source_refs=(str(previous.metadata.get("relative_path", previous.source_document_id)), str(document.metadata.get("relative_path", document.source_document_id))),
+                open_question_page_id=f"open-question-{len(records)+1}",
             ))
         seen.setdefault(key, document)
     return tuple(records)

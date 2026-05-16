@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 
 from src.config.settings import KMSSettings, default_settings
-from src.contracts import ApprovalDecision, ChangeType, KnowledgeCandidate, KnowledgePage, MaintenanceRun, PageStatus, RevisionState, RunState, SourceBundle, UploadedSourceFile, ValidationError, WikiPageRevision
+from src.contracts import ApprovalDecision, CandidateReviewStatus, ChangeType, ContradictionRecord, KnowledgeCandidate, KnowledgePage, MaintenanceRun, PageStatus, RevisionState, RunState, SourceBundle, UploadedSourceFile, ValidationError, WikiPageRevision
 from src.services.approval import create_approval
 from src.services.contradiction import detect_contradictions
 from src.services.infopedia_projection import build_tree
@@ -98,21 +98,26 @@ class KMSRuntime:
         contradictions = detect_contradictions(documents, run_id=run_id)
         for contradiction in contradictions:
             self.metadata.contradictions[contradiction.contradiction_id] = contradiction
+            self.metadata.record_event("contradiction.opened", contradiction.contradiction_id, f"Contradiction requires review for {', '.join(contradiction.source_refs)}.")
+            self.artifacts.write_text(run_id, f"open-questions/{contradiction.open_question_page_id or contradiction.contradiction_id}.md", _render_open_question(contradiction))
         proposals = analyze_sources(documents)
         pages = draft_pages(proposals)
         published: list[PublishSummary] = []
         warnings = list(bundle.warnings)
         if contradictions:
             warnings.append("contradictions require review")
+        if auto_approve and not self.settings.allow_auto_approve:
+            warnings.append("auto_approve disabled by runtime settings")
         for index, page in enumerate(pages, start=1):
             revision_id = f"revision-{index}"
             revision = WikiPageRevision(revision_id, page.page_id or f"page-{index}", run_id, RevisionState.REVIEW_REQUIRED, ChangeType.CREATE, ("summary", "source_trace"), page.source_refs, "Drafted source-note page.")
             self.metadata.save_revision(revision)
             qa = self.metadata.save_qa_report(validate_page(page, revision_id=revision_id, policy_version=self.settings.policy_version))
             approval = None
-            if auto_approve and qa.can_publish and not contradictions:
+            if auto_approve and self.settings.allow_auto_approve and qa.can_publish and not contradictions:
                 approval = self.metadata.save_approval(create_approval(revision_id, reviewer_id, ApprovalDecision.APPROVED, reason="auto-approved for deterministic local run"))
                 published.append(publish_page(page, qa, approval, self.wiki))
+                self.metadata.record_event("page.published", page.slug, f"Published {page.path} from run {run_id}.")
         rebuild_search_index(self.wiki, self.search)
         for finding in lint_wiki(self.wiki):
             self.metadata.lint_findings[finding.lint_finding_id] = finding
@@ -232,6 +237,8 @@ class KMSRuntime:
             raise ValidationError("no approved candidates available to publish")
         published: list[PublishSummary] = []
         for index, candidate in enumerate(approved, start=1):
+            if candidate.review_status not in {CandidateReviewStatus.APPROVED, CandidateReviewStatus.APPROVED_WITH_MODS}:
+                raise ValidationError(f"candidate is not approved for publish: {candidate.candidate_id}")
             page = _page_from_candidate(candidate)
             revision_id = f"{run_id}-candidate-revision-{index}"
             revision = WikiPageRevision(
@@ -246,8 +253,9 @@ class KMSRuntime:
             )
             self.metadata.save_revision(revision)
             qa = self.metadata.save_qa_report(validate_page(page, revision_id=revision_id, policy_version=self.settings.policy_version))
-            approval = self.metadata.save_approval(create_approval(revision_id, reviewer_id, ApprovalDecision.APPROVED, reason="approved candidate publication"))
+            approval = self.metadata.save_approval(create_approval(revision_id, reviewer_id, ApprovalDecision.APPROVED, reason=f"candidate review approved {candidate.candidate_id} before publication"))
             published.append(publish_page(page, qa, approval, self.wiki))
+            self.metadata.record_event("page.published", page.slug, f"Published {page.path} from approved candidate {candidate.candidate_id}.")
             self.metadata.archive_candidate(candidate.candidate_id)
         rebuild_search_index(self.wiki, self.search)
         build_tree(self.wiki)
@@ -310,6 +318,27 @@ def _page_from_candidate(candidate: KnowledgeCandidate) -> KnowledgePage:
         tags=(candidate.candidate_type.value,),
         metadata={"candidate_id": candidate.candidate_id, "source_ref": candidate.source_ref},
     )
+
+
+def _render_open_question(contradiction: ContradictionRecord) -> str:
+    lines = [
+        f"# Open Question: {contradiction.contradiction_id}",
+        "",
+        "This is a governed contradiction artifact. It preserves conflicting evidence for Knowledge Manager review and does not resolve or finalize truth.",
+        "",
+        "## Status",
+        contradiction.status.value,
+        "",
+        "## Severity",
+        contradiction.severity.value,
+        "",
+        "## Conflicting Claims",
+    ]
+    lines.extend(f"- {claim}" for claim in contradiction.conflicting_claims)
+    lines.extend(["", "## Source Trace"])
+    lines.extend(f"- {source_ref}" for source_ref in contradiction.source_refs)
+    lines.append("")
+    return "\n".join(lines)
 
 
 def _existing_wiki_signatures(wiki: WikiStore) -> dict[str, tuple[set[str], str]]:
