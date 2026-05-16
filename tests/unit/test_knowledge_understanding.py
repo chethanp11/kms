@@ -91,6 +91,27 @@ class KnowledgeUnderstandingTests(unittest.TestCase):
         self.assertLessEqual(len(candidates), 3)
         self.assertEqual(len({candidate.candidate_type for candidate in candidates}), len(candidates))
 
+    def test_extract_prefers_best_scoring_segment_for_a_candidate_type(self) -> None:
+        document = SourceDocument(
+            source_document_id="doc-3",
+            source_file_id="source-3",
+            run_id="run-021",
+            title="Duplicate Metrics",
+            content_type="text/markdown",
+            text="\n".join([
+                "Metric: Short score.",
+                "Metric: Revenue rate is measured at 42 percent and tracked by finance teams.",
+                "Process: Review workflow stays bounded.",
+            ]),
+            metadata={"relative_path": "metrics.md"},
+        )
+
+        candidates = extract_knowledge_candidates((document,), min_relevance=0.35)
+
+        metric_candidates = [candidate for candidate in candidates if candidate.candidate_type == KnowledgeCandidateType.METRIC]
+        self.assertEqual(len(metric_candidates), 1)
+        self.assertIn("tracked by finance teams", metric_candidates[0].excerpt)
+
     def test_candidate_drafts_are_intermediate_and_not_publishable(self) -> None:
         candidate = KnowledgeCandidate(
             candidate_id="candidate-1",

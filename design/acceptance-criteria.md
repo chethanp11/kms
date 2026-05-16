@@ -1,6 +1,6 @@
 # KMS System Design
 
-This file is system-generated from intent and iteration workflow. Do not edit directly.
+This file describes the KMS governance and acceptance criteria and should be kept aligned with the implementation and project context.
 
 # 7. Governance, Validation Rules, and Policy Enforcement
 

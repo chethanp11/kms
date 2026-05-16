@@ -1,6 +1,6 @@
 # KMS System Design
 
-This file is system-generated from intent and iteration workflow. Do not edit directly.
+This file describes the KMS system design and should be kept aligned with the implementation and project context.
 
 # 1. Vision, Scope, and Operating Model
 

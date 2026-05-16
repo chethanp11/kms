@@ -2,21 +2,21 @@
 
 Reusable failure patterns after validation or debugging.
 
-## Failure Pattern: project-specific terms in reusable framework files
+## Failure Pattern: project-specific terms in reusable support files
 
-- Symptom: `.codex/tools/validate_codex_contract.py` fails with a project-specific term found in a reusable framework file.
+- Symptom: a reusable support file accidentally contains project-specific terms.
 - Root cause classification: design defect.
-- Minimal fix: Move domain-specific wording into `.codex/project-context.md` or `.codex/tech-stack.md`; keep `.devmode/*` and other `.codex/*` files generic.
-- Validation: Rerun `python .codex/tools/validate_codex_contract.py`.
-- Prevention: Only `.codex/project-context.md` and `.codex/tech-stack.md` should need project-specific edits for a new application.
+- Minimal fix: Move domain-specific wording into `.codex/project-context.md`; keep reusable support files generic.
+- Validation: Rerun the relevant doc or contract check.
+- Prevention: Only `.codex/project-context.md` should need project-specific edits for a new application.
 
-## Failure Pattern: stale workflow path references
+## Failure Pattern: stale support path references
 
-- Symptom: Documentation points to root `dev_workflow/`, deleted `.codex/prompts/`, deleted `.codex/context/`, deleted `.codex/rules/`, or duplicated `.codex/.codex/dev_workflow/` paths.
+- Symptom: Documentation points to deleted or duplicated support paths.
 - Root cause classification: test defect or design defect depending on source artifact.
-- Minimal fix: Normalize lifecycle references to `.codex/dev_workflow/` and remove references to deleted support folders.
-- Validation: Rerun `python .codex/tools/validate_codex_contract.py` and targeted grep for stale paths.
-- Prevention: Keep canonical workflow and support-folder references in `.devmode/app.md`, `.codex/README.md`, `.codex/dev_workflow/README.md`, and the validator.
+- Minimal fix: Remove references to deleted support folders and normalize the remaining paths.
+- Validation: Rerun targeted grep or the relevant doc check.
+- Prevention: Keep support folder references accurate and minimal.
 
 ## Rule
 

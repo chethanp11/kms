@@ -1,6 +1,6 @@
 ---
 name: ai-eval-review
-description: Review AI evaluation evidence for application behavior, including hallucination risk, retrieval/tool assumptions, prompt boundaries, and whether validation proof supports the claimed behavior. Use after evals, when AI behavior boundaries are questioned, or when automated checks pass but confidence is low.
+description: Review AI evaluation evidence for grounding, hallucination risk, tool assumptions, and whether results actually support the claimed behavior.
 ---
 
 # AI Eval Review
@@ -9,25 +9,22 @@ description: Review AI evaluation evidence for application behavior, including h
 Decide whether evaluation evidence is strong enough to support the claimed AI behavior.
 
 ## Read
-- `.devmode/app.md` and `.codex/project-context.md`
-- `.codex/state/current-intent.md`
-- Optional project-owned intent, feedback, or gap artifacts when `.codex/project-context.md` says they are active
-- Relevant `plan/*` files
-- `design/system-design.md`, `design/architecture.md`, `design/ux-flows.md`, and `design/acceptance-criteria.md`
-- `tests/design-traceability.md` and `tests/test-plan.md`
-- `dev_log/validation-results.md`
+- `.codex/project-context.md`
+- relevant design docs
+- relevant tests and validation output
+- the prompt or eval scenario under review
 
 ## Do
-1. Compare eval results to the current-turn intent, plan scope, and correctness expectations.
-2. Check hallucination risk, grounding, tool-use assumptions, and prompt boundaries.
+1. Compare eval results to the stated behavior and grounding.
+2. Check hallucination risk, retrieval/tool assumptions, and prompt boundaries.
 3. Confirm the eval exercises the behavior it claims to prove.
-4. Identify hidden gaps that automated scores may not reveal.
-5. Recommend design, prompt, test, or validation updates as separate findings.
+4. Identify gaps that automated scores may miss.
+5. Recommend prompt, design, test, or validation updates as separate findings.
 
 ## Outputs
 - Pass/fail/partial status per evaluation scenario.
-- Notes on hallucination checks, retrieval correctness, and tool usage.
-- Follow-up recommendations with issue classification.
+- Notes on hallucination checks, grounding, and tool usage.
+- Follow-up recommendations.
 
 ## Rules
 - Do not approve plausible model output without grounding evidence.

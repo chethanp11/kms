@@ -1,6 +1,6 @@
 ---
 name: prompt-contract-review
-description: Review application prompt contracts for structured inputs, output expectations, tool policy, model boundaries, fallback behavior, and safety. Use when prompt-driven behavior is designed, changed, validated, or suspected of exceeding authorized scope.
+description: Review prompt contracts for structured inputs, output expectations, tool policy, model boundaries, fallback behavior, and safety.
 ---
 
 # Prompt Contract Review
@@ -9,11 +9,10 @@ description: Review application prompt contracts for structured inputs, output e
 Validate AI prompt contracts, including inputs, outputs, tool policy, and fallback behavior.
 
 ## Read
-- `.devmode/app.md` and `.codex/project-context.md`
-- `.codex/state/current-intent.md` and relevant `plan/*` files
-- `design/system-design.md`, `design/architecture.md`, `design/acceptance-criteria.md`, and `design/ux-flows.md`
-- Prompt files, tool definitions, schemas, and model-routing code when present
-- `tests/design-traceability.md`, `tests/test-plan.md`, and `dev_log/validation-results.md`
+- `.codex/project-context.md`
+- relevant design docs
+- prompt files, tool definitions, schemas, and model-routing code when present
+- relevant tests or validation output
 
 ## Do
 1. Review the intended behavior and prompt boundary before judging prompt text.

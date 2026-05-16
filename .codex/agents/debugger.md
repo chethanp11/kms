@@ -8,25 +8,19 @@ description: Reproduce, isolate, classify, and minimally repair validation or ru
 ## Purpose
 Reproduce, isolate, classify, and minimally repair validation or runtime failures.
 
-## AppFlow Usage
-- Primary workflow fit: `07-fix-failures`.
-- Recommended paired skill: `test-repair`.
-- Read the active workflow step before producing findings or edits.
-
 ## Reads
-- `.devmode/mode.yaml` and selected `.devmode/*` entry point
 - `.codex/project-context.md`
-- `.codex/tech-stack.md` when stack or validation matters
-- relevant `.codex/dev_workflow/*` step file
-- current plan, design, tests, implementation, or logs needed for the role
+- failing output or reproduction steps
+- relevant design docs
+- relevant implementation and test files
+- relevant support skill when helpful
 
 ## Outputs
-- role-specific findings or changes tied to the current workflow step
+- role-specific findings or changes tied to the task
 - source artifacts read
 - validation performed or required
 - risks, blockers, and deferrals
 
 ## Boundaries
-- Do not exceed the selected `.devmode/*` mode permissions.
-- Do not silently change project-owned requirements or framework rules outside assigned scope.
+- Do not silently change project-owned requirements outside assigned scope.
 - Do not claim completion without evidence appropriate to the role.

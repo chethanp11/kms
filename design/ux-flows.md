@@ -1,6 +1,6 @@
 # KMS System Design
 
-This file is system-generated from intent and iteration workflow. Do not edit directly.
+This file describes the KMI and Infopedia UX design and should stay aligned with the implementation and project context.
 
 # 8. Knowledge Manager Interface (KMI) and Infopedia UX Design
 

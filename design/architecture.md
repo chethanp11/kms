@@ -1,6 +1,6 @@
 # KMS System Design
 
-This file is system-generated from intent and iteration workflow. Do not edit directly.
+This file describes the KMS architecture and should be kept aligned with the implementation and project context.
 
 # 3. System Architecture and Layered Design
 
@@ -3529,13 +3529,13 @@ The current `src/` scaffold is intentionally limited to the base package plus th
 - `src/agents`: bounded agent role names
 - `src/observability`: audit-event helper scaffold
 
-This scaffold is enough for the next implementation pass to extend existing contracts and services. New top-level `src/` component families, registry layers, storage abstractions, or port packages must not be added unless a future AppFlow plan and design update identify a concrete implementation need that cannot be satisfied by the existing scaffold.
+This scaffold is enough for the next implementation pass to extend existing contracts and services. New top-level `src/` component families, registry layers, storage abstractions, or port packages must not be added unless a future design update identifies a concrete implementation need that cannot be satisfied by the existing scaffold.
 
 Scaffold drift rule: if tests or exports reference modules that are not present in the current scaffold, correct the stale references or tests first instead of adding modules only to satisfy drift.
 
 ## 10.16 Scripts Scaffold Alignment
 
-The current scaffold includes a top-level `scripts/` folder as the project-owned home for deterministic developer and operational helper scripts. This folder is separate from `.codex/tools/`, which remains AppFlow control-plane tooling.
+The current scaffold includes a top-level `scripts/` folder as the project-owned home for deterministic developer and operational helper scripts. This folder is separate from reusable support files under `.codex/`.
 
 Current scripts scaffold expectations:
 
@@ -3544,11 +3544,11 @@ Current scripts scaffold expectations:
 - Scripts may validate structure, run local checks, prepare fixtures, or support maintenance operations.
 - Scripts must not become hidden runtime services, bypass KMI governance, write finalized `/wiki` content directly, or replace application code under `src/`.
 
-The staged application scaffold remains intentionally smaller than the long-term `apps/` and `packages/` target layout. Until a future AppFlow plan/design cycle introduces those larger runtime packages, the current `src/` modules are the approved implementation baseline and `scripts/` provides only supporting project automation.
+The staged application scaffold remains intentionally smaller than the long-term `apps/` and `packages/` target layout. Until a future design update introduces those larger runtime packages, the current `src/` modules are the approved implementation baseline and `scripts/` provides only supporting project automation.
 
 ## 10.17 All-Component Source Scaffold
 
-The current AppFlow cycle approves `src/components/` as the scaffold home for every major component listed in section 3.3. These component scaffolds are metadata and contract anchors only; they do not implement full runtime behavior and do not grant write authority.
+The current scaffold approves `src/components/` as the scaffold home for every major component listed in section 3.3. These component scaffolds are metadata and contract anchors only; they do not implement full runtime behavior and do not grant write authority.
 
 Required component scaffold packages:
 

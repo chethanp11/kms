@@ -8,10 +8,7 @@ export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
 pids_for_port() {
   local port="$1"
-  {
-    lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true
-    lsof -tiTCP:"$port" 2>/dev/null || true
-  } | sort -u
+  lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null | sort -u || true
 }
 
 stop_port() {
@@ -43,6 +40,14 @@ choose_port() {
   echo "$port"
 }
 
+write_if_changed() {
+  local path="$1"
+  local content="$2"
+  if [ ! -f "$path" ] || [ "$(cat "$path")" != "$content" ]; then
+    printf '%s\n' "$content" > "$path"
+  fi
+}
+
 cd "$REPO_ROOT" || exit 1
 
 stop_port 8000
@@ -65,12 +70,8 @@ Revenue is governed knowledge maintained through KMS.
 DEMO
 fi
 
-cat > "$SRC_DIR/kmi/config.js" <<CONFIG
-window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';
-CONFIG
-cat > "$SRC_DIR/infopedia/config.js" <<CONFIG
-window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';
-CONFIG
+write_if_changed "$SRC_DIR/kmi/config.js" "window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';"
+write_if_changed "$SRC_DIR/infopedia/config.js" "window.KMS_API_BASE = 'http://127.0.0.1:$API_PORT';"
 
 echo "Starting API on http://127.0.0.1:$API_PORT ..."
 uvicorn src.api.main:app --host 127.0.0.1 --port "$API_PORT" &

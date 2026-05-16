@@ -79,8 +79,8 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
     sequence = 1
     for document in documents:
         source_ref = str(document.metadata.get("relative_path", document.source_document_id))
-        document_candidates: list[tuple[float, float, str, KnowledgeCandidateType, str]] = []
         max_candidates = _max_candidates_for_document(document.text)
+        best_by_type: dict[KnowledgeCandidateType, tuple[float, float, int, str, KnowledgeCandidateType, str]] = {}
         for segment in _semantic_segments(document.text):
             candidate_type = _classify(segment)
             relevance = _relevance_score(segment, candidate_type)
@@ -88,12 +88,12 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
                 continue
             confidence = _confidence_score(segment, candidate_type)
             title = _title_for(segment, candidate_type)
-            document_candidates.append((relevance, confidence, segment, candidate_type, title))
-        seen_types: set[KnowledgeCandidateType] = set()
-        selected = sorted(document_candidates, key=lambda item: (item[0], item[1], len(item[2])), reverse=True)
-        for relevance, confidence, segment, candidate_type, title in selected:
-            if candidate_type in seen_types:
-                continue
+            score_key = (relevance, confidence, len(segment))
+            current = best_by_type.get(candidate_type)
+            if current is None or score_key > current[:3]:
+                best_by_type[candidate_type] = (relevance, confidence, len(segment), segment, candidate_type, title)
+        selected = sorted(best_by_type.values(), key=lambda item: (item[0], item[1], item[2]), reverse=True)
+        for relevance, confidence, _, segment, candidate_type, title in selected[:max_candidates]:
             candidates.append(KnowledgeCandidate(
                 candidate_id=f"candidate-{sequence}",
                 run_id=document.run_id,
@@ -107,10 +107,7 @@ def extract_knowledge_candidates(documents: tuple[SourceDocument, ...], *, min_r
                 rationale=f"{candidate_type.value} candidate extracted by semantic decomposition with deterministic relevance and confidence scoring.",
                 target_slug=f"sources/{slugify(title)}",
             ))
-            seen_types.add(candidate_type)
             sequence += 1
-            if len(seen_types) >= max_candidates:
-                break
     return tuple(candidates)
 
 

@@ -2,25 +2,25 @@
 
 Durable architecture decisions validated by project artifacts.
 
-## Decision: AppFlow factory is the engineering control plane
+## Decision: root AGENTS and project context carry the engineering guidance
 
-- Context: The repository was converted into a copy/drop AppFlow factory while preserving project-specific context in two files.
-- Chosen approach: Keep reusable agent, workflow, orchestration, skill, tool, memory, and state assets under `.codex/`; keep app/framework routing under `.devmode/`; keep project-specific information only in `.codex/project-context.md` and `.codex/tech-stack.md`.
-- Alternatives considered: Keep workflow folders at repository root, keep separate prompt/context/rules template folders, or duplicate human-facing index folders.
-- Consequences: Root `AGENTS.md` is only a router; `.devmode/*` and reusable `.codex/*` stay project-agnostic; project facts live in the two project files.
-- Source artifacts: `AGENTS.md`, `.devmode/app.md`, `.devmode/framework.md`, `.codex/project-context.md`, `.codex/tech-stack.md`, `.codex/dev_workflow/README.md`.
-- Validation evidence: `python .codex/tools/validate_codex_contract.py`; `git diff --check`.
+- Context: The repository should use a single universal engineering instruction file plus a single project-specific grounding file.
+- Chosen approach: Keep reusable support context under `.codex/`; keep project-specific KMS grounding in `.codex/project-context.md`; keep the rest of the support files optional and reusable.
+- Alternatives considered: Hardcoded workflow choreography, planner systems, or project-specific support docs scattered across the repository.
+- Consequences: Root instructions stay generic, project context stays KMS-specific, and reusable support files stay optional.
+- Source artifacts: `AGENTS.md`, `.codex/project-context.md`, `.codex/agents/README.md`, `.codex/memory/README.md`.
+- Validation evidence: `git diff --check`.
 
-## Decision: only project runtime code deploys to production
+## Decision: only runtime source deploys
 
-- Context: AppFlow artifacts are development control-plane assets and should not be treated as production runtime.
-- Chosen approach: `.codex/project-context.md` and `.codex/tech-stack.md` define the application deployment boundary; reusable AppFlow folders remain control-plane infrastructure.
-- Alternatives considered: Let workflow or governance folders exist at root and risk deployment ambiguity.
-- Consequences: AppFlow support files guide development but are not deployed runtime artifacts.
-- Source artifacts: `.codex/project-context.md`, `.codex/tech-stack.md`, `.devmode/app.md`.
-- Validation evidence: `python .codex/tools/validate_codex_contract.py`; `git diff --check`.
+- Context: Development support files must not be treated as production runtime.
+- Chosen approach: `src/` is the deployable implementation surface; design, tests, docs, and support files remain non-runtime.
+- Alternatives considered: Treat support files or docs as runtime inputs.
+- Consequences: Only source code and required runtime assets should ship.
+- Source artifacts: `.codex/project-context.md`, `README.md`.
+- Validation evidence: `git diff --check`.
 
 ## Rules
 
 - Do not use memory to bypass design docs.
-- Promote durable architecture rules to `.codex/project-context.md`, `.codex/tech-stack.md`, or project design docs.
+- Promote durable architecture rules to `.codex/project-context.md` or project design docs.
