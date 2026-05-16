@@ -1,4 +1,4 @@
-# KMS System Design
+# KMS Architecture
 
 This file describes the KMS architecture and should be kept aligned with the implementation and project context.
 
@@ -10,12 +10,12 @@ The current implementation in `src/` realizes the architecture as a local applic
 
 - `src/contracts/` defines the shared domain contracts for runs, sources, wiki pages, revisions, candidates, approvals, contradictions, QA, lint, projections, and search documents.
 - `src/services/` contains the executable maintenance services: source discovery/parsing, deterministic or OpenAI-assisted knowledge understanding, source analysis, wiki drafting, policy validation, approval, publishing, lint, search indexing, contradiction detection, and Infopedia projection.
-- `src/services/run_orchestration.py` is the primary workflow coordinator for full runs and the candidate-specific create/review/publish path, including audit events and contradiction/open-question artifacts.
+- `src/services/run_orchestration.py` is the primary workflow coordinator for full runs and the candidate-specific create/review/publish path.
 - `src/api/main.py` is the active HTTP boundary. It exposes the currently wired run, candidate, wiki, and Infopedia endpoints and falls back to a small ASGI app if FastAPI is unavailable.
 - `src/kmi/` and `src/infopedia/` are static browser clients that call the API; KMI can upload browser-selected source files, while Infopedia remains read-only.
-- `src/storage/` uses local filesystem storage for artifacts and finalized wiki markdown, with in-memory operational metadata, audit events, and search indexes in this implementation slice.
+- `src/storage/` uses local filesystem storage for artifacts and finalized wiki markdown, with in-memory operational metadata/search indexes in this implementation slice.
 
-Architectural authority boundaries are preserved in code: candidates and candidate drafts are proposal artifacts; publication requires validation plus approval; full-run auto-approval is disabled unless explicitly enabled for local validation; finalized pages are written only through publisher/runtime paths; Infopedia reads wiki pages and search indexes without mutating canonical markdown.
+Architectural authority boundaries are preserved in code: candidates and candidate drafts are proposal artifacts; publication requires validation plus approval; finalized pages are written only through publisher/runtime paths; Infopedia reads wiki pages and search indexes without mutating canonical markdown.
 
 
 ## 3.1 Architectural Overview

@@ -1,4 +1,4 @@
-# KMS System Design
+# KMS UX flows
 
 This file describes the KMI and Infopedia UX design and should stay aligned with the implementation and project context.
 
