@@ -29,6 +29,13 @@ The repository should stay lightweight and context-driven:
 - `.codex/project-context.md` carries KMS-specific grounding
 - `.codex/skills/`, `.codex/agents/`, and `.codex/memory/` provide optional reusable support context
 
+## Context Budget
+
+- Start with `AGENTS.md` and this file.
+- Load only the single most relevant support file next.
+- Prefer one `.codex/skills/`, `.codex/agents/`, or `.codex/memory/` file at a time.
+- Open additional support files only when the current evidence is insufficient.
+
 ## Design Expectations
 
 - Preserve governed publication boundaries.

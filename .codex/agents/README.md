@@ -7,6 +7,7 @@ Agents are not orchestration layers and should not be treated as required helper
 
 - Use an agent only when the task clearly benefits from that perspective.
 - Prefer the smallest relevant set of contextual files.
+- Start with one role file; load a second only if the task truly needs another viewpoint.
 - Keep handoffs concrete, bounded, and reviewable.
 
 ## Available Roles
